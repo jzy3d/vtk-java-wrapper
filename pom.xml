@@ -15,7 +15,7 @@
 		<vtk.platform>Darwin-arm64</vtk.platform>
 
 		<!-- <vtk.version>9.0.3</vtk.version>
-		<vtk.platform>Darwin-x86_64</vtk.platform>-->
+		<vtk.platform>Darwin-x86_64</vtk.platform> -->
 
 		<!-- Maven wants an explicit path. We can't use ${project.basedir} -->
 		<vtk.jar.path>/Users/martin/Dev/jzy3d/private/vtk-java-wrapper/lib/vtk-${vtk.version}.jar</vtk.jar.path>
