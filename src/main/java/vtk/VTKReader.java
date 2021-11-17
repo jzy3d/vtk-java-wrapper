@@ -1,5 +1,6 @@
 package vtk;
 
+import java.io.File;
 import org.jzy3d.maths.Array;
 import org.jzy3d.maths.Coord3d;
 import org.jzy3d.maths.TicToc;
@@ -7,6 +8,9 @@ import org.jzy3d.maths.TicToc;
 /** A helper class that will select the appropriate reader according to the VTK file extension. */
 public class VTKReader {
   public static vtkAlgorithm getReader(String filename) {
+    if(!new File(filename).exists())
+      throw new RuntimeException(filename + " does not exists");
+
     if (filename.endsWith(".vtu")) {
       vtkXMLUnstructuredGridReader reader = new vtkXMLUnstructuredGridReader();
       reader.SetFileName(filename);
@@ -25,6 +29,9 @@ public class VTKReader {
   }
 
   public static vtkUnstructuredGrid getReaderOutput(String filename, int timestep) {
+    if(!new File(filename).exists())
+      throw new RuntimeException(filename + " does not exists");
+    
     vtkAlgorithm reader = getReader(filename);
     if (reader instanceof vtkExodusIIReader) {
       return read_exodusii_grid((vtkExodusIIReader) reader, timestep);

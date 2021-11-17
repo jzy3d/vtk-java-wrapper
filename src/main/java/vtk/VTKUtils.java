@@ -9,8 +9,11 @@ public class VTKUtils {
   /** Load VTK library and print which library was not properly loaded */
   public static void loadVtkNativeLibraries() {
 
-    File file = new File("lib/9.1.0/vtk-Darwin-arm64/");
-    //File file = new File("lib/9.0.3/vtk-Darwin-x86_64/");
+    String path = "/Users/martin/Dev/jzy3d/private/vtk-java-wrapper/lib";
+    String version = "9.1.0";
+    String platform = "vtk-Darwin-arm64";
+    
+    File file = new File(path + "/" + version + "/" + platform);
     
     loadVtkNativeLibraries(file.getAbsolutePath());
   }
