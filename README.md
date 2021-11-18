@@ -113,3 +113,4 @@ https://github.com/Kitware/VTK/tree/master/Wrapping/Java
 
 * [VTK Guide (online)](https://kitware.github.io/vtk-examples/site/VTKBook/00Preface/)
 * [VTK Guide PDF](./doc/VTKTextBook.pdf)
+* [VTK 9.1.0 release note](https://gitlab.kitware.com/vtk/vtk/-/blob/master/Documentation/release/9.1.md)
