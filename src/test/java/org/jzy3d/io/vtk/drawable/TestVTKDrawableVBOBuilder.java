@@ -109,6 +109,7 @@ public class TestVTKDrawableVBOBuilder {
 
     int EXPECT_CELLS = 7160;
     int EXPECT_POINTS = 9114;
+    int EXPECT_POINTS_POST_FILTER = 6197;
     
 
     // --------------------------------------------
@@ -125,10 +126,11 @@ public class TestVTKDrawableVBOBuilder {
     quadConversion.Update();
 
     vtkPolyData quads = quadConversion.GetOutput();
-    
+
+
 
     Assert.assertEquals(EXPECT_CELLS, quads.GetNumberOfCells());
-    Assert.assertEquals(EXPECT_POINTS, quads.GetNumberOfPoints());
+    Assert.assertEquals(EXPECT_POINTS_POST_FILTER, quads.GetNumberOfPoints());
 
     // --------------------------------------------
     // When load, make and add to chart
@@ -142,9 +144,9 @@ public class TestVTKDrawableVBOBuilder {
     DrawableVBO2 vbo = builder.makePolygons("enthalpy");
 
     chart.add(vbo);
-    Assert.assertEquals(EXPECT_POINTS * 3, vbo.getVertices().capacity());
-    Assert.assertEquals(EXPECT_POINTS * 3, vbo.getNormals().capacity());
-    Assert.assertEquals(EXPECT_POINTS * 3, vbo.getColors().capacity());
+    Assert.assertEquals(EXPECT_POINTS_POST_FILTER * 3, vbo.getVertices().capacity());
+    Assert.assertEquals(EXPECT_POINTS_POST_FILTER * 3, vbo.getNormals().capacity());
+    Assert.assertEquals(EXPECT_POINTS_POST_FILTER * 3, vbo.getColors().capacity());
 
     // input quads are loaded as ... quads in the VBO
     Assert.assertEquals(EXPECT_CELLS , vbo.getElementsIndices().capacity());
@@ -162,7 +164,7 @@ public class TestVTKDrawableVBOBuilder {
 
     float[] colors = builder.getPropertyColor("combo");
 
-    Assert.assertEquals(EXPECT_POINTS * 3, colors.length);
+    Assert.assertEquals(EXPECT_POINTS_POST_FILTER * 3, colors.length);
 
 
   }
@@ -244,7 +246,8 @@ public class TestVTKDrawableVBOBuilder {
 
     int EXPECT_CELLS = 7160;
     int EXPECT_POINTS = 9114;
-    
+    int EXPECT_POINTS_POST_FILTER = 6197;
+
 
     // --------------------------------------------
     // Given a file with hexahedrons inside ...
@@ -263,7 +266,7 @@ public class TestVTKDrawableVBOBuilder {
     
 
     Assert.assertEquals(EXPECT_CELLS, quads.GetNumberOfCells());
-    Assert.assertEquals(EXPECT_POINTS, quads.GetNumberOfPoints());
+    Assert.assertEquals(EXPECT_POINTS_POST_FILTER, quads.GetNumberOfPoints());
 
     // --------------------------------------------
     // When load, make and add to chart
@@ -280,9 +283,9 @@ public class TestVTKDrawableVBOBuilder {
 
     chart.add(vbo);
 
-    Assert.assertEquals(EXPECT_POINTS * 3, vbo.getVertices().capacity());
-    Assert.assertEquals(EXPECT_POINTS * 3, vbo.getNormals().capacity());
-    Assert.assertEquals(EXPECT_POINTS * 3, vbo.getColors().capacity());
+    Assert.assertEquals(EXPECT_POINTS_POST_FILTER * 3, vbo.getVertices().capacity());
+    Assert.assertEquals(EXPECT_POINTS_POST_FILTER * 3, vbo.getNormals().capacity());
+    Assert.assertEquals(EXPECT_POINTS_POST_FILTER * 3, vbo.getColors().capacity());
 
     // input quads are loaded as ... quads in the VBO
     Assert.assertEquals(EXPECT_CELLS*QUAD_POINTS, vbo.getElementsStarts().capacity()); // ??
@@ -300,7 +303,7 @@ public class TestVTKDrawableVBOBuilder {
 
     float[] colors = builder.getPropertyColor("marker2");
 
-    Assert.assertEquals(EXPECT_POINTS * 3, colors.length);
+    Assert.assertEquals(EXPECT_POINTS_POST_FILTER * 3, colors.length);
 
   }
   
@@ -317,6 +320,8 @@ public class TestVTKDrawableVBOBuilder {
     Chart chart = f.newChart();
 
     int EXPECT_POINTS = 9114;
+    int EXPECT_POINTS_POST_FILTER = 6197;
+
     
     float ALPHA = 0.5f;
     int ALPHA_INDEX = 3;
@@ -355,7 +360,7 @@ public class TestVTKDrawableVBOBuilder {
     // --------------------------------------------
     // Then buffers have the appropriate size
     
-    Assert.assertEquals(EXPECT_POINTS * 4, vbo.getColors().capacity()); // contains alpha
+    Assert.assertEquals(EXPECT_POINTS_POST_FILTER * 4, vbo.getColors().capacity()); // contains alpha
 
     Assert.assertEquals(ALPHA, vbo.getColors().get(0+ALPHA_INDEX)); // alpha properly set for a few point
     Assert.assertEquals(ALPHA, vbo.getColors().get(4+ALPHA_INDEX)); // alpha properly set for a few point
@@ -368,7 +373,7 @@ public class TestVTKDrawableVBOBuilder {
 
     float[] colors = builder.getPropertyColor("marker1");
 
-    Assert.assertEquals(EXPECT_POINTS * 4, colors.length); // contains alpha
+    Assert.assertEquals(EXPECT_POINTS_POST_FILTER * 4, colors.length); // contains alpha
     
     Assert.assertEquals(ALPHA, colors[0+ALPHA_INDEX]); // alpha properly set for a few point
     Assert.assertEquals(ALPHA, colors[4+ALPHA_INDEX]); // alpha properly set for a few point
