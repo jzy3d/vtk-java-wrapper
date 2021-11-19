@@ -252,6 +252,8 @@ public class VTKDrawableVBOBuilder extends AbstractVTKDrawableBuilder implements
 
   protected void loadPointsAndNormals(vtkPoints points, vtkDataArray normalArray) {
     this.coordinates = VTKReader.toCoordFloatArray(points);
+    
+    //log.info("Number of coordinates : " + 1f*coordinates.length/3);
 
     if (normalArray != null) {
       this.normals = VTKReader.toCoordFloatArray(normalArray);
@@ -333,6 +335,8 @@ public class VTKDrawableVBOBuilder extends AbstractVTKDrawableBuilder implements
     propertyRange = new Range(propertyArray.GetFiniteRange()[0], propertyArray.GetFiniteRange()[1]);
 
     colors = new float[numberOfTuples * colorChannels];
+    
+    log.info("Number of colors : " + 1f*colors.length/colorChannels);
 
 
     // ----------------------------------------------------
