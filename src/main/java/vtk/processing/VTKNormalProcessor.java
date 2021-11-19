@@ -138,13 +138,16 @@ public class VTKNormalProcessor {
     public VTKNormalPerVertex(vtkDataObject output) {
       super(null, output, true);
     }
-
   }
 
 
   public static class VTKNormalPerPolygon extends VTKNormalProcessor{
     public VTKNormalPerPolygon(vtkAlgorithmOutput output) {
       super(output, null, false);
+    }
+    
+    public VTKNormalPerPolygon(vtkDataObject output) {
+      super(null, output, false);
     }
   }
 }

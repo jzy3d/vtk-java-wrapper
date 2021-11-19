@@ -7,6 +7,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+import vtk.VTKUtils;
 import vtk.vtkActor;
 import vtk.vtkConeSource;
 import vtk.vtkNativeLibrary;
@@ -25,14 +26,7 @@ public class SimpleVTK extends JPanel implements ActionListener {
   // -----------------------------------------------------------------
   // Load VTK library and print which library was not properly loaded
   static {
-    if (!vtkNativeLibrary.LoadAllNativeLibraries()) {
-      for (vtkNativeLibrary lib : vtkNativeLibrary.values()) {
-        if (!lib.IsLoaded()) {
-          System.out.println(lib.GetLibraryName() + " not loaded");
-        }
-      }
-    }
-    vtkNativeLibrary.DisableOutputWindow(null);
+    VTKUtils.loadVtkNativeLibraries();
   }
 
   // -----------------------------------------------------------------

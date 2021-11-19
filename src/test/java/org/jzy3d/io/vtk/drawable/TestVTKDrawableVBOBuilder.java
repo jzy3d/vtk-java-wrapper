@@ -50,7 +50,7 @@ public class TestVTKDrawableVBOBuilder {
 
 
   @Test
-  public void givenSharedVerticeHexahedron() {
+  public void givenSharedVerticeHexahedron_thenBufferAreSizeAccordingly() {
     ChartFactory f = new AWTChartFactory();
     f.getPainterFactory().setOffscreen(500, 500);
     Chart chart = f.newChart();
@@ -107,7 +107,7 @@ public class TestVTKDrawableVBOBuilder {
   }
 
   @Test
-  public void givenSharedVerticeQuads() {
+  public void givenSharedVerticeQuads_thenBufferAreSizeAccordingly() {
     ChartFactory f = new AWTChartFactory();
     f.getPainterFactory().setOffscreen(500, 500);
     Chart chart = f.newChart();
@@ -182,7 +182,7 @@ public class TestVTKDrawableVBOBuilder {
   ///////////////////////////////////////////////////////////////////
 
   @Test
-  public void givenRepeatedVerticeHexahedron() {
+  public void givenRepeatedVerticeHexahedron_thenBufferAreSizeAccordingly() {
     ChartFactory f = new AWTChartFactory();
     f.getPainterFactory().setOffscreen(500, 500);
     Chart chart = f.newChart();
@@ -244,7 +244,7 @@ public class TestVTKDrawableVBOBuilder {
 
 
   @Test
-  public void givenRepeatedVerticeQuads() {
+  public void givenRepeatedVerticeQuads_thenBufferAreSizeAccordingly() {
     ChartFactory f = new AWTChartFactory();
     f.getPainterFactory().setOffscreen(500, 500);
     Chart chart = f.newChart();
@@ -319,7 +319,7 @@ public class TestVTKDrawableVBOBuilder {
   ///////////////////////////////////////////////////////////////////
 
   @Test
-  public void givenNonOpaqueSetting_Quads() {
+  public void givenNonOpaqueSetting_Quads_thenColorbufferContainsAlphaChannel() {
     ChartFactory f = new AWTChartFactory();
     f.getPainterFactory().setOffscreen(500, 500);
     Chart chart = f.newChart();
@@ -391,7 +391,7 @@ public class TestVTKDrawableVBOBuilder {
   }
 
   @Test
-  public void givenNonOpaqueSetting_Hexahedrons() {
+  public void givenNonOpaqueSetting_Hexahedrons_thenColorbufferContainsAlphaChannel() {
     ChartFactory f = new AWTChartFactory();
     f.getPainterFactory().setOffscreen(500, 500);
     Chart chart = f.newChart();

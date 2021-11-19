@@ -53,7 +53,8 @@ public class VTKUtils {
     boolean isEveryThingLoaded = true;
     for (vtkNativeLibrary lib : vtkNativeLibrary.values()) {
       try {
-        LoadLibrary(lib, path);
+        //LoadLibrary(lib, path);
+        lib.LoadLibrary();
       } catch (UnsatisfiedLinkError e) {
         isEveryThingLoaded = false;
         e.printStackTrace();
@@ -71,8 +72,12 @@ public class VTKUtils {
           Runtime.getRuntime().load(libPath.getAbsolutePath());
           return;
         } catch (UnsatisfiedLinkError e) {
+          System.err.println("Failed to load lib at " + libPath.getAbsolutePath());
           e.printStackTrace();
         }
+      }
+      else {
+        throw new RuntimeException("Library file not found at " + libPath.getAbsolutePath());
       }
     }
     System.loadLibrary(lib.GetLibraryName());

@@ -35,6 +35,9 @@ public class VTKContourProcessor {
 
   protected boolean debug = false;
 
+  protected boolean buildIsoLines = true;
+  protected boolean buildIsoSurfaces = false;
+
 
   public VTKContourProcessor(vtkAlgorithmOutput source, int n, double from, double to) {
     
@@ -44,59 +47,111 @@ public class VTKContourProcessor {
     contours = new vtkContourFilter();
     contours.SetInputConnection(source);
     contours.GenerateValues(n, from, to);
+    
+    //contours.GenerateTrianglesOn();
+    //contours.ComputeGradientsOn();
 
     contourStripper = new vtkStripper();
     contourStripper.SetInputConnection(contours.GetOutputPort());
-    contourStripper.SetInputConnection(contours.GetOutputPort());
+    
+    
     contourStripper.Update();
     
-    vtkPoints points = contourStripper.GetOutput().GetPoints();
-    vtkCellArray cells = contourStripper.GetOutput().GetLines();
-    vtkDataArray scalars = contourStripper.GetOutput().GetPointData().GetScalars();
 
-
-    // -----------------------------------------------------------
-    // Get contour data
-
-
-    readResultAndBuildDrawables(points, cells, scalars);
+    readResultAndBuildDrawables();
   }
 
-  protected void readResultAndBuildDrawables(vtkPoints points, vtkCellArray cells,
-      vtkDataArray scalars) {
+  protected void readResultAndBuildDrawables() {
     
     drawableContourLabels = new ArrayList<>();
     drawableContourLines = new ArrayList<>();
 
-
-    int pointThreshold = 0;
-
     vtkDataSet dataset = contourStripper.GetOutput();
-    vtkCellArrayIterator cellIter = cells.NewIterator();
+    vtkPoints points = contourStripper.GetOutput().GetPoints();
+    vtkDataArray scalars = contourStripper.GetOutput().GetPointData().GetScalars();
 
-    for (cellIter.GoToFirstCell(); !cellIter.IsDoneWithTraversal(); cellIter.GoToNextCell()) {
+    // -----------------------------------------------------------
+    // LOAD ISO-LINES AS DRAWABLES
+    
+    if(buildIsoLines)
+      readIsoLines(dataset, points, scalars);
+    
+    // -----------------------------------------------------------
+    // LOAD ISO-SURFACE AS CELLS
 
-      vtkIdList cell = cellIter.GetCurrentCell();
-      if (cell.GetNumberOfIds() < pointThreshold) {
-        continue;
-      }
+    if(buildIsoSurfaces)
+      readIsoSurfaces(dataset, points);
 
+  }
+
+  protected void readIsoSurfaces(vtkDataSet dataset, vtkPoints points) {
+    vtkCellArray polygonCells = contourStripper.GetOutput().GetPolys();
+    
+    vtkCellArrayIterator polygonCellIter = polygonCells.NewIterator();
+
+    for (polygonCellIter.GoToFirstCell(); !polygonCellIter.IsDoneWithTraversal(); polygonCellIter.GoToNextCell()) {
+
+      vtkIdList cell = polygonCellIter.GetCurrentCell();
+      
       // --------------------------------------
-      // START : MY CODE
-      int cellId = (int) cellIter.GetCurrentCellId();
+      // Prepare cell iteration
+      
+      int cellId = (int) polygonCellIter.GetCurrentCellId();
       int cellType = dataset.GetCellType(cellId);
-      int cellStartPointId = (int) cells.GetOffsetsArray().GetTuple1(cellId);
-      int cellStopPointId = (int) cells.GetOffsetsArray().GetTuple1(cellId + 1);
+      int cellStartPointId = (int) polygonCells.GetOffsetsArray().GetTuple1(cellId);
+      int cellStopPointId = (int) polygonCells.GetOffsetsArray().GetTuple1(cellId + 1);
 
       if (debug)
         System.out.println(VTKGeometry.name(cellType) + " " + cellId);
 
 
+      // -------------------------------------
+      // Build a contour line
+      
+      /*LineStrip line = new LineStrip(Color.BLACK);
+      line.setWidth(3);
+
+      for (int i = cellStartPointId; i < cellStopPointId; i++) {
+        int datasetPointId = (int) polygonCells.GetConnectivityArray().GetTuple1(i);
+
+        Coord3d c = new Coord3d(points.GetData().GetTuple3(datasetPointId));
+
+        line.add(c);
+      }*/
+
+      
+    }
+  }
+
+  protected vtkCellArray readIsoLines(vtkDataSet dataset, vtkPoints points, vtkDataArray scalars) {
+    vtkCellArray lineCells = contourStripper.GetOutput().GetLines();
+    vtkCellArrayIterator lineCellIter = lineCells.NewIterator();
+
+    
+    for (lineCellIter.GoToFirstCell(); !lineCellIter.IsDoneWithTraversal(); lineCellIter.GoToNextCell()) {
+
+      vtkIdList cell = lineCellIter.GetCurrentCell();
+      
+      // --------------------------------------
+      // Prepare cell iteration
+      
+      int cellId = (int) lineCellIter.GetCurrentCellId();
+      int cellType = dataset.GetCellType(cellId);
+      int cellStartPointId = (int) lineCells.GetOffsetsArray().GetTuple1(cellId);
+      int cellStopPointId = (int) lineCells.GetOffsetsArray().GetTuple1(cellId + 1);
+
+      if (debug)
+        System.out.println(VTKGeometry.name(cellType) + " " + cellId);
+
+
+      // -------------------------------------
+      // Build a contour line
+      
       LineStrip line = new LineStrip(Color.BLACK);
       line.setWidth(3);
 
       for (int i = cellStartPointId; i < cellStopPointId; i++) {
-        int datasetPointId = (int) cells.GetConnectivityArray().GetTuple1(i);
+        int datasetPointId = (int) lineCells.GetConnectivityArray().GetTuple1(i);
 
         Coord3d c = new Coord3d(points.GetData().GetTuple3(datasetPointId));
 
@@ -109,9 +164,7 @@ public class VTKContourProcessor {
         System.out.println();
       }
 
-      // END : MY CODE
       // -------------------------------------
-
       // Compute the point id to hold the label (Mid point)
       int samplePtIdx = (int) (cell.GetNumberOfIds() / 2);
       int midPointId = (int) cell.GetId(samplePtIdx);
@@ -129,6 +182,7 @@ public class VTKContourProcessor {
 
       drawableContourLabels.add(text);
     }
+    return lineCells;
   }
 
   public int getNumberOfContourLines() {
