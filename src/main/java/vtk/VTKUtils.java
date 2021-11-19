@@ -53,8 +53,8 @@ public class VTKUtils {
     boolean isEveryThingLoaded = true;
     for (vtkNativeLibrary lib : vtkNativeLibrary.values()) {
       try {
-        //LoadLibrary(lib, path);
-        lib.LoadLibrary();
+        LoadLibrary(lib, path);
+        //lib.LoadLibrary();
       } catch (UnsatisfiedLinkError e) {
         isEveryThingLoaded = false;
         e.printStackTrace();
