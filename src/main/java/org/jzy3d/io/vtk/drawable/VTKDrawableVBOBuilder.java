@@ -83,9 +83,9 @@ public class VTKDrawableVBOBuilder extends AbstractVTKDrawableBuilder implements
   protected boolean debug = false;
   protected int debugMaxCell = -1; // -1 to stop avoid putting a limit on number of cells
 
-  
+
   protected static final int dimensions = 3;
-  
+
   protected int colorChannels = 3;
   protected float alpha = 1;
 
@@ -105,15 +105,16 @@ public class VTKDrawableVBOBuilder extends AbstractVTKDrawableBuilder implements
     this(poly, processNormals(poly), GeometryMode.MULTI_GEOMETRY, VerticeMode.SHARED, null,
         poly.GetCellType(0));
   }
-  
+
   /**
    * Will compute normals per vertex with Jzy3D algorithms, always using a shared vertice mode, and
    * considering the input cell types are all similar in the dataset.
    */
   public VTKDrawableVBOBuilder(vtkUnstructuredGrid poly, NormalMode normalMode) {
-    this(poly, null, GeometryMode.MULTI_GEOMETRY, VerticeMode.SHARED, normalMode, poly.GetCellType(0));
+    this(poly, null, GeometryMode.MULTI_GEOMETRY, VerticeMode.SHARED, normalMode,
+        poly.GetCellType(0));
   }
-  
+
   public VTKDrawableVBOBuilder(vtkUnstructuredGrid ugrid, vtkDataArray normalArray,
       GeometryMode geometryMode, VerticeMode verticeMode, int vtkGeometry) {
     this(ugrid, normalArray, geometryMode, verticeMode, null, vtkGeometry);
@@ -129,7 +130,7 @@ public class VTKDrawableVBOBuilder extends AbstractVTKDrawableBuilder implements
     this(ugrid, null, geometryMode, verticeMode, NormalMode.REPEATED, vtkGeometry);
   }
 
-  
+
   /**
    * A {@link DrawableVBO2} builder capable of handling various data structure inputs.
    *
@@ -192,7 +193,8 @@ public class VTKDrawableVBOBuilder extends AbstractVTKDrawableBuilder implements
    * considering the input cell types are all similar in the dataset.
    */
   public VTKDrawableVBOBuilder(vtkPolyData poly, NormalMode normalMode) {
-    this(poly, null, GeometryMode.MULTI_GEOMETRY, VerticeMode.SHARED, normalMode, poly.GetCellType(0));
+    this(poly, null, GeometryMode.MULTI_GEOMETRY, VerticeMode.SHARED, normalMode,
+        poly.GetCellType(0));
   }
 
   public VTKDrawableVBOBuilder(vtkPolyData poly, vtkDataArray normalArray,
@@ -254,9 +256,9 @@ public class VTKDrawableVBOBuilder extends AbstractVTKDrawableBuilder implements
     if (normalArray != null) {
       this.normals = VTKReader.toCoordFloatArray(normalArray);
       this.isNormalPerPoint = (normals.length == coordinates.length);
-      
-      log.info("#Coords : " + coordinates.length + " #Normals : " + normals.length
-          + " #Cells : " + cells.GetNumberOfCells() + " #Polygons (guess) : "
+
+      log.info("#Coords : " + coordinates.length + " #Normals : " + normals.length + " #Cells : "
+          + cells.GetNumberOfCells() + " #Polygons (guess) : "
           + cells.GetNumberOfCells() * HEXAHEDRON_FACES);
     } else {
       this.normals = null;
@@ -325,7 +327,7 @@ public class VTKDrawableVBOBuilder extends AbstractVTKDrawableBuilder implements
       throw new IllegalArgumentException(
           "Property '" + property + "' not found. Use one of : " + String.join(" ", a));
     }
-    int numberOfTuples = (int)pointData.GetNumberOfTuples();
+    int numberOfTuples = (int) pointData.GetNumberOfTuples();
     float[] coloringProperty = VTKUtils.toFloatArray(propertyArray, numberOfTuples);
 
     propertyRange = new Range(propertyArray.GetFiniteRange()[0], propertyArray.GetFiniteRange()[1]);
@@ -336,13 +338,24 @@ public class VTKDrawableVBOBuilder extends AbstractVTKDrawableBuilder implements
     // ----------------------------------------------------
     // Build geometry arrays by iterating on cells
 
-    int pointsPerGeometry = 4;
+    int pointsPerGeometry = -1;
+
+    if (VTKGeometry.VTK_QUAD == expectedGeometry
+        || VTKGeometry.VTK_HEXAHEDRON == expectedGeometry) {
+      pointsPerGeometry = 4; // hexahedron will be made built as a collection of quads
+    } else if (VTKGeometry.VTK_TRIANGLE == expectedGeometry) {
+      pointsPerGeometry = 3;
+    }
+
+    // primitive restart is an opengl mode where geometries are separated by a flag values
+    // it is not used but kept for later. reasons are discussed here :
+    // https://community.khronos.org/t/using-glprimitiverestartindex-to-declare-multiple-geometries-in-the-same-vbo/107810/9
     if (primitiveRestart)
       pointsPerGeometry++;
 
     pointToCell = ArrayListMultimap.create();
 
-    int cellNumber = (int)cells.GetNumberOfCells();
+    int cellNumber = (int) cells.GetNumberOfCells();
 
     if (debugMaxCell > 0) {
       cellNumber = debugMaxCell;
@@ -359,7 +372,7 @@ public class VTKDrawableVBOBuilder extends AbstractVTKDrawableBuilder implements
     int k = 0;
 
     for (it.GoToFirstCell(); !it.IsDoneWithTraversal(); it.GoToNextCell()) {
-      int cellId = (int)it.GetCurrentCellId();
+      int cellId = (int) it.GetCurrentCellId();
       int cellType = dataset.GetCellType(cellId);
       int cellStartPointId = (int) cells.GetOffsetsArray().GetTuple1(cellId);
       int cellStopPointId = (int) cells.GetOffsetsArray().GetTuple1(cellId + 1);
@@ -428,10 +441,10 @@ public class VTKDrawableVBOBuilder extends AbstractVTKDrawableBuilder implements
       // ... either they were defined externally
       else if (normals != null) {
         drawable = new DrawableVBO2(coordinates, elementsIndices, colors, normals);
-
       }
     }
-
+    drawable.setColorChannels(colorChannels);
+    
     drawable.setWireframeDisplayed(wireDisplayed);
     drawable.setWireframeColor(wireColor);
     drawable.setReflectLight(reflectLight);
@@ -467,7 +480,8 @@ public class VTKDrawableVBOBuilder extends AbstractVTKDrawableBuilder implements
       }
     }
 
-    else if (VTKGeometry.VTK_QUAD == expectedGeometry) {
+    else if (VTKGeometry.VTK_QUAD == expectedGeometry
+        || VTKGeometry.VTK_TRIANGLE == expectedGeometry) {
 
       if (GeometryMode.SINGLE_GEOMETRY.equals(geometryMode)) {
         elements = new int[pointsPerGeometry * cellNumber];
@@ -482,7 +496,9 @@ public class VTKDrawableVBOBuilder extends AbstractVTKDrawableBuilder implements
         }
       }
 
-    } else {
+    }
+
+    else {
       throw new IllegalArgumentException("Not expected " + VTKGeometry.name(expectedGeometry));
     }
   }
@@ -534,7 +550,7 @@ public class VTKDrawableVBOBuilder extends AbstractVTKDrawableBuilder implements
       Color color = getValueColor(value);
 
       appendColor(datasetPointId, color);
-      
+
       // Append to a single geometry
       if (GeometryMode.SINGLE_GEOMETRY.equals(geometryMode)) {
         append(datasetPointId);
@@ -678,8 +694,8 @@ public class VTKDrawableVBOBuilder extends AbstractVTKDrawableBuilder implements
     colors[datasetPointId * colorChannels + 1] = color.g;
     colors[datasetPointId * colorChannels + 2] = color.b;
 
-    if(colorChannels==4) {
-      colors[datasetPointId * colorChannels + 3] = alpha;        
+    if (colorChannels == 4) {
+      colors[datasetPointId * colorChannels + 3] = alpha;
     }
   }
 
@@ -738,7 +754,7 @@ public class VTKDrawableVBOBuilder extends AbstractVTKDrawableBuilder implements
       throw new IllegalArgumentException(
           "Property '" + property + "' not found. Use one of : " + String.join(" ", a));
     }
-    int numberOfTuples = (int)pointData.GetNumberOfTuples();
+    int numberOfTuples = (int) pointData.GetNumberOfTuples();
     float[] coloringProperty = VTKUtils.toFloatArray(propertyArray, numberOfTuples);
 
     propertyRange = new Range(propertyArray.GetFiniteRange()[0], propertyArray.GetFiniteRange()[1]);
@@ -749,7 +765,7 @@ public class VTKDrawableVBOBuilder extends AbstractVTKDrawableBuilder implements
     // ----------------------------------------------------
     // Build geometry arrays by iterating on cells
 
-    int cellNumber = (int)cells.GetNumberOfCells();
+    int cellNumber = (int) cells.GetNumberOfCells();
 
     if (debugMaxCell > 0) {
       cellNumber = debugMaxCell;
@@ -763,7 +779,7 @@ public class VTKDrawableVBOBuilder extends AbstractVTKDrawableBuilder implements
     int k = 0;
 
     for (it.GoToFirstCell(); !it.IsDoneWithTraversal(); it.GoToNextCell()) {
-      int cellId = (int)it.GetCurrentCellId();
+      int cellId = (int) it.GetCurrentCellId();
       int cellType = dataset.GetCellType(cellId);
       int cellStartPointId = (int) cells.GetOffsetsArray().GetTuple1(cellId);
       int cellStopPointId = (int) cells.GetOffsetsArray().GetTuple1(cellId + 1);
@@ -886,7 +902,7 @@ public class VTKDrawableVBOBuilder extends AbstractVTKDrawableBuilder implements
     }
     return coords;
   }
-  
+
   /** Computes points that are duplicated in the coordinates dataset */
   public List<Coord3d> getCoord3dsDoublon() {
     List<Coord3d> coords = getCoord3ds();
@@ -949,7 +965,7 @@ public class VTKDrawableVBOBuilder extends AbstractVTKDrawableBuilder implements
     System.arraycopy(coordinates, 0, shrinkedCoordinates, 0, size);
     coordinates = shrinkedCoordinates;
   }
-  
+
   protected void debugDatasetPointIdAndCoords(int datasetPointId) {
     System.out.print(datasetPointId + " ");
 
@@ -957,7 +973,7 @@ public class VTKDrawableVBOBuilder extends AbstractVTKDrawableBuilder implements
     // + coordinates[datasetPointId] + "," + coordinates[datasetPointId] + ") ");
   }
 
-  
+
   //////////////////////////////////////////////
   //
   // SETTINGS
@@ -970,18 +986,17 @@ public class VTKDrawableVBOBuilder extends AbstractVTKDrawableBuilder implements
 
   public void setAlpha(float alpha) {
     this.alpha = alpha;
-    
-    if(alpha!=1) {
+
+    if (alpha != 1) {
       colorChannels = 4;
-    }
-    else {
-      colorChannels = 3;      
+    } else {
+      colorChannels = 3;
     }
   }
 
   public int getColorChannels() {
     return colorChannels;
   }
-  
-  
+
+
 }
