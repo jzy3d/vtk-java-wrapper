@@ -5,18 +5,26 @@ import org.junit.Test;
 import org.jzy3d.chart.Chart;
 import org.jzy3d.chart.factories.AWTChartFactory;
 import org.jzy3d.chart.factories.ChartFactory;
+import org.jzy3d.colors.Color;
+import org.jzy3d.colors.colormaps.ColorMapRainbow;
 import org.jzy3d.io.vtk.drawable.VTKDrawableVBOBuilder.GeometryMode;
 import org.jzy3d.io.vtk.drawable.VTKDrawableVBOBuilder.VerticeMode;
+import org.jzy3d.maths.Array;
 import org.jzy3d.plot3d.primitives.vbo.drawable.DrawableVBO2;
+import org.jzy3d.plot3d.rendering.canvas.Quality;
 import junit.framework.Assert;
 import vtk.VTKGeometry;
 import vtk.VTKReader;
 import vtk.VTKUtils;
 import vtk.vtkAlgorithm;
+import vtk.vtkFlyingEdges3D;
 import vtk.vtkGeometryFilter;
+import vtk.vtkImageData;
 import vtk.vtkPolyData;
+import vtk.vtkSphereSource;
 import vtk.vtkUnstructuredGrid;
 import vtk.vtkVersion;
+import vtk.vtkVoxelModeller;
 
 /**
  * These tests will have the classpath to VTK native automatically added by Maven Surefire Plugin
@@ -448,5 +456,113 @@ public class TestVTKDrawableVBOBuilder {
     Assert.assertEquals(ALPHA, colors[8 + ALPHA_INDEX]); // alpha properly set for a few point
 
 
+  }
+  
+  
+  
+  public void givenTriangleCell_ThenBuildTriangleElements() {
+    
+    // ------------------------------------------
+    // Given a drawable with triangle data
+    
+    vtkFlyingEdges3D isoSurface = generateTriangleCells();
+
+    VTKDrawableVBOBuilder sphereBuilder = new VTKDrawableVBOBuilder(isoSurface.GetOutput());
+    sphereBuilder.setAlpha(0.9f);
+    sphereBuilder.setColor(Color.YELLOW);
+    sphereBuilder.setColormap(new ColorMapRainbow());
+    
+    DrawableVBO2 sphereVBO = sphereBuilder.makePolygons("ImageScalars");
+
+    sphereVBO.setColor(Color.YELLOW);
+    sphereVBO.setWireframeColor(Color.WHITE);
+    sphereVBO.setWireframeDisplayed(true);
+
+
+    // ------------------------------------------
+    // When loading
+
+    ChartFactory f = new AWTChartFactory();
+    f.getPainterFactory().setOffscreen(500, 500);
+
+    Chart chart = f.newChart(Quality.Advanced().setAlphaActivated(false));
+
+    chart.add(sphereVBO);
+    
+    chart.open();
+
+
+    // ------------------------------------------
+    // Then get 
+
+    Assert.assertEquals(VTKGeometry.VTK_TRIANGLE, sphereBuilder.expectedGeometry);
+    
+  }
+
+  
+  private vtkFlyingEdges3D generateTriangleCells() {
+    // ------------------------------------------
+    // Define a sphere 
+    
+    vtkSphereSource sphereSource = new vtkSphereSource();
+    sphereSource.SetPhiResolution(5); // latitude
+    sphereSource.SetThetaResolution(5); // longitude
+    sphereSource.Update();
+
+    double[] bounds = new double[6];
+    sphereSource.GetOutput().GetBounds(bounds);
+    
+    // ------------------------------------------
+    // Convert to sphere voxels
+
+    int voxelResolution = 4;
+    
+    vtkVoxelModeller voxelModeller = new vtkVoxelModeller();
+    voxelModeller.SetSampleDimensions(voxelResolution, voxelResolution, voxelResolution);
+    voxelModeller.SetModelBounds(bounds);
+    voxelModeller.SetScalarTypeToFloat();
+    voxelModeller.SetMaximumDistance(1);
+
+    voxelModeller.SetInputConnection(sphereSource.GetOutputPort());
+    voxelModeller.Update();
+    
+    double[] bds = voxelModeller.GetModelBounds();
+
+    
+    // ------------------------------------------
+    // Copy to image data
+    
+    vtkImageData volume = new vtkImageData();
+    volume.DeepCopy(voxelModeller.GetOutput());
+
+    bds = volume.GetBounds();
+
+    System.out.println("xmin:" + bds[0]);
+    System.out.println("xmax:" + bds[1]);
+    System.out.println("ymin:" + bds[2]);
+    System.out.println("ymax:" + bds[3]);
+
+    
+    // ------------------------------------------
+    // Compute iso-surface
+    
+    double isoValue = 0.01;
+
+    vtkFlyingEdges3D isoSurface = new vtkFlyingEdges3D();
+    //vtkMarchingCubes isoSurface = new vtkMarchingCubes();
+    //isoSurface.SetInputData(volume);
+    isoSurface.SetInputData(volume);
+    isoSurface.ComputeNormalsOn();
+    isoSurface.SetNumberOfContours(3);
+    isoSurface.SetValue(0, 0.00001); // blue : near sphere bound border 
+    isoSurface.SetValue(1, 0.4);
+    isoSurface.SetValue(2, 0.8); // red : near sphere center
+    
+    /*double[] isoLevels = {0.0, 0.09};
+    isoSurface.GenerateValues(10, isoLevels);*/
+
+    isoSurface.GetOutputPort();
+    isoSurface.Update();
+    return isoSurface;
   }
 }
