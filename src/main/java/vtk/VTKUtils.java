@@ -15,16 +15,15 @@ public class VTKUtils {
     
     File file = new File(path + "/" + version + "/" + platform);
     
-    loadVtkNativeLibraries(file.getAbsolutePath());
+    loadVtkNativeLibraries(null);//file.getAbsolutePath());
   }
 
   /**
    * Load libraries by providing an explicit path where the library stand.
    * 
-   *  May be null, in that case, will load from PATH or java.library.path
+   * May be null, in that case, will load from PATH or java.library.path
    *  
-   *  
-   * To set lib path: -Djava.library.path=/Users/martin/Dev/jzy3d/private/vtk-java-wrapper/lib/vtk-Darwin-x86_64");
+   * To set lib path: -Djava.library.path=/Users/martin/Dev/jzy3d/private/vtk-java-wrapper/lib/9.1.0/vtk-Darwin-arm64");
    *
    * @param path
    */
