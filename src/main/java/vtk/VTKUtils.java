@@ -15,7 +15,14 @@ public class VTKUtils {
     
     File file = new File(path + "/" + version + "/" + platform);
     
-    loadVtkNativeLibraries(null);//file.getAbsolutePath());
+    String absolutePath = file.getAbsolutePath();
+    
+    
+    if(!loadVtkNativeLibraries(null)){
+      System.out.println("-Djava.library.path=" + absolutePath);
+    }
+    
+    
   }
 
   /**
@@ -27,7 +34,7 @@ public class VTKUtils {
    *
    * @param path
    */
-  public static void loadVtkNativeLibraries(String path) {
+  public static boolean loadVtkNativeLibraries(String path) {
 
     boolean success;
     
@@ -45,7 +52,11 @@ public class VTKUtils {
         }
       }
     }
-    vtkNativeLibrary.DisableOutputWindow(null);
+    
+    if(success)
+      vtkNativeLibrary.DisableOutputWindow(null);
+    
+    return success;
   }
 
   public static boolean LoadAllNativeLibraries(String path) {
