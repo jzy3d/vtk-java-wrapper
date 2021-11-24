@@ -103,7 +103,7 @@ public class VTKDrawableVBOBuilder extends AbstractVTKDrawableBuilder implements
    */
   public VTKDrawableVBOBuilder(vtkUnstructuredGrid poly) {
     this(poly, processNormals(poly), GeometryMode.MULTI_GEOMETRY, VerticeMode.SHARED, null,
-        poly.GetCellType(0));
+        getFirstCellGeometry(poly));
   }
 
   /**
@@ -112,7 +112,7 @@ public class VTKDrawableVBOBuilder extends AbstractVTKDrawableBuilder implements
    */
   public VTKDrawableVBOBuilder(vtkUnstructuredGrid poly, NormalMode normalMode) {
     this(poly, null, GeometryMode.MULTI_GEOMETRY, VerticeMode.SHARED, normalMode,
-        poly.GetCellType(0));
+        getFirstCellGeometry(poly));
   }
 
   public VTKDrawableVBOBuilder(vtkUnstructuredGrid ugrid, vtkDataArray normalArray,
@@ -142,9 +142,9 @@ public class VTKDrawableVBOBuilder extends AbstractVTKDrawableBuilder implements
    * @param normalArray an optional array of normal computed externally. Can be null, in that case
    *        normals are processed by a simple algorithm
    *        ({@link Normal#compute(Coord3d, Coord3d, Coord3d)}.
-   * @param geometryMode MULTI_GEOMETRY indicates that the input geometry is made of multiple cells
-   *        that should be gathered in the same VBO but handled in a way that allows separating each
-   *        cell. SINGLE_GEOMETRY is a rare case.
+   * @param geometryMode {@link GeometryMode.MULTI_GEOMETRY} indicates that the input geometry is
+   *        made of multiple cells that should be gathered in the same VBO but handled in a way that
+   *        allows separating each cell. {@link GeometryMode.SINGLE_GEOMETRY} is a rare case.
    * @param verticeMode {@link VerticeMode.SHARED} indicates that the input geometry is made of
    *        cells that have shared points with each other and that a geometry is defined by an index
    *        indicating which points allow forming the geometry. This is better for fluid rendering.
@@ -185,7 +185,7 @@ public class VTKDrawableVBOBuilder extends AbstractVTKDrawableBuilder implements
    */
   public VTKDrawableVBOBuilder(vtkPolyData poly) {
     this(poly, processNormals(poly), GeometryMode.MULTI_GEOMETRY, VerticeMode.SHARED, null,
-        poly.GetCellType(0));
+        getFirstCellGeometry(poly));
   }
 
   /**
@@ -194,7 +194,7 @@ public class VTKDrawableVBOBuilder extends AbstractVTKDrawableBuilder implements
    */
   public VTKDrawableVBOBuilder(vtkPolyData poly, NormalMode normalMode) {
     this(poly, null, GeometryMode.MULTI_GEOMETRY, VerticeMode.SHARED, normalMode,
-        poly.GetCellType(0));
+        getFirstCellGeometry(poly));
   }
 
   public VTKDrawableVBOBuilder(vtkPolyData poly, vtkDataArray normalArray,
@@ -216,9 +216,9 @@ public class VTKDrawableVBOBuilder extends AbstractVTKDrawableBuilder implements
    * normals from outside).
    * 
    * @param poly input geometry
-   * @param geometryMode MULTI_GEOMETRY indicates that the input geometry is made of multiple cells
-   *        that should be gathered in the same VBO but handled in a way that allows separating each
-   *        cell. SINGLE_GEOMETRY is a rare case.
+   * @param geometryMode {@link GeometryMode.MULTI_GEOMETRY} indicates that the input geometry is
+   *        made of multiple cells that should be gathered in the same VBO but handled in a way that
+   *        allows separating each cell. {@link GeometryMode.SINGLE_GEOMETRY} is a rare case.
    * @param verticeMode {@link VerticeMode.SHARED} indicates that the input geometry is made of
    *        cells that have shared points with each other and that a geometry is defined by an index
    *        indicating which points allow forming the geometry. This is better for fluid rendering.
@@ -252,8 +252,8 @@ public class VTKDrawableVBOBuilder extends AbstractVTKDrawableBuilder implements
 
   protected void loadPointsAndNormals(vtkPoints points, vtkDataArray normalArray) {
     this.coordinates = VTKReader.toCoordFloatArray(points);
-    
-    //log.info("Number of coordinates : " + 1f*coordinates.length/3);
+
+    // log.info("Number of coordinates : " + 1f*coordinates.length/3);
 
     if (normalArray != null) {
       this.normals = VTKReader.toCoordFloatArray(normalArray);
@@ -271,6 +271,21 @@ public class VTKDrawableVBOBuilder extends AbstractVTKDrawableBuilder implements
     return new VTKNormalPerVertex(unstructuredGrid).update().getOutput();
   }
 
+  protected static int getFirstCellGeometry(vtkPolyData poly) {
+    if (poly.GetNumberOfCells() > 0) {
+      return poly.GetCellType(0);
+    } else {
+      return VTKGeometry.VTK_EMPTY_CELL;
+    }
+  }
+
+  protected static int getFirstCellGeometry(vtkUnstructuredGrid ugrid) {
+    if (ugrid.GetNumberOfCells() > 0) {
+      return ugrid.GetCellType(0);
+    } else {
+      return VTKGeometry.VTK_EMPTY_CELL;
+    }
+  }
 
   // ********************************************************* //
 
@@ -335,8 +350,8 @@ public class VTKDrawableVBOBuilder extends AbstractVTKDrawableBuilder implements
     propertyRange = new Range(propertyArray.GetFiniteRange()[0], propertyArray.GetFiniteRange()[1]);
 
     colors = new float[numberOfTuples * colorChannels];
-    
-    log.info("Number of colors : " + 1f*colors.length/colorChannels);
+
+    log.info("Number of colors : " + 1f * colors.length / colorChannels);
 
 
     // ----------------------------------------------------
@@ -349,6 +364,11 @@ public class VTKDrawableVBOBuilder extends AbstractVTKDrawableBuilder implements
       pointsPerGeometry = 4; // hexahedron will be made built as a collection of quads
     } else if (VTKGeometry.VTK_TRIANGLE == expectedGeometry) {
       pointsPerGeometry = 3;
+    } else if (VTKGeometry.VTK_EMPTY_CELL == expectedGeometry) {
+      return null;
+    } else {
+      throw new IllegalArgumentException("Unsupported geometry type : " + expectedGeometry + " "
+          + VTKGeometry.name(expectedGeometry));
     }
 
     // primitive restart is an opengl mode where geometries are separated by a flag values
@@ -448,7 +468,7 @@ public class VTKDrawableVBOBuilder extends AbstractVTKDrawableBuilder implements
       }
     }
     drawable.setColorChannels(colorChannels);
-    
+
     drawable.setWireframeDisplayed(wireDisplayed);
     drawable.setWireframeColor(wireColor);
     drawable.setReflectLight(reflectLight);
