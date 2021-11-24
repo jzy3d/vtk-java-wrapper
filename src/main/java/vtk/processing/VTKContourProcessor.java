@@ -38,12 +38,17 @@ public class VTKContourProcessor {
   protected boolean buildIsoLines = true;
   protected boolean buildIsoSurfaces = false;
 
-
+  /**
+   * Process contour from a range of values for a given number of contour levels.
+   * 
+   * @param source
+   * @param n
+   * @param from
+   * @param to
+   */
   public VTKContourProcessor(vtkAlgorithmOutput source, int n, double from, double to) {
     
-    // -----------------------------------------------------------
-    // Contour processing
-
+    // contour filter
     contours = new vtkContourFilter();
     contours.SetInputConnection(source);
     contours.GenerateValues(n, from, to);
@@ -53,11 +58,35 @@ public class VTKContourProcessor {
 
     contourStripper = new vtkStripper();
     contourStripper.SetInputConnection(contours.GetOutputPort());
-    
-    
     contourStripper.Update();
     
+    // generate jzy3D drawables
+    readResultAndBuildDrawables();
+  }
 
+  /**
+   * Process contour from a user given list of contour levels. 
+   * 
+   * @param source
+   * @param levels
+   */
+  public VTKContourProcessor(vtkAlgorithmOutput source, double[] levels) {
+
+    // contour filter
+    contours = new vtkContourFilter();
+    contours.SetInputConnection(source);
+    
+    for (int i = 0; i < levels.length; i++) {
+      contours.SetValue(i, levels[i]);      
+    }
+    
+
+    // transform contour result to cells for drawing
+    contourStripper = new vtkStripper();
+    contourStripper.SetInputConnection(contours.GetOutputPort());
+    contourStripper.Update();
+    
+    // generate jzy3D drawables
     readResultAndBuildDrawables();
   }
 
@@ -205,8 +234,15 @@ public class VTKContourProcessor {
   }
 
   public List<LineStrip> getDrawableContourLines(Color color) {
+    return getDrawableContourLines(color, -1);
+  }
+
+  public List<LineStrip> getDrawableContourLines(Color color, int lineWidth) {
     for (LineStrip line : drawableContourLines) {
-      line.setColor(color);
+      if(color!=null)
+        line.setColor(color);
+      if(lineWidth>0)
+        line.setWidth(lineWidth);
     }
     return drawableContourLines;
   }
