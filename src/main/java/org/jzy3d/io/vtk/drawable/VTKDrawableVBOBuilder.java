@@ -245,7 +245,9 @@ public class VTKDrawableVBOBuilder extends AbstractVTKDrawableBuilder implements
 
   protected VTKDrawableVBOBuilder(vtkPolyData polygons, vtkDataArray normalArray) {
     super(polygons);
-    loadPointsAndNormals(polygons.GetPoints(), normalArray);
+
+    if (polygons.GetPoints() != null)
+      loadPointsAndNormals(polygons.GetPoints(), normalArray);
   }
 
   // ********************************************************* //
@@ -337,13 +339,12 @@ public class VTKDrawableVBOBuilder extends AbstractVTKDrawableBuilder implements
 
     vtkPointData pointData = dataset.GetPointData();
 
-    // Loosing precision here since convert double to float
     vtkDataArray propertyArray = pointData.GetArray(property);
     if (propertyArray == null) {
-      String[] a = VTKUtils.getArrayNames(pointData);
-      throw new IllegalArgumentException(
-          "Property '" + property + "' not found. Use one of : " + String.join(" ", a));
+      throw new IllegalArgumentException("Property '" + property + "' not found. Use one of : "
+          + String.join(" ", VTKUtils.getArrayNames(pointData)));
     }
+    
     int numberOfTuples = (int) pointData.GetNumberOfTuples();
     float[] coloringProperty = VTKUtils.toFloatArray(propertyArray, numberOfTuples);
 
@@ -365,6 +366,7 @@ public class VTKDrawableVBOBuilder extends AbstractVTKDrawableBuilder implements
     } else if (VTKGeometry.VTK_TRIANGLE == expectedGeometry) {
       pointsPerGeometry = 3;
     } else if (VTKGeometry.VTK_EMPTY_CELL == expectedGeometry) {
+      log.warn("Empty dataset, returning null");
       return null;
     } else {
       throw new IllegalArgumentException("Unsupported geometry type : " + expectedGeometry + " "
