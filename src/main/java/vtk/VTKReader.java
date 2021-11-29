@@ -1,6 +1,8 @@
 package vtk;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import org.jzy3d.maths.Array;
 import org.jzy3d.maths.Coord3d;
 import org.jzy3d.maths.TicToc;
@@ -33,9 +35,9 @@ public class VTKReader {
       throw new RuntimeException(filename + " does not exists");
     
     vtkAlgorithm reader = getReader(filename);
-    if (reader instanceof vtkExodusIIReader) {
-      return read_exodusii_grid((vtkExodusIIReader) reader, timestep);
-    }
+//    if (reader instanceof vtkExodusIIReader) {
+//      return read_exodusii_grid((vtkExodusIIReader) reader, timestep);
+//    }
 
     return getOutput(reader);
   }
@@ -56,76 +58,83 @@ public class VTKReader {
       return ((vtkXMLUnstructuredGridReader) reader).GetOutput();
     } else if (reader instanceof vtkXMLPUnstructuredGridReader) {
       return ((vtkXMLPUnstructuredGridReader) reader).GetOutput();
-    } else if (reader instanceof vtkExodusIIReader) {
-      return read_exodusii_grid((vtkExodusIIReader) reader, 0);
+//    } else if (reader instanceof vtkExodusIIReader) {
+//      return read_exodusii_grid((vtkExodusIIReader) reader, 0);
     } else {
       throw new IllegalArgumentException("Unsupported reader");
     }
   }
 
-  private static vtkUnstructuredGrid read_exodusii_grid(vtkExodusIIReader reader, int timestep) {
+  public static vtkUnstructuredGrid[] read_exodusii_grid(vtkExodusIIReader reader, int[] blocks, int timestep, String propertyName) {
     // Fetch metadata.
     reader.UpdateInformation();
 
     // Set time step to read.
     reader.SetTimeStep(timestep);
 
-    // Make sure the point fields are read during Update().
-    for (int k=0; k<reader.GetNumberOfPointResultArrays(); k++) {
-      String arr_name = reader.GetPointResultArrayName(k);
-      reader.SetPointResultArrayStatus(arr_name, 1);
-    }
-
-    // Make sure the element fields are read during Update().
-    for (int k=0; k<reader.GetNumberOfElementResultArrays(); k++) {
-      String arr_name = reader.GetElementResultArrayName(k);
-      reader.SetElementResultArrayStatus(arr_name, 1);
-    }
-
-    // Make sure all global field data is read.
-    for (int k=0; k<reader.GetNumberOfGlobalResultArrays(); k++) {
-      String arr_name = reader.GetGlobalResultArrayName(k);
-      reader.SetGlobalResultArrayStatus(arr_name, 1);
-    }
-
     // Read the file.
     reader.Update();
+
+    // read in the element blocks, make a surface filter for each, push_back into vector:
+    for (int z = 0; z < reader.GetNumberOfElementBlockArrays(); z++) {
+      String bname = reader.GetElementBlockArrayName(z);
+      int status = blocks == null ? 1 : blocks[z];
+      reader.SetElementBlockArrayStatus(bname, status);
+      System.out.println("Element block " + z + "; Name = '" + bname + "'; status=" + status);
+    }
+
+    boolean found = false;
+    for(int i=0; i<reader.GetNumberOfPointResultArrays(); i++) {
+      if(propertyName.equals(reader.GetPointResultArrayName(i))) {
+        reader.SetPointResultArrayStatus(propertyName, 1);
+        found = true;
+        System.out.println("Selected POINT array " + propertyName);
+      }
+    }
+    if(!found)
+      for(int i=0; i<reader.GetNumberOfElementResultArrays(); i++) {
+        if(propertyName.equals(reader.GetElementResultArrayName(i))) {
+          reader.SetElementResultArrayStatus(propertyName, 1);
+          found = true;
+          System.out.println("Selected ELEMENT array " + propertyName);
+        }
+      }
+    if(!found)
+      for(int i=0; i<reader.GetNumberOfGlobalResultArrays(); i++) {
+        if(propertyName.equals(reader.GetGlobalResultArrayName(i))) {
+          reader.SetGlobalResultArrayStatus(propertyName, 1);
+          found = true;
+          System.out.println("Selected GLOBAL array " + propertyName);
+        }
+      }
+
+    if(!found) {
+      throw new IllegalArgumentException("Can not load property: '"+ propertyName+"'");
+    }
+
     vtkMultiBlockDataSet out = reader.GetOutput();
 
     // Loop through the blocks and search for a vtkUnstructuredGrid.
     // In Exodus, different element types are stored different meshes, with
     // point information possibly duplicated.
-    vtkUnstructuredGrid vtk_mesh = null;
+    List<vtkUnstructuredGrid> vtk_meshs = new ArrayList<>();
 
     for(int i=0; i<out.GetNumberOfBlocks(); i++) {
       vtkMultiBlockDataSet block = (vtkMultiBlockDataSet) out.GetBlock(i);
-      
+
       for (int j = 0; j < block.GetNumberOfBlocks(); j++) {
         vtkDataObject sub_block = block.GetBlock(j);
-        
+
         if(sub_block != null) {
-          if (vtk_mesh != null)
-            throw new RuntimeException("More than one 'vtkUnstructuredGrid' found!");
           if (sub_block.IsA("vtkUnstructuredGrid") == 1)
-            vtk_mesh = (vtkUnstructuredGrid) sub_block;
+            vtk_meshs.add((vtkUnstructuredGrid) sub_block);
         }
       }
     }
-    if (vtk_mesh == null)
+    if (vtk_meshs.isEmpty())
       throw new RuntimeException("No 'vtkUnstructuredGrid' found!");
 
-    // Cut off trailing '_' from array names.
-//    for(int k=0; k<vtk_mesh.GetPointData().GetNumberOfArrays(); k++) {
-//      array = vtk_mesh.GetPointData().GetArray(k);
-//      array_name = array.GetName();
-//      if array_name[-1] == '_':
-//        array.SetName(array_name[0:-1])
-
-    // time_values = reader.GetOutputInformation(0).Get(
-    //     vtkStreamingDemandDrivenPipeline.TIME_STEPS()
-    //     )
-
-    return vtk_mesh;
+    return vtk_meshs.toArray(new vtkUnstructuredGrid[vtk_meshs.size()]);
   }
 
   public static vtkAlgorithmOutput getReaderOutputPort(String filename) {
