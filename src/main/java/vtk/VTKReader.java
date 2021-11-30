@@ -1,14 +1,18 @@
 package vtk;
 
 import java.io.File;
+import java.util.Iterator;
+import org.apache.log4j.Logger;
 import org.jzy3d.maths.Array;
 import org.jzy3d.maths.Coord3d;
 import org.jzy3d.maths.TicToc;
 
 /** A helper class that will select the appropriate reader according to the VTK file extension. */
 public class VTKReader {
+  static Logger log = Logger.getLogger(VTKReader.class);
+
   public static vtkAlgorithm getReader(String filename) {
-    if(!new File(filename).exists())
+    if (!new File(filename).exists())
       throw new RuntimeException(filename + " does not exists");
 
     if (filename.endsWith(".vtu")) {
@@ -29,9 +33,9 @@ public class VTKReader {
   }
 
   public static vtkUnstructuredGrid getReaderOutput(String filename, int timestep) {
-    if(!new File(filename).exists())
+    if (!new File(filename).exists())
       throw new RuntimeException(filename + " does not exists");
-    
+
     vtkAlgorithm reader = getReader(filename);
     if (reader instanceof vtkExodusIIReader) {
       return read_exodusii_grid((vtkExodusIIReader) reader, timestep);
@@ -71,19 +75,19 @@ public class VTKReader {
     reader.SetTimeStep(timestep);
 
     // Make sure the point fields are read during Update().
-    for (int k=0; k<reader.GetNumberOfPointResultArrays(); k++) {
+    for (int k = 0; k < reader.GetNumberOfPointResultArrays(); k++) {
       String arr_name = reader.GetPointResultArrayName(k);
       reader.SetPointResultArrayStatus(arr_name, 1);
     }
 
     // Make sure the element fields are read during Update().
-    for (int k=0; k<reader.GetNumberOfElementResultArrays(); k++) {
+    for (int k = 0; k < reader.GetNumberOfElementResultArrays(); k++) {
       String arr_name = reader.GetElementResultArrayName(k);
       reader.SetElementResultArrayStatus(arr_name, 1);
     }
 
     // Make sure all global field data is read.
-    for (int k=0; k<reader.GetNumberOfGlobalResultArrays(); k++) {
+    for (int k = 0; k < reader.GetNumberOfGlobalResultArrays(); k++) {
       String arr_name = reader.GetGlobalResultArrayName(k);
       reader.SetGlobalResultArrayStatus(arr_name, 1);
     }
@@ -97,13 +101,13 @@ public class VTKReader {
     // point information possibly duplicated.
     vtkUnstructuredGrid vtk_mesh = null;
 
-    for(int i=0; i<out.GetNumberOfBlocks(); i++) {
+    for (int i = 0; i < out.GetNumberOfBlocks(); i++) {
       vtkMultiBlockDataSet block = (vtkMultiBlockDataSet) out.GetBlock(i);
-      
+
       for (int j = 0; j < block.GetNumberOfBlocks(); j++) {
         vtkDataObject sub_block = block.GetBlock(j);
-        
-        if(sub_block != null) {
+
+        if (sub_block != null) {
           if (vtk_mesh != null)
             throw new RuntimeException("More than one 'vtkUnstructuredGrid' found!");
           if (sub_block.IsA("vtkUnstructuredGrid") == 1)
@@ -115,15 +119,15 @@ public class VTKReader {
       throw new RuntimeException("No 'vtkUnstructuredGrid' found!");
 
     // Cut off trailing '_' from array names.
-//    for(int k=0; k<vtk_mesh.GetPointData().GetNumberOfArrays(); k++) {
-//      array = vtk_mesh.GetPointData().GetArray(k);
-//      array_name = array.GetName();
-//      if array_name[-1] == '_':
-//        array.SetName(array_name[0:-1])
+    // for(int k=0; k<vtk_mesh.GetPointData().GetNumberOfArrays(); k++) {
+    // array = vtk_mesh.GetPointData().GetArray(k);
+    // array_name = array.GetName();
+    // if array_name[-1] == '_':
+    // array.SetName(array_name[0:-1])
 
     // time_values = reader.GetOutputInformation(0).Get(
-    //     vtkStreamingDemandDrivenPipeline.TIME_STEPS()
-    //     )
+    // vtkStreamingDemandDrivenPipeline.TIME_STEPS()
+    // )
 
     return vtk_mesh;
   }
@@ -183,40 +187,82 @@ public class VTKReader {
   public static int dimensions = 3;
 
   public static double[] toCoordDoubleArray(vtkPoints points) {
-    return ((vtkDoubleArray)points.GetData()).GetJavaArray();
-    /*double[] outputArray = new double[points.GetNumberOfPoints() * dimensions];
+    // return ((vtkDoubleArray)points.GetData()).GetJavaArray();
+    double[] outputArray = new double[(int) points.GetNumberOfPoints() * dimensions];
     vtkDataArray pointsArray = points.GetData();
     for (int i = 0; i < points.GetNumberOfPoints(); i++) {
       double[] point = pointsArray.GetTuple3(i); // 3 dimensions
       System.arraycopy(point, 0, outputArray, i * dimensions, dimensions);
     }
-    return outputArray;*/
+    return outputArray;
   }
 
+  // Buggy VTK array copy
+  // https://discourse.vtk.org/t/java-wrapper-code-changes/5834/11
+  protected static boolean useVTKArrayCopy = false;
+
   public static float[] toCoordFloatArray(vtkPoints points) {
-    // If input is made of float
-    if(points.GetData() instanceof vtkFloatArray) {
-      //System.out.println("LOADING FLOAT  ");
-      return ((vtkFloatArray)points.GetData()).GetJavaArray();
-    }
-    else if(points.GetData() instanceof vtkDoubleArray){
-      //System.out.println("LOADING DOUBLE  ");
-      vtkDoubleArray pointsArray = (vtkDoubleArray)points.GetData();
-      return Array.cloneFloat(pointsArray.GetJavaArray());
-    }
-    else {
-      vtkDataArray pointsArray = points.GetData();
+    if (useVTKArrayCopy) {
+      // If input is made of float
+      if (points.GetData() instanceof vtkFloatArray) {
 
-      float[] outputArray = new float[(int) (points.GetNumberOfPoints() * dimensions)];
+        int dims = points.GetData().GetNumberOfComponents();
 
-      for (int i = 0; i < points.GetNumberOfPoints(); i++) {
-        float[] point = Array.cloneFloat(pointsArray.GetTuple3(i));
-        System.arraycopy(point, 0, outputArray, i * dimensions, dimensions);
+        float[] floats = ((vtkFloatArray) points.GetData()).GetJavaArray();
+
+        // Check appropriate size
+        int nFloats = (int) (1f * floats.length / dims);
+        long nTuples = points.GetData().GetNumberOfTuples();
+        long nPoints = points.GetNumberOfPoints();
+
+        if (nTuples != nFloats) {
+          log.warn("#POINTS : " + nPoints + " #TUPLES : " + nTuples + " #FLOATS : " + nFloats);
+
+          // Search for a difference
+
+          vtkDataArray pointsArray = points.GetData();
+
+          for (int i = 0; i < nPoints; i++) {
+            double[] point = pointsArray.GetTuple3(i);
+
+            if (floats[i * dims + 0] != point[0]) {
+              log.warn("Point[" + i + "].x differ");
+            }
+            if (floats[i * dims + 1] != point[1]) {
+              log.warn("Point[" + i + "].y differ");
+            }
+            if (floats[i * dims + 2] != point[2]) {
+              log.warn("Point[" + i + "].z differ");
+            }
+          }
+
+          // Print remaining values
+
+          for (int i = (int) nPoints * dims; i < floats.length; i += dims) {
+            log.warn("Point[" + i / dims + "] = (" + floats[i + 0] + "," + floats[i + 1] + ","
+                + floats[i + 2] + ")");
+          }
+          log.warn("Found " + (nFloats - nTuples) + " extra points");
+
+        }
+
+        return floats;
+      } else if (points.GetData() instanceof vtkDoubleArray) {
+        vtkDoubleArray pointsArray = (vtkDoubleArray) points.GetData();
+        return Array.cloneFloat(pointsArray.GetJavaArray());
       }
-      return outputArray;
     }
+    
+    // Use manual array copy
+    vtkDataArray pointsArray = points.GetData();
 
+    float[] outputArray = new float[(int) (points.GetNumberOfPoints() * dimensions)];
 
+    for (int i = 0; i < points.GetNumberOfPoints(); i++) {
+      float[] point = Array.cloneFloat(pointsArray.GetTuple3(i));
+      System.arraycopy(point, 0, outputArray, i * dimensions, dimensions);
+    }
+    return outputArray;
   }
 
 
@@ -249,18 +295,31 @@ public class VTKReader {
   }
 
   public static float[] toCoordFloatArray(vtkDataArray points) {
-    if(points instanceof vtkFloatArray) {
-      return ((vtkFloatArray)points).GetJavaArray();
-    }
-    else {
+    if (points instanceof vtkFloatArray && useVTKArrayCopy) {
+      return ((vtkFloatArray) points).GetJavaArray();
+    } else {
       float[] outputArray = new float[(int) (points.GetNumberOfTuples() * dimensions)];
 
       for (int i = 0; i < points.GetNumberOfTuples(); i++) {
         double[] point = points.GetTuple3(i); // 3 dimensions
 
-        outputArray[i * dimensions + 0] = (float)point[0];
-        outputArray[i * dimensions + 1] = (float)point[1];
-        outputArray[i * dimensions + 2] = (float)point[2];
+        outputArray[i * dimensions + 0] = (float) point[0];
+        outputArray[i * dimensions + 1] = (float) point[1];
+        outputArray[i * dimensions + 2] = (float) point[2];
+      }
+
+      return outputArray;
+    }
+  }
+  
+  public static float[] toFloatArray(vtkDataArray points) {
+    if (points instanceof vtkFloatArray && useVTKArrayCopy) {
+      return ((vtkFloatArray) points).GetJavaArray();
+    } else {
+      float[] outputArray = new float[(int) (points.GetNumberOfTuples() * dimensions)];
+
+      for (int i = 0; i < points.GetNumberOfTuples(); i++) {
+        outputArray[i] = (float) points.GetTuple1(i); // 1 dimensions
       }
 
       return outputArray;
