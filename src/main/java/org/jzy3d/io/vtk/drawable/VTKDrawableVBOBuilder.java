@@ -56,7 +56,6 @@ public class VTKDrawableVBOBuilder extends AbstractVTKDrawableBuilder implements
   }
 
   protected GeometryMode geometryMode = GeometryMode.SINGLE_GEOMETRY;
-  // protected GeometryMode geometryMode = GeometryMode.MULTI_GEOMETRY;
   protected VerticeMode verticeMode = VerticeMode.REPEATED;
   protected int expectedGeometry = VTKGeometry.VTK_QUAD;
   protected NormalMode normalMode = NormalMode.REPEATED;
@@ -362,7 +361,7 @@ public class VTKDrawableVBOBuilder extends AbstractVTKDrawableBuilder implements
 
     if (VTKGeometry.VTK_QUAD == expectedGeometry
         || VTKGeometry.VTK_HEXAHEDRON == expectedGeometry) {
-      pointsPerGeometry = 4; // hexahedron will be made built as a collection of quads
+      pointsPerGeometry = 4; // hexahedron will be built as a collection of quads
     } else if (VTKGeometry.VTK_TRIANGLE == expectedGeometry) {
       pointsPerGeometry = 3;
     } else if (VTKGeometry.VTK_EMPTY_CELL == expectedGeometry) {
