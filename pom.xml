@@ -48,6 +48,12 @@
 			<version>${project.version}</version>
 		</dependency>
 
+		<dependency>
+			<groupId>org.jzy3d</groupId>
+			<artifactId>jzy3d-depthpeeling</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
 
 		<dependency>
 			<groupId>org.jzy3d</groupId>

@@ -6,6 +6,7 @@ import org.jzy3d.chart.Chart;
 import org.jzy3d.chart.factories.AWTChartFactory;
 import org.jzy3d.chart.factories.ChartFactory;
 import org.jzy3d.colors.Color;
+import org.jzy3d.factories.DepthPeelingPainterFactory;
 import org.jzy3d.io.vtk.drawable.VTKDrawableVBOBuilder;
 import org.jzy3d.plot3d.primitives.CoplanarityManager;
 import org.jzy3d.plot3d.primitives.Drawable;
@@ -121,7 +122,8 @@ public class PVTU {
     // ----------------------------------------------
     // Draw
 
-    ChartFactory f = new AWTChartFactory();
+    ChartFactory f = new AWTChartFactory(new DepthPeelingPainterFactory());
+    //ChartFactory f = new AWTChartFactory();
     Chart chart = f.newChart();
     chart.getView().setAxisDisplayed(true);
     chart.getView().setSquared(false);
