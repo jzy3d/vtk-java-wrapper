@@ -21,8 +21,8 @@ import vtk.vtkGeometryFilter;
 import vtk.vtkPolyData;
 import vtk.vtkPolyDataNormals;
 import vtk.vtkUnstructuredGrid;
-import vtk.processing.VTKContourGridProcessor;
-import vtk.processing.VTKContourProcessor;
+import vtk.processing.VTKIsoLineGridProcessor;
+import vtk.processing.VTKIsoLineProcessor;
 
 /**
  * Need VM arguments : -Djava.library.path=/Users/martin/Dev/jzy3d/private/vtk-java-wrapper/lib/9.1.0/vtk-Darwin-x86_64
@@ -110,7 +110,7 @@ public class PVTU {
 
     data.GetPointData().SetActiveScalars(propertyName);
 
-    VTKContourProcessor contour = new VTKContourProcessor(dataPort, n, min, max);
+    VTKIsoLineProcessor contour = new VTKIsoLineProcessor(dataPort, n, min, max);
 
     //VTKContourGridProcessor contour = new VTKContourGridProcessor(dataPort, n, min, max);
 

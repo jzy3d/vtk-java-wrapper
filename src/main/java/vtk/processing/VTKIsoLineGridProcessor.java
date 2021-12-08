@@ -26,7 +26,7 @@ import vtk.vtkStripper;
  * 
  * @author martin
  */
-public class VTKContourGridProcessor {
+public class VTKIsoLineGridProcessor {
   protected vtkContour3DLinearGrid contourGrid;
   protected vtkStripper contourStripper;
 
@@ -36,7 +36,7 @@ public class VTKContourGridProcessor {
   protected boolean debug = false;
 
 
-  public VTKContourGridProcessor(vtkAlgorithmOutput source, int n, double from, double to) {
+  public VTKIsoLineGridProcessor(vtkAlgorithmOutput source, int n, double from, double to) {
     
     // -----------------------------------------------------------
     // Contour processing
