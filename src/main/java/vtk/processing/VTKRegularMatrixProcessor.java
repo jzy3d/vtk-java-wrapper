@@ -6,7 +6,9 @@ import vtk.vtkProbeFilter;
 import vtk.vtkUnstructuredGrid;
 
 public class VTKRegularMatrixProcessor {
-  public static vtkProbeFilter getMatrix3D(vtkUnstructuredGrid ugrid, int[] dims) {
+  public static vtkProbeFilter getProbeFilter(vtkUnstructuredGrid ugrid, String property, int[] dims) {
+    ugrid.GetPointData().SetActiveScalars(property); 
+    
     double[] range = ugrid.GetScalarRange();
     double[] bounds = ugrid.GetBounds();
 
