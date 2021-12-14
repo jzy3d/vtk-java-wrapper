@@ -1,6 +1,7 @@
 package org.jzy3d.io.vtk.drawable;
 
 import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
 import java.util.HashSet;
 import java.util.Set;
 import org.jzy3d.colors.Color;
@@ -10,6 +11,7 @@ import org.jzy3d.maths.Array;
 import org.jzy3d.maths.BoundingBox3d;
 import org.jzy3d.plot3d.primitives.volume.Texture3D;
 import org.jzy3d.plot3d.primitives.volume.Volume;
+import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.util.GLBuffers;
 import vtk.VTKGeometry;
 import vtk.VTKUtils;
@@ -128,7 +130,7 @@ public class VTKVolumeBuilder {
 
     int sizeofFloat = 4;
 
-    ByteBuffer buffer = GLBuffers.newDirectByteBuffer(xx * yy * zz * sizeofFloat * 4);
+    FloatBuffer buffer = Buffers.newDirectFloatBuffer(xx * yy * zz * 4);
 
     Set<Long> cellId = new HashSet<>();
     
