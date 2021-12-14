@@ -45,8 +45,11 @@ public class PVTU {
     vtkAlgorithm reader = VTKReader.getReader(file);
     vtkUnstructuredGrid ugrid = VTKReader.getOutput(reader);
 
-    ugrid.GetPointData().SetActiveScalars(propertyName); // IMPORTANT TO GET CONTOUR PROCESSED!!!
+    // select the property on which contour should be processed
+    ugrid.GetPointData().SetActiveScalars(propertyName); 
 
+    
+    
     // ----------------------------------------------
     // Prepare the grid for contour processing
 
@@ -64,8 +67,8 @@ public class PVTU {
       // This is supposed to merge the duplicated point
       vtkCleanPolyData cleanPolyData = new vtkCleanPolyData();
       cleanPolyData.SetInputConnection(convertToPoly.GetOutputPort());
-      cleanPolyData.SetTolerance(0.0);
-      cleanPolyData.ToleranceIsAbsoluteOff(); // relative to bounding box
+      //cleanPolyData.SetTolerance(0.0);
+      //cleanPolyData.ToleranceIsAbsoluteOff(); // relative to bounding box
       cleanPolyData.PointMergingOn();
       cleanPolyData.ConvertLinesToPointsOff();
       cleanPolyData.ConvertPolysToLinesOff();
@@ -122,8 +125,7 @@ public class PVTU {
     // ----------------------------------------------
     // Draw
 
-    ChartFactory f = new AWTChartFactory(new DepthPeelingPainterFactory());
-    //ChartFactory f = new AWTChartFactory();
+    ChartFactory f = new AWTChartFactory();
     Chart chart = f.newChart();
     chart.getView().setAxisDisplayed(true);
     chart.getView().setSquared(false);
@@ -137,7 +139,7 @@ public class PVTU {
 
     List<Drawable> drawables = new ArrayList<>();
     drawables.addAll(contour.getDrawableContourLines(Color.GRAY)); // contour lines
-    drawables.addAll(contour.getDrawableContourLabels(Color.GRAY)); // contour labels
+    //drawables.addAll(contour.getDrawableContourLabels(Color.GRAY)); // contour labels
     drawables.add(scatter);
 
     CoplanarityManager coplanarDrawables = new CoplanarityManager(drawables, polygonsVBO); // cleanly
