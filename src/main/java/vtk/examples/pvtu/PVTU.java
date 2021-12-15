@@ -6,6 +6,7 @@ import org.jzy3d.chart.Chart;
 import org.jzy3d.chart.factories.AWTChartFactory;
 import org.jzy3d.chart.factories.ChartFactory;
 import org.jzy3d.colors.Color;
+import org.jzy3d.factories.DepthPeelingPainterFactory;
 import org.jzy3d.io.vtk.drawable.VTKDrawableVBOBuilder;
 import org.jzy3d.plot3d.primitives.CoplanarityManager;
 import org.jzy3d.plot3d.primitives.Drawable;
@@ -20,8 +21,8 @@ import vtk.vtkGeometryFilter;
 import vtk.vtkPolyData;
 import vtk.vtkPolyDataNormals;
 import vtk.vtkUnstructuredGrid;
-import vtk.processing.VTKContourGridProcessor;
-import vtk.processing.VTKContourProcessor;
+import vtk.processing.VTKIsoLineGridProcessor;
+import vtk.processing.VTKIsoLineProcessor;
 
 /**
  * Need VM arguments : -Djava.library.path=/Users/martin/Dev/jzy3d/private/vtk-java-wrapper/lib/9.1.0/vtk-Darwin-x86_64
@@ -44,8 +45,11 @@ public class PVTU {
     vtkAlgorithm reader = VTKReader.getReader(file);
     vtkUnstructuredGrid ugrid = VTKReader.getOutput(reader);
 
-    ugrid.GetPointData().SetActiveScalars(propertyName); // IMPORTANT TO GET CONTOUR PROCESSED!!!
+    // select the property on which contour should be processed
+    ugrid.GetPointData().SetActiveScalars(propertyName); 
 
+    
+    
     // ----------------------------------------------
     // Prepare the grid for contour processing
 
@@ -63,8 +67,8 @@ public class PVTU {
       // This is supposed to merge the duplicated point
       vtkCleanPolyData cleanPolyData = new vtkCleanPolyData();
       cleanPolyData.SetInputConnection(convertToPoly.GetOutputPort());
-      cleanPolyData.SetTolerance(0.0);
-      cleanPolyData.ToleranceIsAbsoluteOff(); // relative to bounding box
+      //cleanPolyData.SetTolerance(0.0);
+      //cleanPolyData.ToleranceIsAbsoluteOff(); // relative to bounding box
       cleanPolyData.PointMergingOn();
       cleanPolyData.ConvertLinesToPointsOff();
       cleanPolyData.ConvertPolysToLinesOff();
@@ -109,7 +113,7 @@ public class PVTU {
 
     data.GetPointData().SetActiveScalars(propertyName);
 
-    VTKContourProcessor contour = new VTKContourProcessor(dataPort, n, min, max);
+    VTKIsoLineProcessor contour = new VTKIsoLineProcessor(dataPort, n, min, max);
 
     //VTKContourGridProcessor contour = new VTKContourGridProcessor(dataPort, n, min, max);
 
@@ -135,7 +139,7 @@ public class PVTU {
 
     List<Drawable> drawables = new ArrayList<>();
     drawables.addAll(contour.getDrawableContourLines(Color.GRAY)); // contour lines
-    drawables.addAll(contour.getDrawableContourLabels(Color.GRAY)); // contour labels
+    //drawables.addAll(contour.getDrawableContourLabels(Color.GRAY)); // contour labels
     drawables.add(scatter);
 
     CoplanarityManager coplanarDrawables = new CoplanarityManager(drawables, polygonsVBO); // cleanly

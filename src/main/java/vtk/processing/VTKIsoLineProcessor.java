@@ -26,7 +26,7 @@ import vtk.vtkStripper;
  * 
  * @author martin
  */
-public class VTKContourProcessor {
+public class VTKIsoLineProcessor {
   protected vtkContourFilter contours;
   protected vtkStripper contourStripper;
 
@@ -46,7 +46,7 @@ public class VTKContourProcessor {
    * @param from
    * @param to
    */
-  public VTKContourProcessor(vtkAlgorithmOutput source, int n, double from, double to) {
+  public VTKIsoLineProcessor(vtkAlgorithmOutput source, int n, double from, double to) {
     
     // contour filter
     contours = new vtkContourFilter();
@@ -70,7 +70,7 @@ public class VTKContourProcessor {
    * @param source
    * @param levels
    */
-  public VTKContourProcessor(vtkAlgorithmOutput source, double[] levels) {
+  public VTKIsoLineProcessor(vtkAlgorithmOutput source, double[] levels) {
 
     // contour filter
     contours = new vtkContourFilter();

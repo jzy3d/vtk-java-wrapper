@@ -487,6 +487,8 @@ public class VTKDrawableVBOBuilder extends AbstractVTKDrawableBuilder implements
    * @param cellNumber
    */
   protected void initializeElementArrays(int pointsPerGeometry, int cellNumber) {
+    multiElementCursor = 0;
+    singleElementCursor = 0;
 
     if (VTKGeometry.VTK_HEXAHEDRON == expectedGeometry) {
       // an hexahedron will be drawn has a collection of 6 quads
