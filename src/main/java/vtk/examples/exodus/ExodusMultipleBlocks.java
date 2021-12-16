@@ -1,5 +1,6 @@
 package vtk.examples.exodus;
 
+import org.jzy3d.maths.Array;
 import vtk.*;
 
 
@@ -12,7 +13,9 @@ public class ExodusMultipleBlocks {
   public static void main(String[] args) {
     VTKUtils.loadVtkNativeLibraries();
 
-    String file = "G:/Shared drives/Development/FEM Enthalpy method/Outputs/ExampleOutputs/Exodus/3D_Cp_HeatSource/Cp_HS_bornDead_woAdp_subDomain_New_evapBC.e-s301";
+    //String file = "G:/Shared drives/Development/FEM Enthalpy method/Outputs/ExampleOutputs/Exodus/3D_Cp_HeatSource/Cp_HS_bornDead_woAdp_subDomain_New_evapBC.e-s301";
+    String file = "/Users/martin/Datasets/thermocalc/Exodus/3D_Cp_HeatSource/Cp_HS_bornDead_woAdp_subDomain_New_evapBC.e-s301";
+    
     String propertyName = "temperature";
 
     readAndShow(file, propertyName);
@@ -21,8 +24,10 @@ public class ExodusMultipleBlocks {
   public static void readAndShow(String file, String propertyName) {
     vtkExodusIIReader reader = (vtkExodusIIReader) VTKReader.getReader(file);
     int[] timerange = reader.GetTimeStepRange();
-
-    vtkUnstructuredGrid[] ugrids = VTKReader.read_exodusii_grid(reader, new int[]{1, 1}, timerange[1], propertyName);
+    
+    Array.print("Exodus time range: ", timerange);
+    
+    vtkUnstructuredGrid[] ugrids = VTKReader.read_exodusii_grids(reader, new int[]{1, 1}, timerange[1], propertyName);
 
     // Fetch metadata.
     reader.UpdateInformation();

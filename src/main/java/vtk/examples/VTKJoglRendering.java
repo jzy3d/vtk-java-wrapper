@@ -41,13 +41,14 @@ public class VTKJoglRendering {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 
-				String file = "/Volumes/GoogleDrive/Shared drives/Development/FEM Enthalpy method/Outputs/ExampleOutputs/Exodus/3D_Cp_HeatSource/Cp_HS_bornDead_woAdp_subDomain_New_evapBC.e-s301";
+                //String file = "/Volumes/GoogleDrive/Shared drives/Development/FEM Enthalpy method/Outputs/ExampleOutputs/Exodus/3D_Cp_HeatSource/Cp_HS_bornDead_woAdp_subDomain_New_evapBC.e-s301";
+				String file = "/Users/martin/Datasets/thermocalc/Exodus/3D_Cp_HeatSource/Cp_HS_bornDead_woAdp_subDomain_New_evapBC.e-s301";
 				String propertyName = "temperature";
 
 				vtkExodusIIReader reader = (vtkExodusIIReader) VTKReader.getReader(file);
 				int[] timerange = reader.GetTimeStepRange();
 
-				vtkUnstructuredGrid[] ugrids = VTKReader.read_exodusii_grid(reader, new int[]{1, 0}, timerange[1], propertyName);
+				vtkUnstructuredGrid[] ugrids = VTKReader.read_exodusii_grids(reader, new int[]{1, 0}, timerange[1], propertyName);
 
 				// Fetch metadata.
 				reader.UpdateInformation();
