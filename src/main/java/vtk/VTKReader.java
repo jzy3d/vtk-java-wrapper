@@ -38,9 +38,9 @@ public class VTKReader {
       throw new RuntimeException(filename + " does not exists");
 
     vtkAlgorithm reader = getReader(filename);
-    if (reader instanceof vtkExodusIIReader) {
-      return read_exodusii_grid((vtkExodusIIReader) reader, timestep);
-    }
+//    if (reader instanceof vtkExodusIIReader) {
+//      return read_exodusii_grid((vtkExodusIIReader) reader, timestep);
+//    }
 
     return getOutput(reader);
   }
@@ -70,7 +70,7 @@ public class VTKReader {
 
   /**
    * Read the first {@link vtkUnstructuredGrid} in the exodus file
-   * 
+   *
    * @param reader
    * @param timestep
    * @return
