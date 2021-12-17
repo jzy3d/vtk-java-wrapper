@@ -67,6 +67,7 @@ public class VTKJoglRendering {
 				vtkMultiBlockDataSet output = reader.GetOutput();
 				vtkCompositeDataIterator iter = output.NewIterator();
 				vtkScalarsToColors vtkScalarsToColors = null;
+				
 				for (iter.InitTraversal(); iter.IsDoneWithTraversal() == 0; iter.GoToNextItem()) {
 					vtkDataObject dObj = iter.GetCurrentDataObject();
 					vtkUnstructuredGrid ugrid = (vtkUnstructuredGrid) dObj;
