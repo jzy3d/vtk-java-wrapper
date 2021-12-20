@@ -6,6 +6,7 @@ import vtk.VTKReader;
 import vtk.vtkActor;
 import vtk.vtkAlgorithmOutput;
 import vtk.vtkBoxRepresentation;
+import vtk.vtkColorTransferFunction;
 import vtk.vtkCompositeDataGeometryFilter;
 import vtk.vtkCompositeDataIterator;
 import vtk.vtkCompositePolyDataMapper;
@@ -15,6 +16,7 @@ import vtk.vtkCutter;
 import vtk.vtkDataObject;
 import vtk.vtkExodusIIReader;
 import vtk.vtkGeometryFilter;
+import vtk.vtkLookupTable;
 import vtk.vtkMultiBlockDataSet;
 import vtk.vtkNamedColors;
 import vtk.vtkPlane;
@@ -62,8 +64,6 @@ public class VTKChart {
 
       double[] r = ugrid.GetScalarRange();
       mapper.SetScalarRange(r);
-      // vtkScalarsToColors = mapper.GetLookupTable();
-      System.out.println("Range=" + r[0] + "," + r[1]);
 
       // add mapper to actor
       actor.SetMapper(mapper);
@@ -293,6 +293,33 @@ public class VTKChart {
   
   public vtkNamedColors getColors() {
     return colors;
+  }
+  
+  public static vtkLookupTable createColormapRGB() {
+    vtkColorTransferFunction transfert = new vtkColorTransferFunction();
+    transfert.SetColorSpaceToRGB();
+    transfert.AddRGBPoint(0.00, 0.000, 0.000, 1.000); // blue
+    transfert.AddRGBPoint(0.25, 0.000, 1.000, 1.000); 
+    transfert.AddRGBPoint(0.50, 0.000, 1.000, 0.000); // green
+    transfert.AddRGBPoint(0.75, 1.000, 1.000, 0.000);
+    transfert.AddRGBPoint(1.00, 1.000, 0.000, 0.000); // red
+    
+    int nColor = 100;
+    
+    vtkLookupTable lookupTable = new vtkLookupTable();
+
+    lookupTable.SetNumberOfTableValues(nColor);
+    
+    for (int i = 0; i < nColor; i++) {
+      double[] rgb = new double[3];
+      transfert.GetColor(1D*i/nColor,rgb);
+      double[] rgba = {rgb[0], rgb[1], rgb[2], 1};
+      lookupTable.SetTableValue(i, rgba);
+    }
+    
+    lookupTable.SetRampToLinear();
+    lookupTable.Build();
+    return lookupTable;
   }
   
   /* ************************************************************ */
