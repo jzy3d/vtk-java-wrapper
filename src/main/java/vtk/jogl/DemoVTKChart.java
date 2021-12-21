@@ -42,7 +42,7 @@ public class DemoVTKChart {
         chart.addBox(reader.GetOutput());
 
         // UI part
-        chart.open(canvas);
+        chart.open(this.getClass().getSimpleName());
 
         // Start
         canvas.resetCamera();

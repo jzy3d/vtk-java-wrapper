@@ -32,12 +32,33 @@ import vtk.rendering.jogl.vtkJoglPanelComponent;
 
 public class VTKChart {
   protected vtkNamedColors colors = new vtkNamedColors();
+  
+  protected vtkAbstractJoglComponent<?> canvas;
+  
+  protected boolean useSwing;
 
   /* ************************************************************ */
   /*                                                              */
   /*                          GEOMETRIES                          */
   /*                                                              */
   /* ************************************************************ */
+
+  public void add(vtkActor actor) {
+    getCanvas().getRenderer().AddActor(actor);
+  }
+
+  
+  public vtkActor add(vtkExodusIIReader reader, String propertyName) {
+    vtkActor actor = createActor(reader, propertyName);
+    add(actor);
+    return actor;
+  }
+
+  public vtkActor add(vtkUnstructuredGrid ugrid, String propertyName) {
+    vtkActor actor = createActor(ugrid, propertyName);
+    add(actor);
+    return actor;
+  }
 
   /**
    * FIXME : iteration implemented for single element list
@@ -104,23 +125,36 @@ public class VTKChart {
   
   /* ************************************************************ */
   /*                                                              */
-  /*                            CONTOUR                           */
+  /*             CONTOUR (vtkContour3DLinearGrid)                 */
   /*                                                              */
   /* ************************************************************ */
+
+  public vtkActor addContour3D(vtkExodusIIReader reader, String propertyName,
+      double[] levels, double[] color) {
+
+    vtkActor actor = createContour3DActor(reader, propertyName, levels, color);
+    add(actor);
+    return actor;
+  }
+
+  public vtkActor addContour3D(vtkUnstructuredGrid ugrid, String propertyName,
+      double[] levels, double[] color) {
+
+    vtkActor actor = createContour3DActor(ugrid, propertyName, levels, color);
+    add(actor);
+    return actor;
+  }
 
 
   public vtkActor createContour3DActor(vtkExodusIIReader reader, String propertyName,
       double[] levels, double[] color) {
 
     setActiveScalar(reader, propertyName);
-
     vtkContour3DLinearGrid contour = createContour3DFilter(reader, levels);
-
     vtkActor contourActor = createActorForCompositePolyData(contour.GetOutputPort());
     
     contourActor.GetProperty().SetColor(color);
 
-    //Array.print("Contour bounds : ", contourActor.GetBounds());
     return contourActor;
   }
 
@@ -137,7 +171,6 @@ public class VTKChart {
     contourActor.SetMapper(contourMapper);
     contourActor.GetProperty().SetColor(color);
 
-    //Array.print("Contour bounds : ", contourActor.GetBounds());
     return contourActor;
   }
 
@@ -169,6 +202,30 @@ public class VTKChart {
     }
 
     return contour;
+  }
+
+  /* ************************************************************ */
+  /*                                                              */
+  /*                  CONTOUR (vtkContourFilter)                  */
+  /*                                                              */
+  /* ************************************************************ */
+
+  
+  public vtkActor addContour(vtkExodusIIReader reader, String propertyName, double[] levels, vtkLookupTable colormap, double[] scalarRange) {
+    vtkActor actor = createContourActor(reader, propertyName, levels, colormap, scalarRange);
+    
+    add(actor);
+    
+    return actor;
+  }
+  
+  public vtkActor createContourActor(vtkExodusIIReader reader, String propertyName, double[] levels, vtkLookupTable colormap, double[] scalarRange) {
+    vtkActor contourActor = createContourActor(reader, propertyName, levels);
+    
+    contourActor.GetMapper().SetLookupTable(colormap);
+    contourActor.GetMapper().SetScalarRange(scalarRange);
+    
+    return contourActor;
   }
 
   public vtkActor createContourActor(vtkExodusIIReader reader, String propertyName,
@@ -215,6 +272,59 @@ public class VTKChart {
   /*                             SLICES                           */
   /*                                                              */
   /* ************************************************************ */
+
+  public vtkActor[] addContourSlice(vtkExodusIIReader reader, double[] orientation, double[] position, double[] levels, vtkLookupTable colormap, double[] scalarRange, double[] lineColor, int lineWidth) {
+    vtkActor[] actors = createContourSliceActor(reader, orientation, position, levels, colormap, scalarRange, lineColor, lineWidth);
+    
+    add(actors[0]);
+    add(actors[1]);
+
+    return actors;
+  
+  }
+  
+  public vtkActor[] createContourSliceActor(vtkExodusIIReader reader, double[] orientation, double[] position, double[] levels, vtkLookupTable colormap, double[] scalarRange, double[] lineColor, int lineWidth) {
+  
+    vtkCutter cutter = createSliceFilter(reader, orientation, position);
+
+    vtkActor sliceActor3 = createActorForCompositePolyData(cutter.GetOutputPort());
+    sliceActor3.GetMapper().SetLookupTable(colormap);
+    sliceActor3.GetMapper().SetScalarRange(scalarRange);
+
+    // slice 3 / iso lines
+    vtkContourFilter contour = initContourFilter(levels);
+    contour.SetInputConnection(cutter.GetOutputPort());
+    contour.Update();
+
+    vtkActor sliceContour3 = createActorForCompositePolyData(contour.GetOutputPort());
+    sliceContour3.GetMapper().SetLookupTable(createColormapSingleColor(lineColor));
+    sliceContour3.GetProperty().SetColor(lineColor);
+    sliceContour3.GetProperty().SetLineWidth(lineWidth);
+
+    vtkActor[] actors = new vtkActor[2];
+    actors[0] = sliceActor3;
+    actors[1] = sliceContour3;
+    
+    return actors;
+  }
+
+
+  public vtkActor addSlice(vtkExodusIIReader reader, double[] orientation, double[] position, vtkLookupTable colormap, double[] scalarRange) {
+    vtkActor actor = createSliceActor(reader, orientation, position, colormap, scalarRange);
+    
+    add(actor);
+    
+    return actor;
+  }
+  
+  public vtkActor createSliceActor(vtkExodusIIReader reader, double[] orientation, double[] position, vtkLookupTable colormap, double[] scalarRange) {
+    vtkActor  slice = createSliceActor(reader, orientation, position);
+  
+    slice.GetMapper().SetLookupTable(colormap);
+    slice.GetMapper().SetScalarRange(scalarRange);
+
+    return slice;
+  }
   
   /**
    * Create a plane to cut,here it cuts in the XZ direction
@@ -250,13 +360,25 @@ public class VTKChart {
   /*                                                              */
   /* ************************************************************ */
 
+
+  public void addOrientationAxis() {
+    addOrientationAxis(getCanvas());
+  }
   
-  public void addOrientationAxis(final vtkAbstractJoglComponent<?> joglWidget) {
-    vtkAbstractJoglComponent.attachOrientationAxes(joglWidget);
+  public void addOrientationAxis(final vtkAbstractJoglComponent<?> canvas) {
+    vtkAbstractJoglComponent.attachOrientationAxes(canvas);
   }
 
-  public void addColorbar(String propertyName, vtkScalarsToColors vtkScalarsToColors,
-      final vtkAbstractJoglComponent<?> joglWidget) {
+  public vtkScalarBarActor addColorbar(String propertyName, vtkActor actor) {
+    return addColorbar(propertyName, actor.GetMapper().GetLookupTable(), getCanvas());
+  }
+
+  public vtkScalarBarActor addColorbar(String propertyName, vtkScalarsToColors colormap) {
+    return addColorbar(propertyName, colormap, getCanvas());
+  }
+  
+  public vtkScalarBarActor addColorbar(String propertyName, vtkScalarsToColors vtkScalarsToColors,
+      vtkAbstractJoglComponent<?> joglWidget) {
     // Add Scalar bar widget
     vtkScalarBarWidget scalarBar = new vtkScalarBarWidget();
     scalarBar.SetInteractor(joglWidget.getRenderWindowInteractor());
@@ -268,27 +390,32 @@ public class VTKChart {
     vtkScalarBarActor.SetTextPositionToPrecedeScalarBar();
     vtkScalarBarActor.SetNumberOfLabels(3);
 
-    vtkScalarBarRepresentation srep = (vtkScalarBarRepresentation) scalarBar.GetRepresentation();
-    srep.SetPosition(0.5, 0.053796);
-    srep.SetPosition2(0.33, 0.106455);
+    vtkScalarBarRepresentation colormap = (vtkScalarBarRepresentation) scalarBar.GetRepresentation();
+    colormap.SetPosition(0.5, 0.053796);
+    colormap.SetPosition2(0.33, 0.106455);
     scalarBar.EnabledOn();
     scalarBar.RepositionableOn();
+    
+    return vtkScalarBarActor;
   }
 
-  public void addBox(vtkMultiBlockDataSet output) {
+  public vtkBoxRepresentation addBox(vtkMultiBlockDataSet output) {
     double[] box = new double[6];
+    
     output.GetBounds(box);
     
-    addBox(box);
+    return addBox(box);
   }
 
-  public void addBox(double[] box) {
+  public vtkBoxRepresentation addBox(double[] box) {
     final vtkBoxRepresentation representation = new vtkBoxRepresentation();
     representation.SetPlaceFactor(1.25);
     representation.PlaceWidget(box);
 
     representation.VisibilityOn();
     representation.HandlesOn();
+    
+    return representation;
   }
   
   public vtkNamedColors getColors() {
@@ -322,6 +449,15 @@ public class VTKChart {
     return lookupTable;
   }
   
+  public static vtkLookupTable createColormapSingleColor(double[] color) {
+    vtkLookupTable whiteTable = new vtkLookupTable();
+
+    whiteTable.SetNumberOfTableValues(1);
+    whiteTable.SetTableValue(0, color);
+    
+    return whiteTable;
+  }
+  
   /* ************************************************************ */
   /*                                                              */
   /*                        COMPONENTS                            */
@@ -329,20 +465,26 @@ public class VTKChart {
   /* ************************************************************ */
 
 
-  public vtkAbstractJoglComponent<?> newCanvas() {
-    return newCanvas(true);
+  public vtkAbstractJoglComponent<?> getCanvas() {
+    if(canvas==null)
+      canvas = newCanvas(useSwing);
+    return canvas;
   }
 
-  public vtkAbstractJoglComponent<?> newCanvas(final boolean usePanel) {
+  public vtkAbstractJoglComponent<?> newCanvas(final boolean useSwing) {
     final vtkAbstractJoglComponent<?> joglWidget =
-        usePanel ? new vtkJoglPanelComponent() : new vtkJoglCanvasComponent();
+        useSwing ? new vtkJoglPanelComponent() : new vtkJoglCanvasComponent();
     System.out.println(
         "We are using " + joglWidget.getComponent().getClass().getName() + " for the rendering.");
     return joglWidget;
   }
 
-  public void open(final vtkAbstractJoglComponent<?> joglWidget) {
-    JFrame frame = new JFrame("VTK with JFrame and JOGL 2.4 RC4");
+  public void open(String title) {
+    open(title, getCanvas());
+  }
+  
+  public void open(String title, final vtkAbstractJoglComponent<?> joglWidget) {
+    JFrame frame = new JFrame(title);
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     frame.getContentPane().setLayout(new BorderLayout());
     frame.getContentPane().add(joglWidget.getComponent(), BorderLayout.CENTER);
@@ -386,11 +528,13 @@ public class VTKChart {
   /* ************************************************************ */
 
   public void setActiveScalar(vtkExodusIIReader reader, String propertyName) {
-    vtkUnstructuredGrid grid =
-        (vtkUnstructuredGrid) reader.GetOutput().NewIterator().GetCurrentDataObject();
+    setActiveScalar((vtkUnstructuredGrid) reader.GetOutput().NewIterator().GetCurrentDataObject(), propertyName);
+  }
+
+  public void setActiveScalar(vtkUnstructuredGrid grid, String propertyName) {
     grid.GetPointData().SetActiveScalars(propertyName);
   }
-  
+
   public vtkActor createActorForCompositePolyData(vtkAlgorithmOutput port) {
     vtkCompositePolyDataMapper mapper = new vtkCompositePolyDataMapper();
     mapper.SetInputConnection(port);
@@ -399,5 +543,6 @@ public class VTKChart {
     actor.SetMapper(mapper);
     return actor;
   }
+
 
 }
