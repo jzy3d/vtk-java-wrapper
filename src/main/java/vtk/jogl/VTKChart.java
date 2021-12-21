@@ -6,6 +6,7 @@ import vtk.VTKReader;
 import vtk.vtkActor;
 import vtk.vtkAlgorithmOutput;
 import vtk.vtkBoxRepresentation;
+import vtk.vtkCamera;
 import vtk.vtkColorTransferFunction;
 import vtk.vtkCompositeDataGeometryFilter;
 import vtk.vtkCompositeDataIterator;
@@ -20,7 +21,9 @@ import vtk.vtkLookupTable;
 import vtk.vtkMultiBlockDataSet;
 import vtk.vtkNamedColors;
 import vtk.vtkPlane;
+import vtk.vtkPolyData;
 import vtk.vtkPolyDataMapper;
+import vtk.vtkRenderer;
 import vtk.vtkScalarBarActor;
 import vtk.vtkScalarBarRepresentation;
 import vtk.vtkScalarBarWidget;
@@ -60,6 +63,12 @@ public class VTKChart {
     return actor;
   }
 
+  public vtkActor add(vtkPolyData polygons, String propertyName) {
+    vtkActor actor = createActor(polygons, propertyName);
+    add(actor);
+    return actor;
+  }
+
   /**
    * FIXME : iteration implemented for single element list
    */
@@ -83,8 +92,7 @@ public class VTKChart {
       mapper.SelectColorArray(propertyName);
       mapper.InterpolateScalarsBeforeMappingOn();
 
-      double[] r = ugrid.GetScalarRange();
-      mapper.SetScalarRange(r);
+      mapper.SetScalarRange(ugrid.GetScalarRange());
 
       // add mapper to actor
       actor.SetMapper(mapper);
@@ -96,24 +104,35 @@ public class VTKChart {
   }
   
   public vtkActor createActor(vtkUnstructuredGrid ugrid, String propertyName) {
-    vtkActor actor = new vtkActor();
-
     // Filter outer surface
     vtkGeometryFilter geometry = new vtkGeometryFilter();
     geometry.SetInputData(ugrid);
     geometry.Update();
-    
 
     // Mapper
     vtkPolyDataMapper mapper = new vtkPolyDataMapper();
     mapper.SetInputConnection(geometry.GetOutputPort());
     mapper.SelectColorArray(propertyName);
     mapper.InterpolateScalarsBeforeMappingOn();
+    mapper.SetScalarRange(ugrid.GetScalarRange());
 
-    double[] r = ugrid.GetScalarRange();
-    mapper.SetScalarRange(r);
-    // vtkScalarsToColors = mapper.GetLookupTable();
-    System.out.println("Range=" + r[0] + "," + r[1]);
+    // Add to actor
+    vtkActor actor = new vtkActor();
+    actor.SetMapper(mapper);
+    actor.GetProperty().SetEdgeVisibility(1);
+
+    return actor;
+  }
+  
+  public vtkActor createActor(vtkPolyData polygons, String propertyName) {
+    vtkActor actor = new vtkActor();
+
+    // Mapper
+    vtkPolyDataMapper mapper = new vtkPolyDataMapper();
+    mapper.SetInputData(polygons);
+    mapper.SelectColorArray(propertyName);
+    mapper.InterpolateScalarsBeforeMappingOn();
+    mapper.SetScalarRange(polygons.GetScalarRange());
 
     // add mapper to actor
     actor.SetMapper(mapper);
@@ -211,19 +230,36 @@ public class VTKChart {
   /* ************************************************************ */
 
   
-  public vtkActor addContour(vtkExodusIIReader reader, String propertyName, double[] levels, vtkLookupTable colormap, double[] scalarRange) {
-    vtkActor actor = createContourActor(reader, propertyName, levels, colormap, scalarRange);
+  public vtkActor addContour(vtkExodusIIReader reader, String propertyName, double[] levels, vtkLookupTable colormap, double[] range) {
+    vtkActor actor = createContourActor(reader, propertyName, levels, colormap, range);
     
     add(actor);
     
     return actor;
   }
-  
-  public vtkActor createContourActor(vtkExodusIIReader reader, String propertyName, double[] levels, vtkLookupTable colormap, double[] scalarRange) {
+
+  public vtkActor addContour(vtkUnstructuredGrid grid, String propertyName, double[] levels, vtkLookupTable colormap, double[] range) {
+    vtkActor actor = createContourActor(grid, propertyName, levels, colormap, range);
+    
+    add(actor);
+    
+    return actor;
+  }
+
+  public vtkActor createContourActor(vtkExodusIIReader reader, String propertyName, double[] levels, vtkLookupTable colormap, double[] range) {
     vtkActor contourActor = createContourActor(reader, propertyName, levels);
     
     contourActor.GetMapper().SetLookupTable(colormap);
-    contourActor.GetMapper().SetScalarRange(scalarRange);
+    contourActor.GetMapper().SetScalarRange(range);
+    
+    return contourActor;
+  }
+
+  public vtkActor createContourActor(vtkUnstructuredGrid grid, String propertyName, double[] levels, vtkLookupTable colormap, double[] range) {
+    vtkActor contourActor = createContourActor(grid, propertyName, levels);
+    
+    contourActor.GetMapper().SetLookupTable(colormap);
+    contourActor.GetMapper().SetScalarRange(range);
     
     return contourActor;
   }
@@ -232,7 +268,12 @@ public class VTKChart {
       double[] levels) {
     return createContourActor(reader, propertyName, levels, null);
   }
-  
+
+  public vtkActor createContourActor(vtkUnstructuredGrid grid, String propertyName,
+      double[] levels) {
+    return createContourActor(grid, propertyName, levels, null);
+  }
+
   public vtkActor createContourActor(vtkExodusIIReader reader, String propertyName,
       double[] levels, double[] color) {
 
@@ -251,10 +292,28 @@ public class VTKChart {
     return contourActor;
   }
 
+  public vtkActor createContourActor(vtkUnstructuredGrid grid, String propertyName,
+      double[] levels, double[] color) {
+
+    setActiveScalar(grid, propertyName);
+
+    vtkContourFilter contour = initContourFilter(levels);
+    contour.SetInputData(grid);
+    contour.Update();
+
+    vtkActor contourActor = createActorForCompositePolyData(contour.GetOutputPort());
+    
+    if(color!=null)
+      contourActor.GetProperty().SetColor(color);
+
+    //Array.print("Contour bounds : ", contourActor.GetBounds());
+    return contourActor;
+  }
+
   public vtkContourFilter initContourFilter(double[] levels) {
     vtkContourFilter contour = new vtkContourFilter();
     contour.SetComputeNormals(1);
-
+    
     contour.SetNumberOfContours(levels.length);
 
     for (int i = 0; i < levels.length; i++) {
@@ -273,8 +332,8 @@ public class VTKChart {
   /*                                                              */
   /* ************************************************************ */
 
-  public vtkActor[] addContourSlice(vtkExodusIIReader reader, double[] orientation, double[] position, double[] levels, vtkLookupTable colormap, double[] scalarRange, double[] lineColor, int lineWidth) {
-    vtkActor[] actors = createContourSliceActor(reader, orientation, position, levels, colormap, scalarRange, lineColor, lineWidth);
+  public vtkActor[] addContourSlice(vtkExodusIIReader reader, double[] orientation, double[] position, double[] levels, vtkLookupTable colormap, double[] range, double[] lineColor, int lineWidth) {
+    vtkActor[] actors = createContourSliceActor(reader, orientation, position, levels, colormap, range, lineColor, lineWidth);
     
     add(actors[0]);
     add(actors[1]);
@@ -283,45 +342,47 @@ public class VTKChart {
   
   }
   
-  public vtkActor[] createContourSliceActor(vtkExodusIIReader reader, double[] orientation, double[] position, double[] levels, vtkLookupTable colormap, double[] scalarRange, double[] lineColor, int lineWidth) {
+  public vtkActor[] createContourSliceActor(vtkExodusIIReader reader, double[] orientation, double[] position, double[] levels, vtkLookupTable colormap, double[] range, double[] lineColor, int lineWidth) {
   
     vtkCutter cutter = createSliceFilter(reader, orientation, position);
 
-    vtkActor sliceActor3 = createActorForCompositePolyData(cutter.GetOutputPort());
-    sliceActor3.GetMapper().SetLookupTable(colormap);
-    sliceActor3.GetMapper().SetScalarRange(scalarRange);
-
-    // slice 3 / iso lines
+    vtkActor sliceActor = createActorForCompositePolyData(cutter.GetOutputPort());
+    sliceActor.GetMapper().SetLookupTable(colormap);
+    sliceActor.GetMapper().SetScalarRange(range);
+    
+    // iso lines
     vtkContourFilter contour = initContourFilter(levels);
     contour.SetInputConnection(cutter.GetOutputPort());
     contour.Update();
 
-    vtkActor sliceContour3 = createActorForCompositePolyData(contour.GetOutputPort());
-    sliceContour3.GetMapper().SetLookupTable(createColormapSingleColor(lineColor));
-    sliceContour3.GetProperty().SetColor(lineColor);
-    sliceContour3.GetProperty().SetLineWidth(lineWidth);
+    vtkActor sliceContourActor = createActorForCompositePolyData(contour.GetOutputPort());
+    sliceContourActor.GetMapper().SetLookupTable(createColormapSingleColor(lineColor));
+    sliceContourActor.GetProperty().SetColor(lineColor);
+    sliceContourActor.GetProperty().SetLineWidth(lineWidth);
 
     vtkActor[] actors = new vtkActor[2];
-    actors[0] = sliceActor3;
-    actors[1] = sliceContour3;
+    actors[0] = sliceActor;
+    actors[1] = sliceContourActor;
     
     return actors;
   }
+  
+  //
 
 
-  public vtkActor addSlice(vtkExodusIIReader reader, double[] orientation, double[] position, vtkLookupTable colormap, double[] scalarRange) {
-    vtkActor actor = createSliceActor(reader, orientation, position, colormap, scalarRange);
+  public vtkActor addSlice(vtkExodusIIReader reader, double[] orientation, double[] position, vtkLookupTable colormap, double[] range) {
+    vtkActor actor = createSliceActor(reader, orientation, position, colormap, range);
     
     add(actor);
     
     return actor;
   }
   
-  public vtkActor createSliceActor(vtkExodusIIReader reader, double[] orientation, double[] position, vtkLookupTable colormap, double[] scalarRange) {
+  public vtkActor createSliceActor(vtkExodusIIReader reader, double[] orientation, double[] position, vtkLookupTable colormap, double[] range) {
     vtkActor  slice = createSliceActor(reader, orientation, position);
   
     slice.GetMapper().SetLookupTable(colormap);
-    slice.GetMapper().SetScalarRange(scalarRange);
+    slice.GetMapper().SetScalarRange(range);
 
     return slice;
   }
@@ -342,6 +403,61 @@ public class VTKChart {
 
   public vtkCutter createSliceFilter(vtkExodusIIReader reader, double[] orientation,
       double[] position) {
+    vtkCutter cutter = createSliceFilter(orientation, position);
+    cutter.SetInputConnection(reader.GetOutputPort());
+    cutter.Update();
+    return cutter;
+  }
+  
+  //
+  
+  public vtkActor[] addContourSlice(vtkUnstructuredGrid grid, double[] orientation, double[] position, double[] levels, vtkLookupTable colormap, double[] range, double[] lineColor, int lineWidth) {
+    vtkActor[] actors = createContourSliceActor(grid, orientation, position, levels, colormap, range, lineColor, lineWidth);
+    
+    add(actors[0]);
+    add(actors[1]);
+
+    return actors;
+  
+  }
+
+  
+  public vtkActor[] createContourSliceActor(vtkUnstructuredGrid grid, double[] orientation, double[] position, double[] levels, vtkLookupTable colormap, double[] range, double[] lineColor, int lineWidth) {
+    
+    vtkCutter cutter = createSliceFilter(grid, orientation, position);
+
+    vtkActor sliceActor = createActorForCompositePolyData(cutter.GetOutputPort());
+    sliceActor.GetMapper().SetLookupTable(colormap);
+    sliceActor.GetMapper().SetScalarRange(range);
+    
+    // iso lines
+    vtkContourFilter contour = initContourFilter(levels);
+    contour.SetInputConnection(cutter.GetOutputPort());
+    contour.Update();
+
+    vtkActor sliceContourActor = createActorForCompositePolyData(contour.GetOutputPort());
+    sliceContourActor.GetMapper().SetLookupTable(createColormapSingleColor(lineColor));
+    sliceContourActor.GetProperty().SetColor(lineColor);
+    sliceContourActor.GetProperty().SetLineWidth(lineWidth);
+
+    vtkActor[] actors = new vtkActor[2];
+    actors[0] = sliceActor;
+    actors[1] = sliceContourActor;
+    
+    return actors;
+  }
+  
+  public vtkCutter createSliceFilter(vtkUnstructuredGrid grid, double[] orientation,
+      double[] position) {
+    vtkCutter cutter = createSliceFilter(orientation, position);
+    cutter.SetInputData(grid);
+    cutter.Update();
+    return cutter;
+  }
+
+
+
+  public vtkCutter createSliceFilter(double[] orientation, double[] position) {
     vtkPlane plane = new vtkPlane();
     plane.SetOrigin(position);
     plane.SetNormal(orientation);
@@ -349,8 +465,6 @@ public class VTKChart {
     // create cutter
     vtkCutter cutter = new vtkCutter();
     cutter.SetCutFunction(plane);
-    cutter.SetInputConnection(reader.GetOutputPort());
-    cutter.Update();
     return cutter;
   }
   
@@ -407,15 +521,15 @@ public class VTKChart {
     return addBox(box);
   }
 
-  public vtkBoxRepresentation addBox(double[] box) {
-    final vtkBoxRepresentation representation = new vtkBoxRepresentation();
-    representation.SetPlaceFactor(1.25);
-    representation.PlaceWidget(box);
+  public vtkBoxRepresentation addBox(double[] bounds) {
+    final vtkBoxRepresentation box = new vtkBoxRepresentation();
+    box.SetPlaceFactor(1.25);
+    box.PlaceWidget(bounds);
 
-    representation.VisibilityOn();
-    representation.HandlesOn();
+    box.VisibilityOn();
+    box.HandlesOn();
     
-    return representation;
+    return box;
   }
   
   public vtkNamedColors getColors() {
@@ -464,6 +578,13 @@ public class VTKChart {
   /*                                                              */
   /* ************************************************************ */
 
+  public vtkCamera getCamera() {
+    return getRenderer().GetActiveCamera();
+  }
+
+  public vtkRenderer getRenderer() {
+    return getCanvas().getRenderer();
+  }
 
   public vtkAbstractJoglComponent<?> getCanvas() {
     if(canvas==null)
@@ -527,11 +648,11 @@ public class VTKChart {
   /*                                                              */
   /* ************************************************************ */
 
-  public void setActiveScalar(vtkExodusIIReader reader, String propertyName) {
+  public static void setActiveScalar(vtkExodusIIReader reader, String propertyName) {
     setActiveScalar((vtkUnstructuredGrid) reader.GetOutput().NewIterator().GetCurrentDataObject(), propertyName);
   }
 
-  public void setActiveScalar(vtkUnstructuredGrid grid, String propertyName) {
+  public static void setActiveScalar(vtkUnstructuredGrid grid, String propertyName) {
     grid.GetPointData().SetActiveScalars(propertyName);
   }
 
