@@ -237,6 +237,10 @@ public class VTKIsoLineProcessor {
     return getDrawableContourLines(color, -1);
   }
 
+  public List<LineStrip> getDrawableContourLines(int lineWidth) {
+    return getDrawableContourLines(null, lineWidth);
+  }
+
   public List<LineStrip> getDrawableContourLines(Color color, int lineWidth) {
     for (LineStrip line : drawableContourLines) {
       if(color!=null)
