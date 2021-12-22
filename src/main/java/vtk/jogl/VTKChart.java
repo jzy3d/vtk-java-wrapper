@@ -313,7 +313,7 @@ public class VTKChart {
   public vtkContourFilter initContourFilter(double[] levels) {
     vtkContourFilter contour = new vtkContourFilter();
     contour.SetComputeNormals(1);
-    
+    contour.SetComputeGradients(1);
     contour.SetNumberOfContours(levels.length);
 
     for (int i = 0; i < levels.length; i++) {
@@ -465,6 +465,8 @@ public class VTKChart {
     // create cutter
     vtkCutter cutter = new vtkCutter();
     cutter.SetCutFunction(plane);
+    cutter.SetGenerateTriangles(0);
+    //cutter.SetGenerateCutScalars(1);
     return cutter;
   }
   
