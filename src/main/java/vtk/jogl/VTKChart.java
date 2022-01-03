@@ -38,7 +38,7 @@ public class VTKChart {
   
   protected vtkAbstractJoglComponent<?> canvas;
   
-  protected boolean useSwing;
+  protected boolean useSwing = true;
 
   /* ************************************************************ */
   /*                                                              */
@@ -597,8 +597,8 @@ public class VTKChart {
   public vtkAbstractJoglComponent<?> newCanvas(final boolean useSwing) {
     final vtkAbstractJoglComponent<?> joglWidget =
         useSwing ? new vtkJoglPanelComponent() : new vtkJoglCanvasComponent();
-    System.out.println(
-        "We are using " + joglWidget.getComponent().getClass().getName() + " for the rendering.");
+    //System.out.println(
+    //    "We are using " + joglWidget.getComponent().getClass().getName() + " for the rendering.");
     return joglWidget;
   }
 
