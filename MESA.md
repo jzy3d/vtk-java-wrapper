@@ -53,29 +53,53 @@ Then go (expect 5 minutes excluding LLVM which will make build longer than that 
 
 The outcome is in `OSMESA_PREFIX`
 
-## Build VTK With OS Mesa
+
+## CPU ONSCREEN rendering : Run VTK With OS Mesa
 
 Edit CMake script so that
 
 | Name                       | Value                                      |
 |----------------------------|--------------------------------------------|
-| `VTK_USE_X`                | false                                      |
+| `VTK_USE_X`               | true                                       |
+| `VTK_OPENGL_HAS_OSMESA`  | false                                     |
+| `VTK_WRAP_JAVA`           | true                                      |
+
+
+Run DemoVTKCanvas (hence not using JOGL) with the following environment variables
+
+```
+export LD_LIBRARY_PATH=<MESA_INSTALL_PREFIX>:$LD_LIBRARY_PATH
+export LIBGL_ALWAYS_SOFTWARE=true
+```
+
+Not using these variables will use GPU rendering instead of CPU rendering
+
+
+## CPU OFFSCREEN rendering : Build VTK With OS Mesa
+
+Edit CMake script so that
+
+| Name                          | Value                                      |
+|-------------------------------|--------------------------------------------|
+| `VTK_USE_X`                  | false                                      |
 | `VTK_OPENGL_HAS_OSMESA`    | true                                       |
-| `OSMESA_INCLUDE_DIR`       | `/path/to/osmesa/include/`                 |
-| `OSMESA_LIBRARY`           | `/path/to/osmesa/lib/libOSMesa32.so`       |
-| `OPENGL_xmesa_INCLUDE_DIR` | `/path/to/osmesa/include/`                 |
-| `JOGL_LIB`                 | `/path/to/jogl-all.jar`                    |
-| `JOGL_LIB`                 | `/path/to/gluegen-rt.jar`                    |
+| `OSMESA_INCLUDE_DIR`        | `/path/to/osmesa/include/`             |
+| `OSMESA_LIBRARY`            | `/path/to/osmesa/lib/libOSMesa32.so`  |
+| `OPENGL_xmesa_INCLUDE_DIR` | `/path/to/osmesa/include/`              |
+| `JOGL_LIB`                   | `/path/to/jogl-all.jar`                 |
+| `JOGL_LIB`                   | `/path/to/gluegen-rt.jar`               |
 
 
 
 Add POSITION_INDEPENDENT_CODE to Cmake (https://cmake.org/cmake/help/latest/variable/CMAKE_POSITION_INDEPENDENT_CODE.html)
 
-https://github.com/gabime/spdlog/issues/1405
-https://stackoverflow.com/questions/19364969/compilation-fails-with-relocation-r-x86-64-32-against-rodata-str1-8-can-not
 
 
-## Other
+
+
+
+
+## Other links & info
 
 
 

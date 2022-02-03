@@ -1,6 +1,7 @@
 package vtk;
 
 import java.io.File;
+import java.util.Map;
 
 public class VTKUtils {
 
@@ -89,6 +90,14 @@ public class VTKUtils {
       }
     }
     System.loadLibrary(lib.GetLibraryName());
+  }
+  
+  public static void printEnv() {
+    Map<String, String> env = System.getenv();
+
+    for (Map.Entry<String, String> entry : env.entrySet()) {
+        System.out.println(entry.getKey() + " : " + entry.getValue());
+    }
   }
 
   ///////////////////////////

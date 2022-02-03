@@ -1,4 +1,4 @@
-package vtk.examples;
+package vtk.examples.gui.panel;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
@@ -16,9 +16,11 @@ import vtk.vtkPolyDataMapper;
 
 /**
  * An application that displays a 3D cone. The button allow to close the
- * application
+ * application.
+ * 
+ * Initially named SimpleVTK.
  */
-public class SimpleVTK extends JPanel implements ActionListener {
+public class DemoVTKPanel extends JPanel implements ActionListener {
   private static final long serialVersionUID = 1L;
   private vtkPanel renWin;
   private JButton exitButton;
@@ -30,7 +32,7 @@ public class SimpleVTK extends JPanel implements ActionListener {
   }
 
   // -----------------------------------------------------------------
-  public SimpleVTK() {
+  public DemoVTKPanel() {
     super(new BorderLayout());
 
     // build VTK Pipeline
@@ -64,13 +66,18 @@ public class SimpleVTK extends JPanel implements ActionListener {
   public static void main(String s[]) {
     SwingUtilities.invokeLater(new Runnable() {
       public void run() {
+        
+        DemoVTKPanel vtk = new DemoVTKPanel();
+        
         JFrame frame = new JFrame("SimpleVTK");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.getContentPane().setLayout(new BorderLayout());
-        frame.getContentPane().add(new SimpleVTK(), BorderLayout.CENTER);
+        frame.getContentPane().add(vtk, BorderLayout.CENTER);
         frame.setSize(400, 400);
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
+        
+        
       }
     });
   }

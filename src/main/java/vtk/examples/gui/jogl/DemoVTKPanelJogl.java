@@ -1,4 +1,4 @@
-package vtk.examples;
+package vtk.examples.gui.jogl;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
@@ -20,7 +20,7 @@ import vtk.rendering.jogl.vtkJoglPanelComponent;
 /**
  * An application that displays a 3D cone. 
  */
-public class SimpleVTKJogl {
+public class DemoVTKPanelJogl {
 
   // -----------------------------------------------------------------
   // Load VTK library and print which library was not properly loaded

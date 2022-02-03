@@ -1,4 +1,4 @@
-package vtk.jogl;
+package vtk.examples.gui.jogl;
 
 import javax.swing.SwingUtilities;
 import vtk.VTKReader;
@@ -7,8 +7,16 @@ import vtk.vtkActor;
 import vtk.vtkExodusIIReader;
 import vtk.vtkScalarsToColors;
 import vtk.vtkUnstructuredGrid;
+import vtk.jogl.VTKChart;
 import vtk.rendering.jogl.vtkAbstractJoglComponent;
 
+/**
+ * A VTK chart built with VTK and using JOGL for rendering.
+ * 
+ * A refactor of VTLJoglRendering.
+ * 
+ * @author martin
+ */
 public class DemoVTKChart {
   public static void main(String[] args) {
     VTKUtils.loadVtkNativeLibraries();
@@ -21,7 +29,7 @@ public class DemoVTKChart {
         // String file = "/Volumes/GoogleDrive/Shared drives/Development/FEM Enthalpy
         // method/Outputs/ExampleOutputs/Exodus/3D_Cp_HeatSource/Cp_HS_bornDead_woAdp_subDomain_New_evapBC.e-s301";
         String file =
-            "/Users/martin/Datasets/thermocalc/Exodus/3D_Cp_HeatSource/Cp_HS_bornDead_woAdp_subDomain_New_evapBC.e-s301";
+            "/home/martin/Datasets/thermocalc/Exodus/3D_Cp_HeatSource/Cp_HS_bornDead_woAdp_subDomain_New_evapBC.e-s301";
         String propertyName = "temperature";
 
         vtkExodusIIReader reader = getFileReader(file, propertyName);
