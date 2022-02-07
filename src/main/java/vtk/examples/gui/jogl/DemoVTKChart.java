@@ -12,9 +12,7 @@ import vtk.rendering.jogl.vtkAbstractJoglComponent;
 
 /**
  * A VTK chart built with VTK and using JOGL for rendering.
- * 
- * A refactor of VTLJoglRendering.
- * 
+ *  
  * @author martin
  */
 public class DemoVTKChart {

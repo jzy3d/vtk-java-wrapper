@@ -48,6 +48,8 @@ public class DemoVTKPanel extends JPanel implements ActionListener {
     renWin = new vtkPanel();
     renWin.GetRenderer().AddActor(coneActor);
 
+    renWin.Report();
+    
     // Add Java UI components
     exitButton = new JButton("Exit");
     exitButton.addActionListener(this);

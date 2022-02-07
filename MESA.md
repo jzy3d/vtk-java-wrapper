@@ -14,7 +14,7 @@ GraphicsConfiguration gcDef = graphDevsOrig[0].getDefaultConfiguration(); // Pri
 
 ## Install and build Mesa
 
-This installer is helpful to build [OS Mesa](https://docs.mesa3d.org/osmesa.html)
+This installer is helpful to build [OffScreen Mesa](https://docs.mesa3d.org/osmesa.html)
 
 ```shell
 git clone git@github.com:devernay/osmesa-install.git

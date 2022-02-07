@@ -1,18 +1,13 @@
 package vtk.examples.gui.jogl;
 
 import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import vtk.VTKUtils;
 import vtk.vtkActor;
 import vtk.vtkConeSource;
-import vtk.vtkNativeLibrary;
-import vtk.vtkPanel;
 import vtk.vtkPolyDataMapper;
+import vtk.vtkRenderWindow;
 import vtk.rendering.jogl.vtkAbstractJoglComponent;
 import vtk.rendering.jogl.vtkJoglCanvasComponent;
 import vtk.rendering.jogl.vtkJoglPanelComponent;
@@ -21,9 +16,6 @@ import vtk.rendering.jogl.vtkJoglPanelComponent;
  * An application that displays a 3D cone. 
  */
 public class DemoVTKPanelJogl {
-
-  // -----------------------------------------------------------------
-  // Load VTK library and print which library was not properly loaded
   static {
     VTKUtils.loadVtkNativeLibraries();
   }
@@ -43,8 +35,8 @@ public class DemoVTKPanelJogl {
         actor.SetMapper(coneMapper);
 
         // JOGL components
-        boolean usePanel = false;
-        final vtkAbstractJoglComponent<?> joglWidget = usePanel ? new vtkJoglPanelComponent() : new vtkJoglCanvasComponent();
+        boolean useSwing = true;
+        final vtkAbstractJoglComponent<?> joglWidget = useSwing ? new vtkJoglPanelComponent() : new vtkJoglCanvasComponent();
         System.out.println("We are using " + joglWidget.getComponent().getClass().getName() + " for the rendering.");
 
         joglWidget.getRenderer().AddActor(actor);
@@ -57,6 +49,21 @@ public class DemoVTKPanelJogl {
         frame.setSize(400, 400);
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
+        
+        // Report
+        if(true) {
+          vtkRenderWindow rw = joglWidget.getRenderWindow();
+          
+          //joglWidget.getVTKLock().lock();
+          rw.Render();
+          //joglWidget.getVTKLock().unlock();
+
+          System.out.println("direct rendering = " + (rw.IsDirect() == 1));
+          System.out.println("opengl supported = " + (rw.SupportsOpenGL() == 1));
+          System.out.println("report = " + rw.ReportCapabilities());
+          //joglWidget.getVTKLock().unlock();
+          
+        }
       }
     });
   }
