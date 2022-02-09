@@ -84,7 +84,7 @@ https://stackoverflow.com/questions/19364969/compilation-fails-with-relocation-r
 ## Other
 
 
-
+### Install on Ubuntu
 
 https://gist.github.com/SiyuanQi/600d1ce536791b7a3bd2e59fdbe69e66
 
@@ -97,3 +97,8 @@ https://docs.mesa3d.org/osmesa.html
 export MESA_INSTALLDIR=/home/martin/Programs/mesa-21.3.3
 
 https://community.khronos.org/t/installing-opengl-mesa-on-ubuntu/68797/2
+
+### Install on MacOS
+
+brew install mesa
+ls /usr/local/Cellar/mesa/21.1.2/lib

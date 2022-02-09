@@ -17,7 +17,7 @@ import org.jzy3d.plot3d.primitives.LineStrip;
 import org.jzy3d.plot3d.primitives.Point;
 import org.jzy3d.plot3d.primitives.Scatter;
 import org.jzy3d.plot3d.primitives.vbo.drawable.DrawableVBO2;
-import org.jzy3d.plot3d.text.DrawableTextWrapper;
+import org.jzy3d.plot3d.text.drawable.DrawableTextWrapper;
 import org.jzy3d.plot3d.text.renderers.jogl.JOGLTextRenderer2d;
 import com.google.common.collect.ArrayListMultimap;
 import vtk.VTKGeometry;
