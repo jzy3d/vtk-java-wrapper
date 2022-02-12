@@ -5,8 +5,8 @@ import java.util.List;
 import org.jzy3d.colors.Color;
 import org.jzy3d.maths.Coord3d;
 import org.jzy3d.plot3d.primitives.LineStrip;
-import org.jzy3d.plot3d.text.DrawableTextWrapper;
-import org.jzy3d.plot3d.text.drawable.DrawableTextBitmap;
+import org.jzy3d.plot3d.text.drawable.DrawableText;
+import org.jzy3d.plot3d.text.drawable.DrawableTextWrapper;
 import vtk.VTKGeometry;
 import vtk.vtkAlgorithmOutput;
 import vtk.vtkCellArray;
@@ -126,7 +126,7 @@ public class VTKIsoLineGridProcessor {
                 + midPoint[1] + ", " + midPoint[2] + " and value " + scalars.GetTuple1(midPointId));
       }
 
-      DrawableTextBitmap text = new DrawableTextBitmap("" + scalars.GetTuple1(midPointId),
+      DrawableText text = new DrawableText("" + scalars.GetTuple1(midPointId),
           new Coord3d(midPoint), Color.WHITE);
 
       drawableContourLabels.add(text);
