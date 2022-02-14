@@ -14,7 +14,7 @@ GraphicsConfiguration gcDef = graphDevsOrig[0].getDefaultConfiguration(); // Pri
 
 ## Install and build Mesa
 
-This installer is helpful to build [OS Mesa](https://docs.mesa3d.org/osmesa.html)
+This installer is helpful to build [OffScreen Mesa](https://docs.mesa3d.org/osmesa.html)
 
 ```shell
 git clone git@github.com:devernay/osmesa-install.git
@@ -50,6 +50,12 @@ Then go (expect 5 minutes excluding LLVM which will make build longer than that 
 ```
 ./osmesa-install.sh -release
 ```
+
+WARNING : macOS 10.12 may require to manually download 
+
+https://github.com/llvm/llvm-project/releases/download/llvmorg-6.0.1/llvm-6.0.1.src.tar.xz
+
+in current folder
 
 The outcome is in `OSMESA_PREFIX`
 
@@ -102,7 +108,7 @@ Add POSITION_INDEPENDENT_CODE to Cmake (https://cmake.org/cmake/help/latest/vari
 ## Other links & info
 
 
-
+### Install on Ubuntu
 
 https://gist.github.com/SiyuanQi/600d1ce536791b7a3bd2e59fdbe69e66
 
@@ -115,3 +121,8 @@ https://docs.mesa3d.org/osmesa.html
 export MESA_INSTALLDIR=/home/martin/Programs/mesa-21.3.3
 
 https://community.khronos.org/t/installing-opengl-mesa-on-ubuntu/68797/2
+
+### Install on MacOS
+
+brew install mesa
+ls /usr/local/Cellar/mesa/21.1.2/lib

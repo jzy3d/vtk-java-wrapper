@@ -22,36 +22,67 @@ import vtk.vtkWindowToImageFilter;
  * <li>Case 3 : CPU rendering offscreen
  * </ul>
  * 
+ * <h2>GPU rendering</h2>
+ * 
+ * Run program with a library path of VTK built without Mesa
+ * 
+ * -Djava.library.path=/home/martin/Dev/jzy3d/private/vtk-java-wrapper/lib/vtk-Linux-x86_64 
+ * 
+ * 
+ * 
  * <h2>CPU rendering onscreen</h2>
  * 
+ * Run program with a library path of VTK built without Mesa
+ * 
+ * <code>
+ * -Djava.library.path=/home/martin/Dev/jzy3d/private/vtk-java-wrapper/lib/vtk-Linux-x86_64 
+ * </code>
+ * 
+ * Additionnally define the two following environnement variables 
+ * 
+ * <code>
  * LD_LIBRARY_PATH=/home/martin/Dev/jzy3d/external/osmesa:$LD_LIBRARY_PATH
  * LIBGL_ALWAYS_SOFTWARE=true
+ * </code>
  * 
- * Must use appropriate native lib folder
+ * CPU rendering is acknowledge by output of Report() call :
  * <ul>
- * <li>For onscreen CPU or GPU rendering : -Djava.library.path=/home/martin/Dev/jzy3d/private/vtk-java-wrapper/lib/vtk-Linux-x86_64 
- * <li>For offscreen CPU rendering : -Djava.library.path=/home/martin/Dev/jzy3d/private/vtk-java-wrapper/lib/vtk-mesa-Linux-x86_64
+ * <li>OpenGL renderer string:  llvmpipe (LLVM 12.0.0, 256 bits) indicates CPU rendering
+ * <li>OpenGL renderer string:  Mesa Intel(R) Xe Graphics (TGL GT2) indicates GPU rendering
  * </ul>
  * 
- * @author martin
- *
+ * 
+ * 
+ * 
+ * <h2>CPU rendering offscreen</h2>
+ * 
+ * Run program with a library path of VTK built with Mesa
+ * 
+ * <code>
+ * --Djava.library.path=/home/martin/Dev/jzy3d/private/vtk-java-wrapper/lib/vtk-mesa-Linux-x86_64
+ * </code>
+ * 
+ * 
+ * 
  */
 public class DemoVTKCanvas extends JPanel {
   private static final long serialVersionUID = 1L;
 
   public static boolean onscreen = true;
-  
   public static boolean export = !onscreen;
-  public static boolean report = true;// && onscreen; // crashing on ubuntu if offscreen
+  
+  public static boolean report = true;
   
   static {
     VTKUtils.loadVtkNativeLibraries();
   }
+  
+  vtkCanvas renWin;
 
   public DemoVTKCanvas(boolean report, boolean export) {
       setLayout(new BorderLayout());
       // Create the buttons.
-      vtkCanvas renWin = new vtkCanvas();
+      renWin = new vtkCanvas();
       
       add(renWin, BorderLayout.CENTER);
       vtkConeSource cone = new vtkConeSource();
@@ -65,6 +96,9 @@ public class DemoVTKCanvas extends JPanel {
       renWin.GetRenderer().AddActor(coneActor);
       AxesActor aa = new AxesActor(renWin.GetRenderer());
       renWin.GetRenderer().AddActor(aa);
+      
+      // Force rendering
+      //renWin.Render();
       
       // Report about current mode indicating below info (but may crash)
       // direct rendering = false
@@ -93,17 +127,20 @@ public class DemoVTKCanvas extends JPanel {
       DemoVTKCanvas panel = new DemoVTKCanvas(report, export);
       DemoVTKCanvas panel2 = new DemoVTKCanvas(report, export);
   
-      JFrame frame = new JFrame("VTK Canvas Test");
-      frame.getContentPane().setLayout(new GridLayout(2, 1));
-      frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-      frame.getContentPane().add(panel);
-      frame.getContentPane().add(panel2);
-      frame.setSize(600, 600);
-      frame.setLocationRelativeTo(null);
-      frame.setVisible(true);
-  
+      if(onscreen) {
+        JFrame frame = new JFrame("VTK Canvas Test");
+        frame.getContentPane().setLayout(new GridLayout(2, 1));
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.getContentPane().add(panel);
+        frame.getContentPane().add(panel2);
+        frame.setSize(600, 600);
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
+      }
       
-      VTKUtils.printEnv();
+      //VTKUtils.printEnv();
+      panel.renWin.Render();
+      panel.renWin.Report();
     }
   
 }
