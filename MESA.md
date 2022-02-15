@@ -52,6 +52,11 @@ Then go (expect 5 minutes excluding LLVM which will make build longer than that 
 ./osmesa-install.sh -release
 ```
 
+
+### Build MESA on MacOS
+
+Work in progress...
+
 WARNING : macOS 10.12 may require to manually download 
 
 https://github.com/llvm/llvm-project/releases/download/llvmorg-6.0.1/llvm-6.0.1.src.tar.xz
@@ -60,6 +65,8 @@ in current folder
 
 The outcome is in `OSMESA_PREFIX`
 
+
+# Let VTK use Mesa, either at runtime (prefered) or build time 
 
 ## CPU ONSCREEN rendering : Run VTK With OS Mesa
 
