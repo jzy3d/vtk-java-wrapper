@@ -1,20 +1,21 @@
 
 
-# Instructions for VTK
+# Get MESA
 
-You should be able to compile VTK for Mesa by turning on VTK_OPENGL_HAS_OSMESA and turning off VTK_USE_X. Then make sure the OSMESA-related cmake variable are set (library and include dirs).
+Either download a pre-built mesa or build it yourself
 
-I could not find a specific option to force JOGL to use Mesa, so I think you just have to install the Mesa driver on Ubuntu and make sure it is used by checking the output of glxinfo. If glxinfo uses mesa then you JOGL application will use it too. You can check the graphics configuration at runtime in your JOGL application using the following piece of code:
+## Download Mesa 
 
-```java
-GraphicsEnvironment graphEnv = GraphicsEnvironment.getLocalGraphicsEnvironment();
-GraphicsDevice[] graphDevsOrig = graphEnv.getScreenDevices();
-GraphicsConfiguration gcDef = graphDevsOrig[0].getDefaultConfiguration(); // Printing this should show mesa opengl is used
-```
+Download [MESA here](http://download.jzy3d.org/mesa/)
+
+If not available for your platform, build it as follow
+
 
 ## Install and build Mesa
 
 This installer is helpful to build [OffScreen Mesa](https://docs.mesa3d.org/osmesa.html)
+
+### Build Mesa on Ubuntu 20
 
 ```shell
 git clone git@github.com:devernay/osmesa-install.git

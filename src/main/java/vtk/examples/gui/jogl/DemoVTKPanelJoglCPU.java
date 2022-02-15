@@ -5,14 +5,16 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
+import com.jogamp.opengl.GLCapabilities;
+import com.jogamp.opengl.GLProfile;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 import vtk.vtkActor;
 import vtk.vtkConeSource;
+import vtk.vtkGenericOpenGLRenderWindow;
 import vtk.vtkNativeLibrary;
 import vtk.vtkPolyDataMapper;
 import vtk.rendering.jogl.vtkAbstractJoglComponent;
-import vtk.rendering.jogl.vtkJoglCanvasComponent;
 import vtk.rendering.jogl.vtkJoglPanelComponent;
 
 /**
@@ -73,6 +75,8 @@ public class DemoVTKPanelJoglCPU {
   static boolean report = true;
 
   public static void init() {
+    
+    // Scene content
     vtkConeSource cone = new vtkConeSource();
     cone.SetResolution(8);
 
@@ -82,14 +86,26 @@ public class DemoVTKPanelJoglCPU {
     vtkActor actor = new vtkActor();
     actor.SetMapper(coneMapper);
 
-    joglWidget = new vtkJoglPanelComponent();
+    // ---------------------------------------------
+    // Create a window and panel with bounded GL capabilities to ensure compat 
+    // between native and software GL
+    vtkGenericOpenGLRenderWindow window = new vtkGenericOpenGLRenderWindow();
+    GLCapabilities capabilities = new GLCapabilities(GLProfile.get(GLProfile.GL2));
+
+    joglWidget = new vtkJoglPanelComponent(window, capabilities);
+    joglWidget.getRenderWindow().SetMultiSamples(0); // otherwise MESA fail
+    
+    
     System.out.println(
         "We are using " + joglWidget.getComponent().getClass().getName() + " for the rendering.");
 
-    joglWidget.getRenderWindow().SetMultiSamples(0);
+    
     joglWidget.getRenderer().AddActor(actor);
 
-    frame = new JFrame("SimpleVTK");
+    // ----------------------------------------------
+    // Frame
+    
+    frame = new JFrame(DemoVTKPanelJoglCPU.class.getSimpleName());
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     frame.getContentPane().setLayout(new BorderLayout());
     frame.getContentPane().add(joglWidget.getComponent(), BorderLayout.CENTER);
@@ -97,6 +113,10 @@ public class DemoVTKPanelJoglCPU {
     frame.setLocationRelativeTo(null);
     frame.setVisible(true);
 
+    
+    // ----------------------------------------------
+    // A 1 time report
+    
     report = true;
 
     final Runnable reportCallback = new Runnable() {
@@ -116,6 +136,9 @@ public class DemoVTKPanelJoglCPU {
 
     joglWidget.getRenderWindow().AddObserver("RenderEvent", reportCallback, "run");
 
+    
+    // ----------------------------------------------
+    // CPU/GPU Keyboard toggle
 
     joglWidget.getComponent().addKeyListener(new KeyListener() {
       @Override
@@ -160,7 +183,7 @@ public class DemoVTKPanelJoglCPU {
       public void run() {
 
         LibC libc = (LibC) Native.loadLibrary("c", LibC.class);
-        libc.setenv("LIBGL_ALWAYS_SOFTWARE", "true", 1);
+        libc.setenv("LIBGL_ALWAYS_SOFTWARE", "false", 1);
         
         init();
 

@@ -11,13 +11,15 @@ import javax.swing.JButton;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
-
+import com.jogamp.opengl.GLCapabilities;
+import com.jogamp.opengl.GLProfile;
 import vtk.vtkActor;
 import vtk.vtkBoxRepresentation;
 import vtk.vtkBoxWidget2;
 import vtk.vtkCell;
 import vtk.vtkCellPicker;
 import vtk.vtkConeSource;
+import vtk.vtkGenericOpenGLRenderWindow;
 import vtk.vtkLookupTable;
 import vtk.vtkNativeLibrary;
 import vtk.vtkPolyDataMapper;
@@ -29,21 +31,16 @@ import vtk.rendering.jogl.vtkAbstractJoglComponent;
 import vtk.rendering.jogl.vtkJoglCanvasComponent;
 import vtk.rendering.jogl.vtkJoglPanelComponent;
 
-public class JoglConeRenderingPanelMove
-{
+public class JoglConeRenderingPanelMove {
   // -----------------------------------------------------------------
   // Load VTK library and print which library was not properly loaded
 
-  static
-  {
+  static {
     // System.setProperty("jogamp.gluegen.UseTempJarCache", "false");
-    
-    if (!vtkNativeLibrary.LoadAllNativeLibraries())
-    {
-      for (vtkNativeLibrary lib : vtkNativeLibrary.values())
-      {
-        if (!lib.IsLoaded())
-        {
+
+    if (!vtkNativeLibrary.LoadAllNativeLibraries()) {
+      for (vtkNativeLibrary lib : vtkNativeLibrary.values()) {
+        if (!lib.IsLoaded()) {
           System.out.println(lib.GetLibraryName() + " not loaded");
         }
       }
@@ -51,15 +48,12 @@ public class JoglConeRenderingPanelMove
     vtkNativeLibrary.DisableOutputWindow(null);
   }
 
-  public static void main(String[] args)
-  {
+  public static void main(String[] args) {
     final boolean usePanel = Boolean.getBoolean("usePanel");
     vtkAbstractJoglComponent<?> joglWidget;
 
-    SwingUtilities.invokeLater(new Runnable()
-    {
-      public void run()
-      {
+    SwingUtilities.invokeLater(new Runnable() {
+      public void run() {
         // build VTK Pipeline
         vtkConeSource cone = new vtkConeSource();
         cone.SetResolution(8);
@@ -72,8 +66,15 @@ public class JoglConeRenderingPanelMove
         coneActor.SetMapper(coneMapper);
 
         // VTK rendering part
-        vtkAbstractJoglComponent<?> joglWidget = usePanel ? new vtkJoglPanelComponent() : new vtkJoglCanvasComponent();
-        System.out.println("We are using " + joglWidget.getComponent().getClass().getName() + " for the rendering.");
+        vtkGenericOpenGLRenderWindow window = new vtkGenericOpenGLRenderWindow();
+        GLCapabilities capabilities = new GLCapabilities(GLProfile.get(GLProfile.GL3));
+
+        vtkAbstractJoglComponent<?> joglWidget =
+            usePanel ? new vtkJoglPanelComponent(window, capabilities)
+                : new vtkJoglCanvasComponent(window, capabilities);
+
+        System.out.println("We are using " + joglWidget.getComponent().getClass().getName()
+            + " for the rendering.");
 
         joglWidget.getRenderer().AddActor(coneActor);
 
@@ -91,10 +92,11 @@ public class JoglConeRenderingPanelMove
         scalarBar.GetScalarBarActor().SetLookupTable(lut);
         scalarBar.GetScalarBarActor().SetOrientationToHorizontal();
         scalarBar.GetScalarBarActor().SetTextPositionToPrecedeScalarBar();
-        vtkScalarBarRepresentation srep = (vtkScalarBarRepresentation) scalarBar.GetRepresentation();
+        vtkScalarBarRepresentation srep =
+            (vtkScalarBarRepresentation) scalarBar.GetRepresentation();
         srep.SetPosition(0.5, 0.053796);
         srep.SetPosition2(0.33, 0.106455);
-        //scalarBar.ProcessEventsOff();
+        // scalarBar.ProcessEventsOff();
         scalarBar.EnabledOn();
         scalarBar.RepositionableOn();
 
@@ -108,12 +110,10 @@ public class JoglConeRenderingPanelMove
         boxWidget.SetInteractor(joglWidget.getRenderWindowInteractor());
         boxWidget.SetPriority(1);
 
-        final Runnable callback = new Runnable()
-        {
+        final Runnable callback = new Runnable() {
           vtkTransform trasform = new vtkTransform();
 
-          public void run()
-          {
+          public void run() {
             vtkBoxRepresentation rep = (vtkBoxRepresentation) boxWidget.GetRepresentation();
             rep.GetTransform(trasform);
             coneActor.SetUserTransform(trasform);
@@ -129,14 +129,12 @@ public class JoglConeRenderingPanelMove
 
         // Add cell picker
         final vtkCellPicker picker = new vtkCellPicker();
-        Runnable pickerCallback = new Runnable()
-        {
-          public void run()
-          {
-            if (picker.GetCellId() != -1)
-            {
+        Runnable pickerCallback = new Runnable() {
+          public void run() {
+            if (picker.GetCellId() != -1) {
               vtkCell cell = picker.GetDataSet().GetCell(picker.GetCellId());
-              System.out.println("Pick cell: " + picker.GetCellId() + " - Bounds: " + Arrays.toString(cell.GetBounds()));
+              System.out.println("Pick cell: " + picker.GetCellId() + " - Bounds: "
+                  + Arrays.toString(cell.GetBounds()));
             }
           }
         };
@@ -144,18 +142,14 @@ public class JoglConeRenderingPanelMove
         picker.AddObserver("EndPickEvent", pickerCallback, "run");
 
         // Bind pick action to double-click
-        joglWidget.getInteractorForwarder().setEventInterceptor(new vtkAbstractEventInterceptor()
-        {
-          public boolean mouseClicked(MouseEvent e)
-          {
+        joglWidget.getInteractorForwarder().setEventInterceptor(new vtkAbstractEventInterceptor() {
+          public boolean mouseClicked(MouseEvent e) {
             // Request picking action on double-click
             final double[] position =
-            {
-              e.getX(), joglWidget.getComponent().getHeight() - e.getY(), 0
-            };
-            if (e.getClickCount() == 2)
-            {
-              System.out.println("Click trigger the picking (" + position[0] + ", " + position[1] + ")");
+                {e.getX(), joglWidget.getComponent().getHeight() - e.getY(), 0};
+            if (e.getClickCount() == 2) {
+              System.out
+                  .println("Click trigger the picking (" + position[0] + ", " + position[1] + ")");
               picker.Pick(position, joglWidget.getRenderer());
             }
 
@@ -163,7 +157,7 @@ public class JoglConeRenderingPanelMove
             return false;
           }
         });
-        
+
         // UI part
         JFrame frame = new JFrame("SimpleVTK");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -174,13 +168,11 @@ public class JoglConeRenderingPanelMove
         frame.setVisible(true);
         joglWidget.resetCamera();
         joglWidget.getComponent().requestFocus();
-        
+
         JButton movePanelButton = new JButton("Remove / re-add panel");
-        movePanelButton.addActionListener(new ActionListener()
-        {
+        movePanelButton.addActionListener(new ActionListener() {
           @Override
-          public void actionPerformed(ActionEvent e)
-          {
+          public void actionPerformed(ActionEvent e) {
             frame.getContentPane().remove(joglWidget.getComponent());
 
             frame.getContentPane().add(joglWidget.getComponent(), BorderLayout.CENTER);
@@ -194,30 +186,21 @@ public class JoglConeRenderingPanelMove
         frame.getContentPane().add(movePanelButton, BorderLayout.NORTH);
 
         // Add r:ResetCamera and q:Quit key binding
-        joglWidget.getComponent().addKeyListener(new KeyListener()
-        {
+        joglWidget.getComponent().addKeyListener(new KeyListener() {
           @Override
-          public void keyTyped(KeyEvent e)
-          {
-            if (e.getKeyChar() == 'r')
-            {
+          public void keyTyped(KeyEvent e) {
+            if (e.getKeyChar() == 'r') {
               joglWidget.resetCamera();
-            }
-            else if (e.getKeyChar() == 'q')
-            {
+            } else if (e.getKeyChar() == 'q') {
               System.exit(0);
             }
           }
 
           @Override
-          public void keyReleased(KeyEvent e)
-          {
-          }
+          public void keyReleased(KeyEvent e) {}
 
           @Override
-          public void keyPressed(KeyEvent e)
-          {
-          }
+          public void keyPressed(KeyEvent e) {}
         });
       }
     });

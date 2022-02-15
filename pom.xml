@@ -18,8 +18,8 @@
 		<vtk.platform>Darwin-x86_64</vtk.platform> -->
 
 		<!-- Maven wants an explicit path. We can't use ${project.basedir} -->
-		<vtk.jar.path>/Users/martin/Dev/jzy3d/private/vtk-java-wrapper/lib/vtk-${vtk.version}.jar</vtk.jar.path>
-		<vtk.lib.path>/Users/martin/Dev/jzy3d/private/vtk-java-wrapper/lib/${vtk.version}/vtk-${vtk.platform}</vtk.lib.path>
+		<vtk.jar.path>/home/martin/Dev/jzy3d/private/vtk-java-wrapper/lib/vtk-${vtk.version}.jar</vtk.jar.path>
+		<vtk.lib.path>/home/martin/Dev/jzy3d/private/vtk-java-wrapper/lib/${vtk.version}/vtk-${vtk.platform}</vtk.lib.path>
 	</properties>
 
 	<dependencies>
