@@ -40,8 +40,15 @@ import vtk.rendering.jogl.vtkJoglPanelComponent;
  *
  * <h2>Switch CPU/GPU</h2>
  *
- * Ability to switch dynamically CPU/GPU using key 'c' and 'g' but there is a failure on Ubuntu for now.
+ * Ability to switch dynamically CPU/GPU using key 'c' and 'g'.
  * 
+ * CPU rendering may trigger warnings about non supported feature of OpenGL when going from GPU to CPU rendering.
+ * 
+ * E.g.
+ * 
+ * "tkTextureObject (0x7fb9907562b0): failed after SendParameters 1 OpenGL errors detected  0 : (1280) Invalid enum"
+ * 
+ * is due to the fact that GL_MAX_TEXTURE_MAX_ANISOTROPY is a not supported extension.
  */
 public class DemoVTKPanelJoglCPU {
 
@@ -79,19 +86,29 @@ public class DemoVTKPanelJoglCPU {
     vtkActor actor = new vtkActor();
     actor.SetMapper(coneMapper);
 
-    // ---------------------------------------------
-    // Create a window and panel with bounded GL capabilities to ensure compat 
+    // ---------------------------------------------  
+    // Reset GL profile to ensure we load capabilities with a profile matching the driver
+    // we use (CPU or GPU), so that we do not start a CPU rendering configured with the GPU
+    // capabilities. This is important to avoid crashes with CPU/Mesa at startup
+    
+    GLProfile.shutdown();
+    GLProfile.initSingleton();
+    
+    // Create a window and panel with bounded GL capabilities to ensure compatibility
     // between native and software GL
+
     vtkGenericOpenGLRenderWindow window = new vtkGenericOpenGLRenderWindow();
-    GLCapabilities capabilities = new GLCapabilities(GLProfile.get(GLProfile.GL2));
+    GLCapabilities capabilities = new GLCapabilities(GLProfile.getMaximum(true));
+    //GLCapabilities capabilities = new GLCapabilities(GLProfile.get(GLProfile.GL3));
 
     joglWidget = new vtkJoglPanelComponent(window, capabilities);
-    joglWidget.getRenderWindow().SetMultiSamples(0); // otherwise MESA fail
+    
+    // Disable multisampling that is not supported by MESA
+    joglWidget.getRenderWindow().SetMultiSamples(0); 
     
     
-    System.out.println(
-        "We are using " + joglWidget.getComponent().getClass().getName() + " for the rendering.");
-
+    // ----------------------------------------------
+    // Add content
     
     joglWidget.getRenderer().AddActor(actor);
 
@@ -176,7 +193,7 @@ public class DemoVTKPanelJoglCPU {
       public void run() {
 
         LibC libc = (LibC) Native.loadLibrary("c", LibC.class);
-        libc.setenv("LIBGL_ALWAYS_SOFTWARE", "false", 1);
+        libc.setenv("LIBGL_ALWAYS_SOFTWARE", "true", 1);
         
         init();
 
