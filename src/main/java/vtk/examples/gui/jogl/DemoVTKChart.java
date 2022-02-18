@@ -27,7 +27,7 @@ public class DemoVTKChart {
         // String file = "/Volumes/GoogleDrive/Shared drives/Development/FEM Enthalpy
         // method/Outputs/ExampleOutputs/Exodus/3D_Cp_HeatSource/Cp_HS_bornDead_woAdp_subDomain_New_evapBC.e-s301";
         String file =
-            "/home/martin/Datasets/thermocalc/Exodus/3D_Cp_HeatSource/Cp_HS_bornDead_woAdp_subDomain_New_evapBC.e-s301";
+            "/Users/martin/Datasets/thermocalc/Exodus/3D_Cp_HeatSource/Cp_HS_bornDead_woAdp_subDomain_New_evapBC.e-s301";
         String propertyName = "temperature";
 
         vtkExodusIIReader reader = getFileReader(file, propertyName);

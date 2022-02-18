@@ -18,8 +18,13 @@
 		<vtk.platform>Darwin-x86_64</vtk.platform> -->
 
 		<!-- Maven wants an explicit path. We can't use ${project.basedir} -->
-		<vtk.jar.path>/home/martin/Dev/jzy3d/private/vtk-java-wrapper/lib/vtk-${vtk.version}.jar</vtk.jar.path>
-		<vtk.lib.path>/home/martin/Dev/jzy3d/private/vtk-java-wrapper/lib/${vtk.version}/vtk-${vtk.platform}</vtk.lib.path>
+		
+		<!--  Should better use one of these solutions
+		 https://stackoverflow.com/questions/2229757/maven-add-a-dependency-to-a-jar-by-relative-path
+		 -->
+		
+		<vtk.jar.path>/Users/martin/Dev/jzy3d/private/vtk-java-wrapper/lib/vtk-${vtk.version}.jar</vtk.jar.path>
+		<vtk.lib.path>/Users/martin/Dev/jzy3d/private/vtk-java-wrapper/lib/${vtk.version}/vtk-${vtk.platform}</vtk.lib.path>
 	</properties>
 
 	<dependencies>
@@ -103,8 +108,8 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>2.3.2</version>
 				<configuration>
-					<source>1.11</source>
-					<target>1.11</target>
+					<source>1.9</source>
+					<target>1.9</target>
 					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>

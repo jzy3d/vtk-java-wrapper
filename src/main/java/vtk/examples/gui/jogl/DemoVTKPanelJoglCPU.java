@@ -42,13 +42,6 @@ import vtk.rendering.jogl.vtkJoglPanelComponent;
  *
  * Ability to switch dynamically CPU/GPU using key 'c' and 'g' but there is a failure on Ubuntu for now.
  * 
- * @see
- * <ul>
- * <li>https://forum.jogamp.org/Linux-OpenGL-error-td4039376.html
- * <li>https://forum.jogamp.org/Caught-GLException-AWT-EventQueue-0-createImpl-ARB-n-a-but-required-profile-gt-GL2-td4039412.html
- * <li>https://fr.mathworks.com/matlabcentral/answers/402920-plots-with-opengl-look-distorted-without-opengl-unable-to-plot-at-all-unless-running-matlab-as-an-a
- * </ul>
- * 
  */
 public class DemoVTKPanelJoglCPU {
 
