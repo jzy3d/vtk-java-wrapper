@@ -23,8 +23,8 @@
 		 https://stackoverflow.com/questions/2229757/maven-add-a-dependency-to-a-jar-by-relative-path
 		 -->
 		
-		<vtk.jar.path>/Users/martin/Dev/jzy3d/private/vtk-java-wrapper/lib/vtk-${vtk.version}.jar</vtk.jar.path>
-		<vtk.lib.path>/Users/martin/Dev/jzy3d/private/vtk-java-wrapper/lib/${vtk.version}/vtk-${vtk.platform}</vtk.lib.path>
+		<vtk.jar.path>C:/Users/Martin/Dev/jzy3d/private/vtk-java-wrapper/lib/vtk-${vtk.version}.jar</vtk.jar.path>
+		<vtk.lib.path>C:/Users/Martin/Dev/jzy3d/private/vtk-java-wrapper/lib/${vtk.version}/vtk-${vtk.platform}</vtk.lib.path>
 	</properties>
 
 	<dependencies>

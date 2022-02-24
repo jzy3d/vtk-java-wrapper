@@ -42,7 +42,7 @@ public class VTKJoglRendering {
 			public void run() {
 
                 //String file = "/Volumes/GoogleDrive/Shared drives/Development/FEM Enthalpy method/Outputs/ExampleOutputs/Exodus/3D_Cp_HeatSource/Cp_HS_bornDead_woAdp_subDomain_New_evapBC.e-s301";
-				String file = "/Users/martin/Datasets/thermocalc/Exodus/3D_Cp_HeatSource/Cp_HS_bornDead_woAdp_subDomain_New_evapBC.e-s301";
+				String file = "C:/Users/Martin/Datasets/thermocalc/Exodus/3D_Cp_HeatSource/Cp_HS_bornDead_woAdp_subDomain_New_evapBC.e-s301";
 				String propertyName = "temperature";
 
 				vtkExodusIIReader reader = (vtkExodusIIReader) VTKReader.getReader(file);

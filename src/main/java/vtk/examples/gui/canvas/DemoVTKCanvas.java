@@ -15,6 +15,7 @@ import vtk.vtkPolyDataMapper;
 import vtk.vtkWindowToImageFilter;
 
 /**
+ * Performs OpenGL rendering without JOGL. Hence only working on Windows and Ubuntu.
  * 
  * <ul>
  * <li>Case 1 : GPU rendering
@@ -138,8 +139,10 @@ public class DemoVTKCanvas extends JPanel {
         frame.setVisible(true);
       }
       
-      //VTKUtils.printEnv();
-      panel.renWin.Render();
+      // Will crash some windows
+      //panel.renWin.Render();
+      
+      
       panel.renWin.Report();
     }
   
