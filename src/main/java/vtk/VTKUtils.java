@@ -20,7 +20,8 @@ public class VTKUtils {
     
     
     if(!loadVtkNativeLibraries(null)){
-      System.out.println("-Djava.library.path=" + absolutePath);
+      System.out.println("Current -Djava.library.path=" + System.getProperty("java.library.path"));
+      System.out.println("Suggest -Djava.library.path=" + absolutePath);
     }
   }
 

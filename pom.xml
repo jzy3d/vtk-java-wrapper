@@ -12,10 +12,19 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		
 		<vtk.version>9.1.0</vtk.version>
-		<vtk.platform>Linux-x86_64</vtk.platform>
+		<vtk.platform>Windows-x86_64</vtk.platform>
 
-		<!-- <vtk.platform>Darwin-arm64</vtk.platform>
+		<!-- 
+    <vtk.platform>Linux-x86_64</vtk.platform>
+    <vtk.platform>Darwin-arm64</vtk.platform>
 		<vtk.platform>Darwin-x86_64</vtk.platform> -->
+
+		<vtk.version>9.1.0</vtk.version>
+		<vtk.platform>Windows-AMD64</vtk.platform>
+
+		
+		<vtk.project.path>/Users/martin/Dev/jzy3d/private/vtk-java-wrapper</vtk.project.path>
+		<vtk.project.path>C:\Users\Martin\Dev\jzy3d\private\vtk-java-wrapper</vtk.project.path>
 
 		<!-- Maven wants an explicit path. We can't use ${project.basedir} -->
 		

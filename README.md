@@ -88,6 +88,8 @@ Then copy
 * `{VTK-BUILD-DIR}/lib/java/{platform}.jnilib` to `./lib/{version}/{platform}`
 * `{VTK-BUILD-DIR}/lib/{platform}.jnilib` to `./lib/{version}/{platform}`
 
+
+
 ## Troubleshooting
 
 ```
