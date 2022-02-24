@@ -1,4 +1,4 @@
-package vtk.jogl;
+package vtk.examples.gui.jogl;
 
 import javax.swing.SwingUtilities;
 import vtk.VTKReader;
@@ -7,8 +7,14 @@ import vtk.vtkActor;
 import vtk.vtkExodusIIReader;
 import vtk.vtkScalarsToColors;
 import vtk.vtkUnstructuredGrid;
+import vtk.jogl.VTKChart;
 import vtk.rendering.jogl.vtkAbstractJoglComponent;
 
+/**
+ * A VTK chart built with VTK and using JOGL for rendering.
+ *  
+ * @author martin
+ */
 public class DemoVTKChart {
   public static void main(String[] args) {
     VTKUtils.loadVtkNativeLibraries();

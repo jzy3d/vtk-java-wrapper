@@ -6,7 +6,6 @@ import org.jzy3d.chart.Chart;
 import org.jzy3d.chart.factories.AWTChartFactory;
 import org.jzy3d.chart.factories.ChartFactory;
 import org.jzy3d.colors.Color;
-import org.jzy3d.factories.DepthPeelingPainterFactory;
 import org.jzy3d.io.vtk.drawable.VTKDrawableVBOBuilder;
 import org.jzy3d.plot3d.primitives.CoplanarityManager;
 import org.jzy3d.plot3d.primitives.Drawable;
@@ -21,8 +20,12 @@ import vtk.vtkGeometryFilter;
 import vtk.vtkPolyData;
 import vtk.vtkPolyDataNormals;
 import vtk.vtkUnstructuredGrid;
-import vtk.processing.VTKIsoLineGridProcessor;
 import vtk.processing.VTKIsoLineProcessor;
+
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+
 
 /**
  * Need VM arguments : -Djava.library.path=/Users/martin/Dev/jzy3d/private/vtk-java-wrapper/lib/9.1.0/vtk-Darwin-x86_64
@@ -39,6 +42,7 @@ public class PVTU {
     String propertyName = "enthalpy";
 
     readAndShow(file, propertyName);
+
   }
 
   public static void readAndShow(String file, String propertyName) {

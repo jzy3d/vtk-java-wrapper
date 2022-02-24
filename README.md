@@ -7,6 +7,8 @@ Shows how to work with VTK Java Wrappers.
 
 Build it by following the instruction below, or download it [here](https://download.jzy3d.org/vtk/build/).
 
+WARNING : Pre-built VTK library files are made for a target JDK. Programs may fail if not running with the JDK that was used when building VTK. E.g. Linux VTK was built with JDK 11.
+
 
 # Running an example
 

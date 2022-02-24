@@ -1,4 +1,4 @@
-package vtk.examples;
+package vtk.examples.gui.jogl;
 
 import com.google.common.base.Strings;
 import com.jogamp.opengl.GLAutoDrawable;
@@ -41,8 +41,8 @@ public class VTKJoglRendering {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 
-                String file = "/Volumes/GoogleDrive/Shared drives/Development/FEM Enthalpy method/Outputs/ExampleOutputs/Exodus/3D_Cp_HeatSource/Cp_HS_bornDead_woAdp_subDomain_New_evapBC.e-s301";
-				// String file = "/Users/martin/Datasets/thermocalc/Exodus/3D_Cp_HeatSource/Cp_HS_bornDead_woAdp_subDomain_New_evapBC.e-s301";
+                //String file = "/Volumes/GoogleDrive/Shared drives/Development/FEM Enthalpy method/Outputs/ExampleOutputs/Exodus/3D_Cp_HeatSource/Cp_HS_bornDead_woAdp_subDomain_New_evapBC.e-s301";
+				String file = "C:/Users/Martin/Datasets/thermocalc/Exodus/3D_Cp_HeatSource/Cp_HS_bornDead_woAdp_subDomain_New_evapBC.e-s301";
 				String propertyName = "temperature";
 
 				vtkExodusIIReader reader = (vtkExodusIIReader) VTKReader.getReader(file);
@@ -130,7 +130,7 @@ public class VTKJoglRendering {
 				representation.HandlesOn();
 
 				// UI part
-				JFrame frame = new JFrame("VTK with JFrame and JOGL 2.4 RC4");
+				JFrame frame = new JFrame("VTK with JFrame and JOGL 2.4 RC2");
 				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 				frame.getContentPane().setLayout(new BorderLayout());
 				frame.getContentPane().add(joglWidget.getComponent(), BorderLayout.CENTER);
