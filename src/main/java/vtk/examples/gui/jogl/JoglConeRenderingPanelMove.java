@@ -1,4 +1,4 @@
-package vtk.examples.gui;
+package vtk.examples.gui.jogl;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
