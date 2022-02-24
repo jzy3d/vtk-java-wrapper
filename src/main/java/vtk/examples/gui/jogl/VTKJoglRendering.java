@@ -41,9 +41,9 @@ public class VTKJoglRendering {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 
-                //String file = "/Volumes/GoogleDrive/Shared drives/Development/FEM Enthalpy method/Outputs/ExampleOutputs/Exodus/3D_Cp_HeatSource/Cp_HS_bornDead_woAdp_subDomain_New_evapBC.e-s301";
-				String file = "C:/Users/Martin/Datasets/thermocalc/Exodus/3D_Cp_HeatSource/Cp_HS_bornDead_woAdp_subDomain_New_evapBC.e-s301";
-				String propertyName = "temperature";
+              //String file = "/Volumes/GoogleDrive/Shared drives/Development/FEM Enthalpy method/Outputs/ExampleOutputs/Exodus/3D_Cp_HeatSource/Cp_HS_bornDead_woAdp_subDomain_New_evapBC.e-s301";
+              String file = "C:/Users/Martin/Datasets/thermocalc/Exodus/3D_Cp_HeatSource/Cp_HS_bornDead_woAdp_subDomain_New_evapBC.e-s301";
+              String propertyName = "temperature";
 
 				vtkExodusIIReader reader = (vtkExodusIIReader) VTKReader.getReader(file);
 				int[] timerange = reader.GetTimeStepRange();
@@ -130,7 +130,7 @@ public class VTKJoglRendering {
 				representation.HandlesOn();
 
 				// UI part
-				JFrame frame = new JFrame("VTK with JFrame and JOGL 2.4 RC2");
+				JFrame frame = new JFrame("VTK with JFrame and JOGL 2.4 RC4");
 				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 				frame.getContentPane().setLayout(new BorderLayout());
 				frame.getContentPane().add(joglWidget.getComponent(), BorderLayout.CENTER);
