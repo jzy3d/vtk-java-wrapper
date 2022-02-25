@@ -8,33 +8,38 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.util.Arrays;
 import javax.swing.JButton;
-
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
-import com.jogamp.opengl.GLCapabilities;
-import com.jogamp.opengl.GLProfile;
+import com.jogamp.opengl.GLAutoDrawable;
+import com.jogamp.opengl.GLContext;
+import com.jogamp.opengl.GLPipelineFactory;
 import vtk.vtkActor;
 import vtk.vtkBoxRepresentation;
 import vtk.vtkBoxWidget2;
 import vtk.vtkCell;
 import vtk.vtkCellPicker;
 import vtk.vtkConeSource;
-import vtk.vtkGenericOpenGLRenderWindow;
 import vtk.vtkLookupTable;
 import vtk.vtkNativeLibrary;
 import vtk.vtkPolyDataMapper;
 import vtk.vtkScalarBarRepresentation;
 import vtk.vtkScalarBarWidget;
 import vtk.vtkTransform;
+import vtk.*;
 import vtk.rendering.vtkAbstractEventInterceptor;
 import vtk.rendering.jogl.vtkAbstractJoglComponent;
 import vtk.rendering.jogl.vtkJoglCanvasComponent;
 import vtk.rendering.jogl.vtkJoglPanelComponent;
 
+/**
+ * Reproduce the docking/undocking panel problem : click remove/add button to remove the JOGL panel
+ * from the application layout and then add it again.
+ * 
+ * Use -Djogl.debug.DebugGL to get more information in console.
+ * 
+ * @author martin
+ */
 public class JoglConeRenderingPanelMove {
-  // -----------------------------------------------------------------
-  // Load VTK library and print which library was not properly loaded
-
   static {
     // System.setProperty("jogamp.gluegen.UseTempJarCache", "false");
 
@@ -48,13 +53,57 @@ public class JoglConeRenderingPanelMove {
     vtkNativeLibrary.DisableOutputWindow(null);
   }
 
+  /**
+   * Overrides JOGL canvas to more cleanly deal with resources.
+   * 
+   * @author Martin
+   */
+  public static class RemoveableComponent extends vtkJoglCanvasComponent {
+    private boolean keepVTKResources = false;
+
+    /**
+     * Allows keeping VTK resources hence keeping the interactor.
+     * 
+     * This should be set to true before removing a panel that will be reused later. It should then
+     * be set back to false right after addition.
+     * 
+     * <pre>
+     * <code>
+     * joglWidget.keepVTKResources(true);
+     * frame.getContentPane().remove(joglWidget.getComponent());
+     * joglWidget.keepVTKResources(false);
+     * frame.getContentPane().add(joglWidget.getComponent(), BorderLayout.CENTER);
+     * </code>
+     * </pre>
+     */
+    public void keepVTKResources(boolean on) {
+      this.keepVTKResources = on;
+    }
+
+    /**
+     * Customize Delete to allow keeping VTK ressources if the panel is supposed to be re-used.
+     */
+    @Override
+    public void Delete() {
+      this.glRenderWindow.Finalize();
+
+      if (this.keepVTKResources) {
+        return;
+      }
+      super.Delete();
+    }
+  }
+
   public static void main(String[] args) {
     final boolean usePanel = Boolean.getBoolean("usePanel");
     vtkAbstractJoglComponent<?> joglWidget;
 
     SwingUtilities.invokeLater(new Runnable() {
       public void run() {
+
+        // ------------------------------------------
         // build VTK Pipeline
+
         vtkConeSource cone = new vtkConeSource();
         cone.SetResolution(8);
         cone.Update();
@@ -65,16 +114,17 @@ public class JoglConeRenderingPanelMove {
         final vtkActor coneActor = new vtkActor();
         coneActor.SetMapper(coneMapper);
 
-        // VTK rendering part
-        vtkGenericOpenGLRenderWindow window = new vtkGenericOpenGLRenderWindow();
-        GLCapabilities capabilities = new GLCapabilities(GLProfile.get(GLProfile.GL3));
 
-        vtkAbstractJoglComponent<?> joglWidget =
-            usePanel ? new vtkJoglPanelComponent(window, capabilities)
-                : new vtkJoglCanvasComponent(window, capabilities);
+        // ------------------------------------------
+        // JOGL configuration
 
+        RemoveableComponent joglWidget = new RemoveableComponent();
         System.out.println("We are using " + joglWidget.getComponent().getClass().getName()
             + " for the rendering.");
+
+
+        // ------------------------------------------
+        // VTK rendering part
 
         joglWidget.getRenderer().AddActor(coneActor);
 
@@ -141,7 +191,9 @@ public class JoglConeRenderingPanelMove {
         joglWidget.getRenderWindowInteractor().SetPicker(picker);
         picker.AddObserver("EndPickEvent", pickerCallback, "run");
 
+        // ------------------------------------------
         // Bind pick action to double-click
+
         joglWidget.getInteractorForwarder().setEventInterceptor(new vtkAbstractEventInterceptor() {
           public boolean mouseClicked(MouseEvent e) {
             // Request picking action on double-click
@@ -158,7 +210,9 @@ public class JoglConeRenderingPanelMove {
           }
         });
 
+        // ------------------------------------------
         // UI part
+
         JFrame frame = new JFrame("SimpleVTK");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.getContentPane().setLayout(new BorderLayout());
@@ -169,23 +223,36 @@ public class JoglConeRenderingPanelMove {
         joglWidget.resetCamera();
         joglWidget.getComponent().requestFocus();
 
+
+        // ------------------------------------------
+        // Remove/add panel button
+
         JButton movePanelButton = new JButton("Remove / re-add panel");
         movePanelButton.addActionListener(new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
-            frame.getContentPane().remove(joglWidget.getComponent());
 
+            // Allows keeping VTK resources hence keeping the interactor
+            joglWidget.keepVTKResources(true);
+            
+            // Do remove
+            frame.getContentPane().remove(joglWidget.getComponent());
+            
+            // Reset VTK resource deletion behaviour for later removal
+            joglWidget.keepVTKResources(false);
+
+            // Do add
             frame.getContentPane().add(joglWidget.getComponent(), BorderLayout.CENTER);
 
-            frame.getContentPane().revalidate();
-            frame.getContentPane().repaint();
-
-
+            scalarBar.On();
           }
         });
         frame.getContentPane().add(movePanelButton, BorderLayout.NORTH);
 
+
+        // ------------------------------------------
         // Add r:ResetCamera and q:Quit key binding
+
         joglWidget.getComponent().addKeyListener(new KeyListener() {
           @Override
           public void keyTyped(KeyEvent e) {
