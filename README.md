@@ -14,10 +14,10 @@ WARNING : Pre-built VTK library files are made for a target JDK. Programs may fa
 
 ## Define path to VTK in an environment variable
 
-|---------------|------------------------------------------------------|
-|macOS          |DYLD_LIBRARY_PATH = /path/to/vtk/:$DYLD_LIBRARY_PATH  |
-|Linux          |LD_LIBRARY_PATH   = /path/to/vtk/:$LD_LIBRARY_PATH    |
-|Windows        |PATH              = /path/to/vtk/;PATH                |
+* Linux   : `LD_LIBRARY_PATH   = /path/to/vtk/:$LD_LIBRARY_PATH`   
+* macOS   : `DYLD_LIBRARY_PATH = /path/to/vtk/:$DYLD_LIBRARY_PATH` 
+* Windows : `PATH              = /path/to/vtk/;PATH`
+
 
 
 ## Define path to VTK in a JVM argument
