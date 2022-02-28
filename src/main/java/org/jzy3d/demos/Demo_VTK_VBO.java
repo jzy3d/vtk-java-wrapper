@@ -1,10 +1,11 @@
-package org.jzy3d.io.vtk.drawable;
+package org.jzy3d.demos;
 
 import org.jzy3d.chart.Chart;
 import org.jzy3d.chart.factories.AWTChartFactory;
 import org.jzy3d.chart.factories.AWTPainterFactory;
 import org.jzy3d.chart.factories.ChartFactory;
 import org.jzy3d.colors.Color;
+import org.jzy3d.io.vtk.drawable.VTKDrawableVBOBuilder;
 import org.jzy3d.io.vtk.drawable.VTKDrawableVBOBuilder.GeometryMode;
 import org.jzy3d.io.vtk.drawable.VTKDrawableVBOBuilder.VerticeMode;
 import org.jzy3d.maths.BoundingBox3d;
@@ -30,7 +31,7 @@ public class Demo_VTK_VBO {
     vtkUnstructuredGrid grid = reader.GetOutput();
     
     
-    VTKDrawableVBOBuilder b = new VTKDrawableVBOBuilder(grid, GeometryMode.MULTI_GEOMETRY, VerticeMode.REPEATED, VTKGeometry.VTK_HEXAHEDRON);
+    VTKDrawableVBOBuilder b = new VTKDrawableVBOBuilder(grid/*, GeometryMode.MULTI_GEOMETRY, VerticeMode.REPEATED, VTKGeometry.VTK_HEXAHEDRON*/);
     b.setWireframeDisplayed(true);
     b.setWireframeColor(Color.BLUE);
     b.setReflectLight(true);
@@ -58,7 +59,7 @@ public class Demo_VTK_VBO {
     
     
     BoundingBox3d clip = new BoundingBox3d(0f,1f,2f,3f,-2f,2f);
-    //c.getScene().getGraph().setClipBox(clip);
+    c.getScene().getGraph().setClipBox(clip);
     c.getView().setBoundManual(clip);
     
   }
