@@ -1,8 +1,8 @@
 package vtk.examples.gui.canvas;
 
 
-import java.awt.BorderLayout;
-import java.awt.GridLayout;
+import java.awt.*;
+import java.awt.geom.AffineTransform;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import vtk.AxesActor;
@@ -81,9 +81,33 @@ public class DemoVTKCanvas extends JPanel {
   vtkCanvas renWin;
 
   public DemoVTKCanvas(boolean report, boolean export) {
-      setLayout(new BorderLayout());
       // Create the buttons.
       renWin = new vtkCanvas();
+
+      setLayout(new BorderLayout() {
+          @Override
+          public void layoutContainer(Container target) {
+              synchronized (target.getTreeLock()) {
+                  Insets insets = target.getInsets();
+                  int top = insets.top;
+                  int bottom = target.getHeight() - insets.bottom;
+                  int left = insets.left;
+                  int right = target.getWidth() - insets.right;
+
+                  Graphics graphics = getGraphics();
+                  AffineTransform transform = ((Graphics2D) graphics).getTransform();
+                  double scaleX = transform.getScaleX();
+                  double scaleY = transform.getScaleY();
+
+                  int width = right - left;
+                  int height = bottom - top;
+                  width *= scaleX;
+                  height *= scaleY;
+
+                  renWin.setBounds(left, top, width, height);
+              }
+          }
+      });
       
       add(renWin, BorderLayout.CENTER);
       vtkConeSource cone = new vtkConeSource();
