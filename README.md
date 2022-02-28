@@ -10,11 +10,20 @@ Build it by following the instruction below, or download it [here](https://downl
 WARNING : Pre-built VTK library files are made for a target JDK. Programs may fail if not running with the JDK that was used when building VTK. E.g. Linux VTK was built with JDK 11.
 
 
-# Running an example
+# Configure path to VTK libraries
 
-## Reading a VTU file
+## Define path to VTK in an environment variable
 
-Run ReadVTU.java with
+|---------------|------------------------------------------------------|
+|macOS          |DYLD_LIBRARY_PATH = /path/to/vtk/:$DYLD_LIBRARY_PATH  |
+|Linux          |LD_LIBRARY_PATH   = /path/to/vtk/:$LD_LIBRARY_PATH    |
+|Windows        |PATH              = /path/to/vtk/;PATH                |
+
+
+## Define path to VTK in a JVM argument
+
+This has the drawback of [keeping a reference of the path where the VTK libraries were built](https://discourse.vtk.org/t/shared-libraries-cant-be-redistributed-since-they-refer-to-their-build-path/7892/3). 
+
 * -Djava.library.path=./lib/{platform} (preferred)
 * -Djava.library.path=/opt/homebrew/Cellar/vtk/9.0.3/lib
 * -Djava.library.path=/Users/martin/Dev/jzy3d/private/vtk-java-wrapper/lib/vtk-Darwin-x86_64
@@ -29,6 +38,15 @@ vtkCommonPythonJava not loaded
 ```
 
 Appart of this, an ```Exception in thread "main" java.lang.UnsatisfiedLinkError``` may mean that you forgot to set your current directory to where the native libraries stand.
+
+
+# Running an example
+
+
+## Reading a VTU file
+
+Run ReadVTU.java with
+
 
 ## Displaying a VTK Window
 
