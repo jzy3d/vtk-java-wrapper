@@ -8,41 +8,117 @@
 	<version>2.0.1-SNAPSHOT</version>
 	<name>VTK Java Wrapper</name>
 
+	<profiles>
+	
+		<!-- 
+			This section defines the path to natives. 
+			
+			Debug how the OS and CPU names are detected by maven with 
+			
+			mvn enforcer:display-info
+		
+		-->
+
+		<!-- Unix related settings -->
+
+		<profile>
+			<id>Unix</id>
+			<activation>
+				<os>
+					<family>unix</family>
+				</os>
+			</activation>
+
+			<properties>
+				<vtk.platform>Linux-x86_64</vtk.platform>
+			</properties>
+
+		</profile>
+
+		<!-- Mac Intel related settings -->
+
+		<profile>
+			<id>MacOS x86_64</id>
+			<activation>
+				<os>
+					<family>mac</family>
+					<arch>x86_64</arch>
+				</os>
+			</activation>
+
+			<properties>
+				<vtk.platform>Darwin-x86_64</vtk.platform>
+			</properties>
+
+		</profile>
+
+		<!-- Mac M1 related settings -->
+
+		<profile>
+			<id>MacOS Aarch64</id>
+			<activation>
+				<os>
+					<family>mac</family>
+					<arch>aarch64</arch>
+				</os>
+			</activation>
+
+			<properties>
+				<vtk.platform>Darwin-arm64</vtk.platform>
+			</properties>
+
+		</profile>
+
+		<!-- Windows related settings -->
+
+		<profile>
+			<id>Windows</id>
+			<activation>
+				<os>
+					<family>Windows</family>
+				</os>
+			</activation>
+
+			<properties>
+				<vtk.platform>Windows-x86_64</vtk.platform>
+			</properties>
+
+		</profile>
+
+
+		<!-- JDK related activations -->
+		<profile>
+			<id>disable-java8-doclint</id>
+			<activation>
+				<jdk>[1.8,)</jdk>
+			</activation>
+			<properties>
+				<additionalparam>-Xdoclint:none</additionalparam>
+			</properties>
+		</profile>
+
+	</profiles>
+
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		
-		<vtk.version>9.1.0</vtk.version>
-		<vtk.platform>Windows-x86_64</vtk.platform>
-
-		<!-- 
-    <vtk.platform>Linux-x86_64</vtk.platform>
-    <vtk.platform>Darwin-arm64</vtk.platform>
-		<vtk.platform>Darwin-x86_64</vtk.platform> -->
 
 		<vtk.version>9.1.0</vtk.version>
-		<vtk.platform>Windows-AMD64</vtk.platform>
-
+		<vtk.lib.path>${project.basedir}/lib/${vtk.version}/vtk-${vtk.platform}</vtk.lib.path>
 		
-		<vtk.project.path>/Users/martin/Dev/jzy3d/private/vtk-java-wrapper</vtk.project.path>
-		<vtk.project.path>C:\Users\Martin\Dev\jzy3d\private\vtk-java-wrapper</vtk.project.path>
-
-		<!-- Maven wants an explicit path. We can't use ${project.basedir} -->
-		
-		<!--  Should better use one of these solutions
-		 https://stackoverflow.com/questions/2229757/maven-add-a-dependency-to-a-jar-by-relative-path
-		 -->
-		
-		<vtk.jar.path>/Users/Martin/Dev/jzy3d/private/vtk-java-wrapper/lib/vtk-${vtk.version}.jar</vtk.jar.path>
-		<vtk.lib.path>/Users/Martin/Dev/jzy3d/private/vtk-java-wrapper/lib/${vtk.version}/vtk-${vtk.platform}</vtk.lib.path>
 	</properties>
 
+
 	<dependencies>
+		<!-- This jar can be resolved as long as the local maven repository (in 
+			./mvn) has been created which is done with the lib/install-vtk-locally.sh 
+			command. -->
+
 		<dependency>
 			<groupId>vtk</groupId>
 			<artifactId>vtk</artifactId>
 			<version>${vtk.version}</version>
-			<scope>system</scope>
-			<systemPath>${vtk.jar.path}</systemPath>
+			<!-- <scope>system</scope>
+			<systemPath>/Users/Martin/Dev/jzy3d/private/vtk-java-wrapper/lib/vtk-${vtk.version}.jar</systemPath>-->
 		</dependency>
 
 		<dependency>
@@ -129,6 +205,11 @@
 				<version>3.0.0-M5</version>
 				<configuration>
 					<argLine>-Djava.library.path=${vtk.lib.path}</argLine>
+					
+					<environmentVariables>
+	                    <LD_LIBRARY_PATH>${vtk.lib.path}</LD_LIBRARY_PATH>
+	                    <DYLD_LIBRARY_PATH>${vtk.lib.path}</DYLD_LIBRARY_PATH>
+	                </environmentVariables>
 				</configuration>
 			</plugin>
 
@@ -207,19 +288,12 @@
 		</extensions>
 	</build>
 
-	<profiles>
-		<profile>
-			<id>disable-java8-doclint</id>
-			<activation>
-				<jdk>[1.8,)</jdk>
-			</activation>
-			<properties>
-				<additionalparam>-Xdoclint:none</additionalparam>
-			</properties>
-		</profile>
-	</profiles>
 
 	<repositories>
+		<repository>
+			<id>vtk-local-repo</id>
+			<url>file://${project.basedir}/mvn</url>
+		</repository>
 		<repository>
 			<id>jzy3d-snapshots</id>
 			<name>Jzy3d Snapshots</name>
