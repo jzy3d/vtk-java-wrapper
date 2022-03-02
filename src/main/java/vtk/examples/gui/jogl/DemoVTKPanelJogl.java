@@ -51,12 +51,10 @@ public class DemoVTKPanelJogl {
         frame.setVisible(true);
         
         // Report
-        if(true) {
+        if(false) {
           vtkRenderWindow rw = joglWidget.getRenderWindow();
           
-          //joglWidget.getVTKLock().lock();
           rw.Render();
-          //joglWidget.getVTKLock().unlock();
 
           System.out.println("direct rendering = " + (rw.IsDirect() == 1));
           System.out.println("opengl supported = " + (rw.SupportsOpenGL() == 1));
