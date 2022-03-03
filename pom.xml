@@ -206,11 +206,11 @@
 				<configuration>
 					<argLine>-Djava.library.path=${vtk.lib.path}</argLine>
 					
-					<!-- <environmentVariables>
-	                    <PATH>$PATH:${vtk.lib.path}</PATH>
-	                    <LD_LIBRARY_PATH>${vtk.lib.path}:$LD_LIBRARY_PATH</LD_LIBRARY_PATH>
-	                    <DYLD_LIBRARY_PATH>${vtk.lib.path}</DYLD_LIBRARY_PATH>
-	                </environmentVariables>-->
+					<environmentVariables>
+	                    <PATH>$PATH${path.separator}${vtk.lib.path}</PATH>
+	                    <LD_LIBRARY_PATH>${vtk.lib.path}${path.separator}$LD_LIBRARY_PATH</LD_LIBRARY_PATH>
+	                    <DYLD_LIBRARY_PATH>${vtk.lib.path}${path.separator}$DYLD_LIBRARY_PATH</DYLD_LIBRARY_PATH>
+	                </environmentVariables>
 				</configuration>
 			</plugin>
 
