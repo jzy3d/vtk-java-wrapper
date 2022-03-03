@@ -103,7 +103,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
 		<vtk.version>9.1.0</vtk.version>
-		<vtk.lib.path>${project.basedir}/lib/${vtk.version}/vtk-${vtk.platform}</vtk.lib.path>
+		<vtk.lib.path>${project.basedir}/lib/${vtk.version}/vtk-${vtk.platform}/</vtk.lib.path>
 		
 	</properties>
 
@@ -206,11 +206,11 @@
 				<configuration>
 					<argLine>-Djava.library.path=${vtk.lib.path}</argLine>
 					
-					<environmentVariables>
+					<!-- <environmentVariables>
 	                    <PATH>$PATH:${vtk.lib.path}</PATH>
 	                    <LD_LIBRARY_PATH>${vtk.lib.path}:$LD_LIBRARY_PATH</LD_LIBRARY_PATH>
 	                    <DYLD_LIBRARY_PATH>${vtk.lib.path}</DYLD_LIBRARY_PATH>
-	                </environmentVariables>
+	                </environmentVariables>-->
 				</configuration>
 			</plugin>
 
