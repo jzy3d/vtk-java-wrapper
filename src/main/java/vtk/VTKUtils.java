@@ -25,8 +25,10 @@ public class VTKUtils {
       System.out.println("Suggest -Djava.library.path=" + absolutePath);
       
       OperatingSystem os = new OperatingSystem();
-      
+
+
       if(os.isMac()) {
+        printEnv("PATH", ":");
         printEnv("DYLD_LIBRARY_PATH", ":");
       }
       else if(os.isUnix()) {
@@ -132,6 +134,7 @@ public class VTKUtils {
     for (Map.Entry<String, String> entry : env.entrySet()) {
       if(entry.getKey().toLowerCase().equals(var.toLowerCase())) {
         found = true;
+        
         if(splitWith==null) {
           System.out.println(entry.getKey() + " : " + entry.getValue());
         }
