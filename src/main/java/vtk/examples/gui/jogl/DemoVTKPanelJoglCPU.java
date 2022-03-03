@@ -25,8 +25,8 @@ import vtk.rendering.jogl.vtkJoglPanelComponent;
  * 
  * Requires 
  * <ul>
- * <li><code>libc.setenv("LIBGL_ALWAYS_SOFTWARE", "true", 1);</code>.
- * <li><code>LD_LIBRARY_PATH=/home/martin/Dev/jzy3d/external/osmesa:$LD_LIBRARY_PATH</code>
+ * <li><code>LIBGL_ALWAYS_SOFTWARE=true</code>.
+ * <li><code>LD_LIBRARY_PATH=/home/martin/Dev/jzy3d/external/osmesa:$LD_LIBRARY_PATH</code> on Linux
  * </ul>
  * 
  * Check CPU rendering by reading in console : "OpenGL renderer string:  llvmpipe"
@@ -64,6 +64,8 @@ public class DemoVTKPanelJoglCPU {
     vtkNativeLibrary.DisableOutputWindow(null);
     
     VTKUtils.printEnv("PATH", ";");
+    VTKUtils.printEnv("DYLD_LIBRARY_PATH", ":");
+    
     VTKUtils.printEnv("LIBGL_ALWAYS_SOFTWARE");
   }
 
