@@ -157,6 +157,33 @@ public class VTKUtils {
     }
   }
 
+  public static void printEnv(String var) {
+    printEnv(var, null);
+  }
+  
+  public static void printEnv(String var, String splitWith) {
+    Map<String, String> env = System.getenv();
+
+    for (Map.Entry<String, String> entry : env.entrySet()) {
+      if(entry.getKey().toLowerCase().equals(var.toLowerCase())) {
+        if(splitWith==null) {
+          System.out.println(entry.getKey() + " : " + entry.getValue());
+        }
+        else {
+          System.out.println(entry.getKey() + " : ");
+          
+          String[] values = entry.getValue().split(splitWith);
+          
+          for(String value: values) {
+            System.out.println(" " + value);
+          }
+          
+        }
+        
+      }
+    }
+  }
+
   ///////////////////////////
 
   public static double[] toDoubleArray(vtkDataArray array, int size) {

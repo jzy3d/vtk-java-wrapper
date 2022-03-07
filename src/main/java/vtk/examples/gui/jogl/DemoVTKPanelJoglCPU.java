@@ -9,6 +9,7 @@ import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.GLProfile;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
+import vtk.VTKUtils;
 import vtk.vtkActor;
 import vtk.vtkConeSource;
 import vtk.vtkGenericOpenGLRenderWindow;
@@ -61,6 +62,9 @@ public class DemoVTKPanelJoglCPU {
       }
     }
     vtkNativeLibrary.DisableOutputWindow(null);
+    
+    VTKUtils.printEnv("PATH", ";");
+    VTKUtils.printEnv("LIBGL_ALWAYS_SOFTWARE");
   }
 
   public interface LibC extends Library {
@@ -73,6 +77,8 @@ public class DemoVTKPanelJoglCPU {
   static JFrame frame;
   static vtkAbstractJoglComponent<?> joglWidget;
   static boolean report = true;
+  
+  static boolean libC = false;
 
   public static void init() {
     
@@ -179,6 +185,20 @@ public class DemoVTKPanelJoglCPU {
       public void keyPressed(KeyEvent e) {}
     });
   }
+  
+  public static void useCPU(boolean cpu) {
+    try {
+    LibC libc = (LibC) Native.loadLibrary("c", LibC.class);
+    
+    if(cpu)
+      libc.setenv("LIBGL_ALWAYS_SOFTWARE", "true", 1);
+    else
+      libc.setenv("LIBGL_ALWAYS_SOFTWARE", "false", 1);
+    }
+    catch(Throwable e) {
+      System.err.println("Can't dynamically change CPU/GPU because could not invoke libC");      
+    }
+  }
 
   public static void clean() {
     frame.setVisible(false);
@@ -192,9 +212,7 @@ public class DemoVTKPanelJoglCPU {
     SwingUtilities.invokeLater(new Runnable() {
       public void run() {
 
-        LibC libc = (LibC) Native.loadLibrary("c", LibC.class);
-        libc.setenv("LIBGL_ALWAYS_SOFTWARE", "true", 1);
-        
+        useCPU(true);
         init();
 
       }
