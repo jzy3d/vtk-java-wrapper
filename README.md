@@ -49,12 +49,18 @@ An ```Exception in thread "main" java.lang.UnsatisfiedLinkError``` in your appli
 
 ### Method 1 (prefered) : Define path to VTK in an environment variable
 
-You may either define this through your operating system setting or through your IDE Run Configurations.
+You may either define this variables through your operating system setting
 
 * Linux   : `LD_LIBRARY_PATH   = /home/martin/Dev/jzy3d/vtk-java-wrapper/lib/9.1.0/vtk-Linux-x86_64/:$LD_LIBRARY_PATH`   
 * macOS   : `DYLD_LIBRARY_PATH = /Users/martin/Dev/jzy3d/vtk-java-wrapper/lib/9.1.0/vtk-Darwin-arm64/:$DYLD_LIBRARY_PATH`
 * Windows : `PATH              = C:/Users/martin/Dev/jzy3d/vtk-java-wrapper/lib/9.1.0/vtk-Windows-x86_64;PATH`
 
+
+Eclipse users can define environment variables from the IDE Run Configurations
+
+`DYLD_LIBRARY_PATH = /Users/martin/Dev/jzy3d/private/vtk-java-wrapper/lib/9.1.0/vtk-Darwin-arm64:${env_var:DYLD_LIBRARY_PATH}``
+
+<img src="doc/eclipse-settings.png"/>
 
 
 ### Method 2 : Define path to VTK in a JVM argument
@@ -76,7 +82,36 @@ vtkCommonPythonJava not loaded
 
 ## Running an example
 
-Run `DemoVTKPanelJogl.java` will display a VTK Window.
+Run `DemoVTKPanelJogl.java` will display a Java frame including a VTK rendering Window supported by JOGL. This is merely the `SimpleVTK` example that was formerly [crashing on macOS](https://gitlab.kitware.com/vtk/vtk/-/issues/17831) which is now working both for [Intel and Apple M1 CPU](https://discourse.vtk.org/t/fixed-vtk-java-wrappers-on-macos/7467).
+
+<img src="doc/demo-simple-vtk.png"/>
+
+
+# Compatibility issues with VTK Java and solutions
+
+## When JOGL works and when JOGL crashes
+
+VTK for Java relies on JOGL. JOGL does a great job but sometime hits compatibility issues with a small set of `{OS,CPU,GPU,JDK}` combinations. For example [Ubuntu 18 is known to fail](https://github.com/jzy3d/jzy3d-api/issues/139) for now. The bellow matrix shows the combinations of `{OS,CPU,GPU,JDK}` that have been tested and proven to support JOGL 2.4. Manual tests on JOGL are performed by starting simple Jzy3D charts in an AWT Window.  
+
+<img src="doc/compatibility-matrix.png"/>
+
+## Java based CPU rendering to the rescue  
+
+When JOGL can not allow access to native OpenGL rendering, one solution for Java developers is to avoid using the GPU. Jzy3D provides [a pure Java CPU OpenGL implementation](https://github.com/jzy3d/jzy3d-api/tree/master/jzy3d-emul-gl-awt) that can be used in such situation and can hence be used for rendering.
+
+In this case, VTK only used for loading files and processing geometries. Jzy3D is used for rendering.
+
+This repository contains the following examples.
+
+### DemoLOD_Cylinder
+
+<img src="doc/demo-emulgl-cylinder-small.png"/>
+
+### DemoLOD_Slab_Full / DemoLOD_Slab_Part
+
+<img src="doc/demo-emulgl-slab-full.png"/>
+
+### DemoVTKDecimationQuadric
 
 
 
@@ -85,7 +120,7 @@ Run `DemoVTKPanelJogl.java` will display a VTK Window.
 
 Following instruction are copied from this [page](https://www.particleincell.com/2011/vtk-java-visualization/) which is provided by the official [VTK instructions page](https://vtk.org/Wiki/VTK/Java_Wrapping)
 
-## VTK JAVA Wrappers
+## VTK Java Wrappers
 
 So how do you couple VTK with Java? It’s very easy. VTK comes with support for Java in the form of Java wrappers. In the following sections we show you how to install and configure the VTK / Java development environment and how to use it to build a simple Java GUI-driven application.
 
@@ -157,7 +192,7 @@ Extra CMake options for specifying source & target versions
 
 https://github.com/Kitware/VTK/tree/master/Wrapping/Java
 
-# Documentation
+# VTK Documentation
 
 * [VTK Guide (online)](https://kitware.github.io/vtk-examples/site/VTKBook/00Preface/)
 * [VTK Guide PDF](./doc/VTKTextBook.pdf)

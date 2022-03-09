@@ -117,9 +117,9 @@
 			<groupId>vtk</groupId>
 			<artifactId>vtk</artifactId>
 			<version>${vtk.version}</version>
-			<!-- <scope>system</scope>
-			<systemPath>/Users/Martin/Dev/jzy3d/private/vtk-java-wrapper/lib/vtk-${vtk.version}.jar</systemPath>-->
 		</dependency>
+
+
 
 		<dependency>
 			<groupId>org.jzy3d</groupId>
