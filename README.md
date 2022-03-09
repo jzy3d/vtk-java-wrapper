@@ -95,23 +95,27 @@ VTK for Java relies on JOGL. JOGL does a great job but sometime hits compatibili
 
 <img src="doc/compatibility-matrix.png"/>
 
+Find the online matrix [here](https://docs.google.com/spreadsheets/d/1PsHpJnwug40pwLeX1gk33kmGCUOTzVPbEzn8RjmZXIA/edit?usp=sharing). Each failure is linked to an issue describing the problem in detail with possible workarounds.
+
 ## Java based CPU rendering to the rescue  
 
-When JOGL can not allow access to native OpenGL rendering, one solution for Java developers is to avoid using the GPU. Jzy3D provides [a pure Java CPU OpenGL implementation](https://github.com/jzy3d/jzy3d-api/tree/master/jzy3d-emul-gl-awt) that can be used in such situation and can hence be used for rendering.
+When JOGL can not allow access to native OpenGL rendering, one solution for Java developers is to avoid using the GPU. Jzy3D provides [a pure Java CPU OpenGL implementation](https://github.com/jzy3d/jzy3d-api/tree/master/jzy3d-emul-gl-awt) that can be used in such situation. This is a great fallback that works on any JVM and OS. The drawback is loss of performance, which depend on the number of polygons to render as well as pixel to draw.
 
-In this case, VTK only used for loading files and processing geometries. Jzy3D is used for rendering.
+<img src="doc/cpu-vs-gpu.png"/>
+
+There are however tricks to circumvent this performance loss using dynamic level of details as implemented in Jzy3D.
 
 This repository contains the following examples.
 
-### DemoLOD_Cylinder
+### Jzy3D's EmulGL example : DemoLOD_Cylinder
 
 <img src="doc/demo-emulgl-cylinder-small.png"/>
 
-### DemoLOD_Slab_Full / DemoLOD_Slab_Part
+### Jzy3D's EmulGL example :DemoLOD_Slab_Full / DemoLOD_Slab_Part
 
 <img src="doc/demo-emulgl-slab-full.png"/>
 
-### DemoVTKDecimationQuadric
+### Jzy3D's EmulGL example :DemoVTKDecimationQuadric
 
 
 
