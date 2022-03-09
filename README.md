@@ -1,28 +1,50 @@
 vtk-java-wrapper
 ================
 
-Shows how to work with VTK Java Wrappers.
+This project facilitates the use of VTK in Java applications on multiple operating system (Ubuntu, MacOS and Windows).
+
+You will find here
+- Builds of [VTK](https://vtk.org/) for Java (9.1) for multiple operating systems and CPU.
+- A [maven configuration example](https://github.com/jzy3d/vtk-java-wrapper/blob/master/pom.xml) showing how to build a Java app linking to VTK and using JOGL 2.4-rc4 for enhanced compatibility with operating systems and hardwares.
+- Examples showing how to create simple 3D applications with VTK, derived from the [official examples](https://kitware.github.io/vtk-examples/site/Java/) but verified under multiple platforms.
+- Examples showing how to create simple 3D applications with Jzy3D for rendering and VTK for processing.
+- Documentation on how to build VTK for Java yourself.
+
+To
+
 
 # Download VTK libraries
 
-Build it by following the instruction below, or download it [here](https://download.jzy3d.org/vtk/build/).
+To be able to run the examples in this project, you add a VTK build for Java in the `lib/{version}` directory.
 
-WARNING : Pre-built VTK library files are made for a target JDK. Programs may fail if not running with the JDK that was used when building VTK. E.g. Linux VTK was built with JDK 11.
+The table below lists the [existing builds](https://download.jzy3d.org/vtk/build/) of VTK for Java.
 
+| OS      | OS Versions   | CPU          | Java       | VTK | Archive                        |
+|---------|---------------|--------------|------------|-----|--------------------------------|
+| Ubuntu  | 20            | Intel x86_64 | JDK 11     | 9.1 | <a href="https://download.jzy3d.org/vtk/build/9.1.0/vtk-Linux-x86_64-9.1.0-jdk11.zip">vtk-Linux-x86_64-9.1.0-jdk11</a> |                                       
+| macOS   | 10.12, 10.15  | Intel x86_64 | JDK 11     | 9.1 | <a href="https://download.jzy3d.org/vtk/build/9.1.0/vtk-Darwin-x86_64-9.1.0-jdk11.zip">vtk-Darwin-x86_64-9.1.0-jdk11</a> |                                       
+| macOS   | 11.4          | Apple M1     | JDK 11     | 9.1 | <a href="https://download.jzy3d.org/vtk/build/9.1.0/vtk-Darwin-arm64-9.1.0-jdk11.zip">vtk-Darwin-arm64-9.1.0-jdk11</a> |                                       
+| Windows | 10            | Intel x86_64  | JDK 14     | 9.1 | <a href="https://download.jzy3d.org/vtk/build/9.1.0/vtk-Windows-x86_64.zip">vtk-Windows-x86_64</a> |   
+
+If you can't find a suitable version for you or if the JDK is higher than the JRE you intend to use, simply read below some advices for building VTK for Java yourself.
+
+Programs may fail if running with a lower JDK than the one that was used when building VTK. E.g. I experienced that a VTK build for JDK 11 won't properly work for JDK 9. The reason is that VTK refers to AWT native interface which has methods that should link to VTK. And JDK 11 has methods that JDK 9 does not have, which lead to a failure when loading VTK natives on a too low JDK.
 
 # Configure path to VTK libraries
 
 ## Define path to VTK in an environment variable
 
-* Linux   : `LD_LIBRARY_PATH   = /path/to/vtk/:$LD_LIBRARY_PATH`   
-* macOS   : `DYLD_LIBRARY_PATH = /path/to/vtk/:$DYLD_LIBRARY_PATH` 
-* Windows : `PATH              = /path/to/vtk/;PATH`
+You may either define this through your operating system setting or through your IDE Run Configurations.
+
+* Linux   : `LD_LIBRARY_PATH   = /Users/martin/Dev/jzy3d/vtk-java-wrapper/lib/9.1.0/vtk-Linux-x86_64/:$LD_LIBRARY_PATH`   
+* macOS   : `DYLD_LIBRARY_PATH = /Users/martin/Dev/jzy3d/vtk-java-wrapper/lib/9.1.0/vtk-Darwin-arm64/:$DYLD_LIBRARY_PATH`
+* Windows : `PATH              = C:/Users/martin/Dev/jzy3d/vtk-java-wrapper/lib/9.1.0/vtk-Windows-x86_64;PATH`
 
 
 
 ## Define path to VTK in a JVM argument
 
-This has the drawback of [keeping a reference of the path where the VTK libraries were built](https://discourse.vtk.org/t/shared-libraries-cant-be-redistributed-since-they-refer-to-their-build-path/7892/3). 
+This has the drawback of [keeping a reference of the path where the VTK libraries were built](https://discourse.vtk.org/t/shared-libraries-cant-be-redistributed-since-they-refer-to-their-build-path/7892/3).
 
 * -Djava.library.path=./lib/{platform} (preferred)
 * -Djava.library.path=/opt/homebrew/Cellar/vtk/9.0.3/lib
