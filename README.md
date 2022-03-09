@@ -10,14 +10,20 @@ You will find here
 - Examples showing how to create simple 3D applications with Jzy3D for rendering and VTK for processing.
 - Documentation on how to build VTK for Java yourself.
 
-To
+
+# Getting started
+
+To get started, read the three sections below
+1. Download VTK libraries
+1. Configure path to VTK libraries
+1. Running an example
 
 
-# Download VTK libraries
+## Download VTK native libraries
 
 To be able to run the examples in this project, you add a VTK build for Java in the `lib/{version}` directory.
 
-The table below lists the [existing builds](https://download.jzy3d.org/vtk/build/) of VTK for Java.
+The table below lists the [existing builds](https://download.jzy3d.org/vtk/build/) of VTK for Java. Pick the one that match your OS.
 
 | OS      | OS Versions   | CPU          | Java       | VTK | Archive                        |
 |---------|---------------|--------------|------------|-----|--------------------------------|
@@ -30,19 +36,28 @@ If you can't find a suitable version for you or if the JDK is higher than the JR
 
 Programs may fail if running with a lower JDK than the one that was used when building VTK. E.g. I experienced that a VTK build for JDK 11 won't properly work for JDK 9. The reason is that VTK refers to AWT native interface which has methods that should link to VTK. And JDK 11 has methods that JDK 9 does not have, which lead to a failure when loading VTK natives on a too low JDK.
 
-# Configure path to VTK libraries
+## Check VTK java library
 
-## Define path to VTK in an environment variable
+VTK Java classes are bundled in `lib/vtk-9.1.0.jar` which was built by following the instructions given in section _Building VTK for Java_. To allow referencing this jar file from the Maven project file, we deployed this jar to a local maven repository in `mvn/` folder. This folder is commited in this Git repository to facilitate bootstrapping. You can also reuse `lib/install-vtk-locally.sh` to deploy it to your own local maven repository.
+
+## Configure path to VTK native libraries
+
+One you have downloaded and unzipped the above package, you must run your program with a reference to the folder containing VTK native libraries, either through system path variables, either through the JVM library path.
+
+An ```Exception in thread "main" java.lang.UnsatisfiedLinkError``` in your application may mean that you forgot to set your current directory to where the native libraries stand.
+
+
+### Method 1 (prefered) : Define path to VTK in an environment variable
 
 You may either define this through your operating system setting or through your IDE Run Configurations.
 
-* Linux   : `LD_LIBRARY_PATH   = /Users/martin/Dev/jzy3d/vtk-java-wrapper/lib/9.1.0/vtk-Linux-x86_64/:$LD_LIBRARY_PATH`   
+* Linux   : `LD_LIBRARY_PATH   = /home/martin/Dev/jzy3d/vtk-java-wrapper/lib/9.1.0/vtk-Linux-x86_64/:$LD_LIBRARY_PATH`   
 * macOS   : `DYLD_LIBRARY_PATH = /Users/martin/Dev/jzy3d/vtk-java-wrapper/lib/9.1.0/vtk-Darwin-arm64/:$DYLD_LIBRARY_PATH`
 * Windows : `PATH              = C:/Users/martin/Dev/jzy3d/vtk-java-wrapper/lib/9.1.0/vtk-Windows-x86_64;PATH`
 
 
 
-## Define path to VTK in a JVM argument
+### Method 2 : Define path to VTK in a JVM argument
 
 This has the drawback of [keeping a reference of the path where the VTK libraries were built](https://discourse.vtk.org/t/shared-libraries-cant-be-redistributed-since-they-refer-to-their-build-path/7892/3).
 
@@ -59,22 +74,11 @@ vtkFiltersPythonJava not loaded
 vtkCommonPythonJava not loaded
 ```
 
-Appart of this, an ```Exception in thread "main" java.lang.UnsatisfiedLinkError``` may mean that you forgot to set your current directory to where the native libraries stand.
+## Running an example
+
+Run `DemoVTKPanelJogl.java` will display a VTK Window.
 
 
-# Running an example
-
-
-## Reading a VTU file
-
-Run ReadVTU.java with
-
-
-## Displaying a VTK Window
-
-Run SimpleVTK.java. Crashing on my mac os with JOGL.
-
-https://vtk.org/Wiki/VTK/Java_Wrapping
 
 
 # Building VTK for Java
