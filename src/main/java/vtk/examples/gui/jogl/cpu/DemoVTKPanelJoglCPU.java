@@ -35,15 +35,22 @@ import vtk.rendering.jogl.vtkJoglPanelComponent;
  * 
  * <h4>Requirements on Linux</h4>
  * <ul>
- * <li>Set environment variable <code>LIBGL_ALWAYS_SOFTWARE=true</code> or programmatically in java <code>libc.setenv("LIBGL_ALWAYS_SOFTWARE", "true", 1);</code>.
+ * <li>Set environment variable <code>LIBGL_ALWAYS_SOFTWARE=true</code> or programmatically in java
+ * <code>libc.setenv("LIBGL_ALWAYS_SOFTWARE", "true", 1);</code>.
  * <li><code>LD_LIBRARY_PATH=/home/martin/Dev/jzy3d/external/osmesa:$LD_LIBRARY_PATH</code>
  * </ul>
  * 
  * <h4>Requirements on Windows</h4>
  * <ul>
- * <li>System PATH should hold MESA and VTK path before system32 path (to ensure opengl lib provided
- * by mesa is loaded before). In addition, the program must force the load of OpenGL32.</li>
- * <li>-Djava.library.path="${env_var:PATH}"</li>
+ * <li>Get a MESA distribution from https://download.jzy3d.org/mesa/mesa-21.3.7-Windows-x86_64.zip
+ * and unpack it somewhere, e.g. in ./lib/</li>
+ * <li>System PATH should hold MESA path (e.g.
+ * C:\Users\Martin\Dev\jzy3d\private\vtk-java-wrapper\lib\9.1.0\mesa-Windows-x86_64) and VTK path
+ * (C:\Users\Martin\Dev\jzy3d\private\vtk-java-wrapper\lib\9.1.0\vtk-Windows-x86_64) before system32
+ * path (to ensure opengl lib provided by mesa is loaded before). In addition, the program must
+ * force the load of OpenGL32.</li>
+ * <li>Run with -Djava.library.path="${env_var:PATH}" (this is the Eclipse way of providing the PATH
+ * variable to java.library.path)</li>
  * </ul>
  * 
  * <h4>Requirements on MacOS</h4>
@@ -51,7 +58,6 @@ import vtk.rendering.jogl.vtkJoglPanelComponent;
  * <li>
  * <li>
  * </ul>
- * 
  * 
  * 
  * <h2>Support GPU rendering at startup</h2>
@@ -71,7 +77,7 @@ import vtk.rendering.jogl.vtkJoglPanelComponent;
  * 
  * E.g.
  * 
- * "tkTextureObject (0x7fb9907562b0): failed after SendParameters 1 OpenGL errors detected 0 :
+ * "vtkTextureObject (0x7fb9907562b0): failed after SendParameters 1 OpenGL errors detected 0 :
  * (1280) Invalid enum"
  * 
  * is due to the fact that GL_MAX_TEXTURE_MAX_ANISOTROPY is a not supported extension.
@@ -81,10 +87,10 @@ public class DemoVTKPanelJoglCPU {
   static {
     try {
       // Preload opengl on Windows only
-      if(isWindows()) {
+      if (isWindows()) {
         System.loadLibrary("opengl32");
       }
-      
+
       // Load VTK
       if (!vtkNativeLibrary.LoadAllNativeLibraries()) {
         for (vtkNativeLibrary lib : vtkNativeLibrary.values()) {
@@ -288,8 +294,8 @@ public class DemoVTKPanelJoglCPU {
       System.out.println("Undefined environment variable " + var);
     }
   }
-  
+
   public static boolean isWindows() {
-    return System.getProperty("os.name").toLowerCase().indexOf("win")>=0;
+    return System.getProperty("os.name").toLowerCase().indexOf("win") >= 0;
   }
 }
