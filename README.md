@@ -82,16 +82,17 @@ vtkCommonPythonJava not loaded
 
 ## Running an example
 
-Run `DemoVTKPanelJogl.java` will display a Java frame including a VTK rendering Window supported by JOGL. This is merely the `SimpleVTK` example that was formerly [crashing on macOS](https://gitlab.kitware.com/vtk/vtk/-/issues/17831) which is now working both for [Intel and Apple M1 CPU](https://discourse.vtk.org/t/fixed-vtk-java-wrappers-on-macos/7467).
+Run `DemoVTKPanelJogl.java` will display a Java frame including a VTK rendering Window supported by JOGL. 
 
 <img src="doc/demo-simple-vtk.png"/>
 
+Note for VTK veterans : This is merely the `SimpleVTK` example that was formerly [crashing on macOS](https://gitlab.kitware.com/vtk/vtk/-/issues/17831) which is now working both for [Intel and Apple M1 CPU](https://discourse.vtk.org/t/fixed-vtk-java-wrappers-on-macos/7467).
 
 # Compatibility issues with VTK Java and solutions
 
 ## When JOGL works and when JOGL crashes
 
-VTK for Java relies on JOGL. JOGL does a great job but sometime hits compatibility issues with a small set of `{OS,CPU,GPU,JDK}` combinations. For example [Ubuntu 18 is known to fail](https://github.com/jzy3d/jzy3d-api/issues/139) for now. The bellow matrix shows the combinations of `{OS,CPU,GPU,JDK}` that have been tested and proven to support JOGL 2.4. Manual tests on JOGL are performed by starting simple Jzy3D charts in an AWT Window.  
+VTK for Java relies on JOGL. JOGL does a great job but sometime hits compatibility issues with a small set of `{OS,CPU,GPU,JDK}` combinations. For example [Ubuntu 18 is known to fail](https://github.com/jzy3d/jzy3d-api/issues/139) for now. The matrix shown below indicates the combinations of `{OS,CPU,GPU,JDK}` that have been tested and proven to support [JOGL 2.4-rc4](https://github.com/jzy3d/jogl-maven-deployer#getting-jogl-24-rc-4-for-macos-bigsur-20211116). Manual tests on JOGL are performed by starting simple Jzy3D charts in an AWT Window.  
 
 <img src="doc/compatibility-matrix.png"/>
 
@@ -99,7 +100,7 @@ Find the online matrix [here](https://docs.google.com/spreadsheets/d/1PsHpJnwug4
 
 ## Java based CPU rendering to the rescue  
 
-When JOGL can not allow access to native OpenGL rendering, one solution for Java developers is to avoid using the GPU. Jzy3D provides [EmulGL, a pure Java CPU OpenGL implementation](https://github.com/jzy3d/jzy3d-api/tree/master/jzy3d-emul-gl-awt) that can be used in such situation. 
+When JOGL can not allow access to native OpenGL rendering, one solution for Java developers is to avoid using the GPU. Jzy3D provides [EmulGL, a pure Java CPU OpenGL implementation](https://github.com/jzy3d/jzy3d-api/tree/master/jzy3d-emul-gl-awt) that can be used in such situation. In this case, VTK is only used for processing geometries but not for rendering. Jzy3D is used to render 3D with CPU only. 
 
 This is a great fallback that works on any JVM and OS. The drawback is a loss of performance, which depend on the number of polygons to render as well as pixel to draw.
 
@@ -129,7 +130,7 @@ This repository contains the following examples.
 
 # Building VTK for Java
 
-Following instruction are copied from this [page](https://www.particleincell.com/2011/vtk-java-visualization/) which is provided by the official [VTK instructions page](https://vtk.org/Wiki/VTK/Java_Wrapping)
+The following instructions are copied from this [page](https://www.particleincell.com/2011/vtk-java-visualization/) which is provided by the official [VTK instructions page](https://vtk.org/Wiki/VTK/Java_Wrapping)
 
 ## VTK Java Wrappers
 
@@ -191,7 +192,7 @@ Ensure you have a ARM64 JVM
 
 
 
-## Usefull flags
+## Useful flags
 
 Extra CMake options for specifying source & target versions
 ```
