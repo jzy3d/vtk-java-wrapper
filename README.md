@@ -99,23 +99,26 @@ Find the online matrix [here](https://docs.google.com/spreadsheets/d/1PsHpJnwug4
 
 ## Java based CPU rendering to the rescue  
 
-When JOGL can not allow access to native OpenGL rendering, one solution for Java developers is to avoid using the GPU. Jzy3D provides [a pure Java CPU OpenGL implementation](https://github.com/jzy3d/jzy3d-api/tree/master/jzy3d-emul-gl-awt) that can be used in such situation. This is a great fallback that works on any JVM and OS. The drawback is loss of performance, which depend on the number of polygons to render as well as pixel to draw.
+When JOGL can not allow access to native OpenGL rendering, one solution for Java developers is to avoid using the GPU. Jzy3D provides [EmulGL, a pure Java CPU OpenGL implementation](https://github.com/jzy3d/jzy3d-api/tree/master/jzy3d-emul-gl-awt) that can be used in such situation. 
+
+This is a great fallback that works on any JVM and OS. The drawback is a loss of performance, which depend on the number of polygons to render as well as pixel to draw.
 
 <img src="doc/cpu-vs-gpu.png"/>
 
-There are however tricks to circumvent this performance loss using dynamic level of details as implemented in Jzy3D.
+There are however tricks to circumvent this performance loss 
+* dynamic level of details, to allow simplifying the data to draw when needing to refresh often.
+* decimation, to reduce the number of polygon to draw and only work with visible polygons
 
 This repository contains the following examples.
 
-### Jzy3D's EmulGL example : DemoLOD_Cylinder
+### EmulGL example : DemoLOD_Cylinder
 
 <img src="doc/demo-emulgl-cylinder-small.png"/>
 
-### Jzy3D's EmulGL example :DemoLOD_Slab_Full / DemoLOD_Slab_Part
+### EmulGL example :DemoLOD_Slab_Full / DemoLOD_Slab_Part
 
 <img src="doc/demo-emulgl-slab-full.png"/>
 
-### Jzy3D's EmulGL example :DemoVTKDecimationQuadric
 
 
 
