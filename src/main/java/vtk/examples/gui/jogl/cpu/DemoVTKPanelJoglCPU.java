@@ -26,24 +26,32 @@ import vtk.rendering.jogl.vtkJoglPanelComponent;
  * CPU rendering is achieved with the help of MESA (see MESA.md for more information on how to get
  * or build MESA).
  * 
- * The below indication explain how to add MESA to the path.
+ * The below indication explain how to add MESA to the path. One can verify environment variables
+ * and settings known by JVM by adding the <code>-XshowSettings:properties</code> VM argument.
  * 
  * CPU rendering activation can be verified by reading in console : "OpenGL renderer string:
  * llvmpipe"
  *
  * 
- * <h4>Requirements on Linux<h4>
+ * <h4>Requirements on Linux</h4>
  * <ul>
- * <li><code>libc.setenv("LIBGL_ALWAYS_SOFTWARE", "true", 1);</code>.
+ * <li>Set environment variable <code>LIBGL_ALWAYS_SOFTWARE=true</code> or programmatically in java <code>libc.setenv("LIBGL_ALWAYS_SOFTWARE", "true", 1);</code>.
  * <li><code>LD_LIBRARY_PATH=/home/martin/Dev/jzy3d/external/osmesa:$LD_LIBRARY_PATH</code>
  * </ul>
  * 
- * <h4>Requirements on Windows<h4>
+ * <h4>Requirements on Windows</h4>
  * <ul>
  * <li>System PATH should hold MESA and VTK path before system32 path (to ensure opengl lib provided
  * by mesa is loaded before). In addition, the program must force the load of OpenGL32.</li>
  * <li>-Djava.library.path="${env_var:PATH}"</li>
  * </ul>
+ * 
+ * <h4>Requirements on MacOS</h4>
+ * <ul>
+ * <li>
+ * <li>
+ * </ul>
+ * 
  * 
  * 
  * <h2>Support GPU rendering at startup</h2>
@@ -72,8 +80,12 @@ public class DemoVTKPanelJoglCPU {
 
   static {
     try {
-      System.loadLibrary("opengl32");
-
+      // Preload opengl on Windows only
+      if(isWindows()) {
+        System.loadLibrary("opengl32");
+      }
+      
+      // Load VTK
       if (!vtkNativeLibrary.LoadAllNativeLibraries()) {
         for (vtkNativeLibrary lib : vtkNativeLibrary.values()) {
           if (!lib.IsLoaded()) {
@@ -84,6 +96,7 @@ public class DemoVTKPanelJoglCPU {
 
       vtkNativeLibrary.DisableOutputWindow(null);
     } catch (UnsatisfiedLinkError e) {
+      e.printStackTrace();
     } finally {
       printEnv("PATH", ";");
       printEnv("LIBGL_ALWAYS_SOFTWARE");
@@ -274,5 +287,9 @@ public class DemoVTKPanelJoglCPU {
     if (!found) {
       System.out.println("Undefined environment variable " + var);
     }
+  }
+  
+  public static boolean isWindows() {
+    return System.getProperty("os.name").toLowerCase().indexOf("win")>=0;
   }
 }
