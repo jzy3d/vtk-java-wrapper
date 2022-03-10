@@ -58,7 +58,7 @@ You may either define this variables through your operating system setting
 
 Eclipse users can define environment variables from the IDE Run Configurations
 
-`DYLD_LIBRARY_PATH = /Users/martin/Dev/jzy3d/private/vtk-java-wrapper/lib/9.1.0/vtk-Darwin-arm64:${env_var:DYLD_LIBRARY_PATH}``
+`DYLD_LIBRARY_PATH = /Users/martin/Dev/jzy3d/private/vtk-java-wrapper/lib/9.1.0/vtk-Darwin-arm64:${env_var:DYLD_LIBRARY_PATH}`
 
 <img src="doc/eclipse-settings.png"/>
 
