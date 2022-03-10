@@ -115,10 +115,14 @@ This repository contains the following examples.
 
 <img src="doc/demo-emulgl-cylinder-small.png"/>
 
-### EmulGL example :DemoLOD_Slab_Full / DemoLOD_Slab_Part
+### EmulGL example : DemoLOD_Slab_Full / DemoLOD_Slab_Part
 
 <img src="doc/demo-emulgl-slab-full.png"/>
 
+
+### JOGL example : PVTU_Part
+
+<img src="doc/pvtu-part.png"/>
 
 
 
