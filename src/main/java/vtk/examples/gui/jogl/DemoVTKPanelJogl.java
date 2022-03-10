@@ -51,7 +51,8 @@ public class DemoVTKPanelJogl {
         frame.setVisible(true);
         
         // Report
-        if(true) {
+        if(false) {// crash on mac
+          
           vtkRenderWindow rw = joglWidget.getRenderWindow();
           
           //joglWidget.getVTKLock().lock();

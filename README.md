@@ -1,28 +1,71 @@
 vtk-java-wrapper
 ================
 
-Shows how to work with VTK Java Wrappers.
+This project facilitates the use of VTK in Java applications on multiple operating system (Ubuntu, MacOS and Windows).
 
-# Download VTK libraries
-
-Build it by following the instruction below, or download it [here](https://download.jzy3d.org/vtk/build/).
-
-WARNING : Pre-built VTK library files are made for a target JDK. Programs may fail if not running with the JDK that was used when building VTK. E.g. Linux VTK was built with JDK 11.
-
-
-# Configure path to VTK libraries
-
-## Define path to VTK in an environment variable
-
-* Linux   : `LD_LIBRARY_PATH   = /path/to/vtk/:$LD_LIBRARY_PATH`   
-* macOS   : `DYLD_LIBRARY_PATH = /path/to/vtk/:$DYLD_LIBRARY_PATH` 
-* Windows : `PATH              = /path/to/vtk/;PATH`
+You will find here
+- Builds of [VTK](https://vtk.org/) for Java (9.1) for multiple operating systems and CPU.
+- A [maven configuration example](https://github.com/jzy3d/vtk-java-wrapper/blob/master/pom.xml) showing how to build a Java app linking to VTK and using JOGL 2.4-rc4 for enhanced compatibility with operating systems and hardwares.
+- Examples showing how to create simple 3D applications with VTK, derived from the [official examples](https://kitware.github.io/vtk-examples/site/Java/) but verified under multiple platforms.
+- Examples showing how to create simple 3D applications with Jzy3D for rendering and VTK for processing.
+- Documentation on how to build VTK for Java yourself.
 
 
+# Getting started
 
-## Define path to VTK in a JVM argument
+To get started, read the three sections below
+1. Download VTK libraries
+1. Configure path to VTK libraries
+1. Running an example
 
-This has the drawback of [keeping a reference of the path where the VTK libraries were built](https://discourse.vtk.org/t/shared-libraries-cant-be-redistributed-since-they-refer-to-their-build-path/7892/3). 
+
+## Download VTK native libraries
+
+To be able to run the examples in this project, you add a VTK build for Java in the `lib/{version}` directory.
+
+The table below lists the [existing builds](https://download.jzy3d.org/vtk/build/) of VTK for Java. Pick the one that match your OS.
+
+| OS      | OS Versions   | CPU          | Java       | VTK | Archive                        |
+|---------|---------------|--------------|------------|-----|--------------------------------|
+| Ubuntu  | 20            | Intel x86_64 | JDK 11     | 9.1 | <a href="https://download.jzy3d.org/vtk/build/9.1.0/vtk-Linux-x86_64-9.1.0-jdk11.zip">vtk-Linux-x86_64-9.1.0-jdk11</a> |                                       
+| macOS   | 10.12, 10.15  | Intel x86_64 | JDK 11     | 9.1 | <a href="https://download.jzy3d.org/vtk/build/9.1.0/vtk-Darwin-x86_64-9.1.0-jdk11.zip">vtk-Darwin-x86_64-9.1.0-jdk11</a> |                                       
+| macOS   | 11.4          | Apple M1     | JDK 11     | 9.1 | <a href="https://download.jzy3d.org/vtk/build/9.1.0/vtk-Darwin-arm64-9.1.0-jdk11.zip">vtk-Darwin-arm64-9.1.0-jdk11</a> |                                       
+| Windows | 10            | Intel x86_64  | JDK 14     | 9.1 | <a href="https://download.jzy3d.org/vtk/build/9.1.0/vtk-Windows-x86_64.zip">vtk-Windows-x86_64</a> |   
+
+If you can't find a suitable version for you or if the JDK is higher than the JRE you intend to use, simply read below some advices for building VTK for Java yourself.
+
+Programs may fail if running with a lower JDK than the one that was used when building VTK. E.g. I experienced that a VTK build for JDK 11 won't properly work for JDK 9. The reason is that VTK refers to AWT native interface which has methods that should link to VTK. And JDK 11 has methods that JDK 9 does not have, which lead to a failure when loading VTK natives on a too low JDK.
+
+## Check VTK java library
+
+VTK Java classes are bundled in `lib/vtk-9.1.0.jar` which was built by following the instructions given in section _Building VTK for Java_. To allow referencing this jar file from the Maven project file, we deployed this jar to a local maven repository in `mvn/` folder. This folder is commited in this Git repository to facilitate bootstrapping. You can also reuse `lib/install-vtk-locally.sh` to deploy it to your own local maven repository.
+
+## Configure path to VTK native libraries
+
+One you have downloaded and unzipped the above package, you must run your program with a reference to the folder containing VTK native libraries, either through system path variables, either through the JVM library path.
+
+An ```Exception in thread "main" java.lang.UnsatisfiedLinkError``` in your application may mean that you forgot to set your current directory to where the native libraries stand.
+
+
+### Method 1 (prefered) : Define path to VTK in an environment variable
+
+You may either define this variables through your operating system setting
+
+* Linux   : `LD_LIBRARY_PATH   = /home/martin/Dev/jzy3d/vtk-java-wrapper/lib/9.1.0/vtk-Linux-x86_64/:$LD_LIBRARY_PATH`   
+* macOS   : `DYLD_LIBRARY_PATH = /Users/martin/Dev/jzy3d/vtk-java-wrapper/lib/9.1.0/vtk-Darwin-arm64/:$DYLD_LIBRARY_PATH`
+* Windows : `PATH              = C:/Users/martin/Dev/jzy3d/vtk-java-wrapper/lib/9.1.0/vtk-Windows-x86_64;PATH`
+
+
+Eclipse users can define environment variables from the IDE Run Configurations
+
+`DYLD_LIBRARY_PATH = /Users/martin/Dev/jzy3d/private/vtk-java-wrapper/lib/9.1.0/vtk-Darwin-arm64:${env_var:DYLD_LIBRARY_PATH}``
+
+<img src="doc/eclipse-settings.png"/>
+
+
+### Method 2 : Define path to VTK in a JVM argument
+
+This has the drawback of [keeping a reference of the path where the VTK libraries were built](https://discourse.vtk.org/t/shared-libraries-cant-be-redistributed-since-they-refer-to-their-build-path/7892/3).
 
 * -Djava.library.path=./lib/{platform} (preferred)
 * -Djava.library.path=/opt/homebrew/Cellar/vtk/9.0.3/lib
@@ -37,29 +80,54 @@ vtkFiltersPythonJava not loaded
 vtkCommonPythonJava not loaded
 ```
 
-Appart of this, an ```Exception in thread "main" java.lang.UnsatisfiedLinkError``` may mean that you forgot to set your current directory to where the native libraries stand.
+## Running an example
+
+Run `DemoVTKPanelJogl.java` will display a Java frame including a VTK rendering Window supported by JOGL. This is merely the `SimpleVTK` example that was formerly [crashing on macOS](https://gitlab.kitware.com/vtk/vtk/-/issues/17831) which is now working both for [Intel and Apple M1 CPU](https://discourse.vtk.org/t/fixed-vtk-java-wrappers-on-macos/7467).
+
+<img src="doc/demo-simple-vtk.png"/>
 
 
-# Running an example
+# Compatibility issues with VTK Java and solutions
+
+## When JOGL works and when JOGL crashes
+
+VTK for Java relies on JOGL. JOGL does a great job but sometime hits compatibility issues with a small set of `{OS,CPU,GPU,JDK}` combinations. For example [Ubuntu 18 is known to fail](https://github.com/jzy3d/jzy3d-api/issues/139) for now. The bellow matrix shows the combinations of `{OS,CPU,GPU,JDK}` that have been tested and proven to support JOGL 2.4. Manual tests on JOGL are performed by starting simple Jzy3D charts in an AWT Window.  
+
+<img src="doc/compatibility-matrix.png"/>
+
+Find the online matrix [here](https://docs.google.com/spreadsheets/d/1PsHpJnwug40pwLeX1gk33kmGCUOTzVPbEzn8RjmZXIA/edit?usp=sharing). Each failure is linked to an issue describing the problem in detail with possible workarounds.
+
+## Java based CPU rendering to the rescue  
+
+When JOGL can not allow access to native OpenGL rendering, one solution for Java developers is to avoid using the GPU. Jzy3D provides [EmulGL, a pure Java CPU OpenGL implementation](https://github.com/jzy3d/jzy3d-api/tree/master/jzy3d-emul-gl-awt) that can be used in such situation. 
+
+This is a great fallback that works on any JVM and OS. The drawback is a loss of performance, which depend on the number of polygons to render as well as pixel to draw.
+
+<img src="doc/cpu-vs-gpu.png"/>
+
+There are however tricks to circumvent this performance loss 
+* dynamic level of details, to allow simplifying the data to draw when needing to refresh often.
+* decimation, to reduce the number of polygon to draw and only work with visible polygons
+
+This repository contains the following examples.
+
+### EmulGL example : DemoLOD_Cylinder
+
+<img src="doc/demo-emulgl-cylinder-small.png"/>
+
+### EmulGL example :DemoLOD_Slab_Full / DemoLOD_Slab_Part
+
+<img src="doc/demo-emulgl-slab-full.png"/>
 
 
-## Reading a VTU file
 
-Run ReadVTU.java with
-
-
-## Displaying a VTK Window
-
-Run SimpleVTK.java. Crashing on my mac os with JOGL.
-
-https://vtk.org/Wiki/VTK/Java_Wrapping
 
 
 # Building VTK for Java
 
 Following instruction are copied from this [page](https://www.particleincell.com/2011/vtk-java-visualization/) which is provided by the official [VTK instructions page](https://vtk.org/Wiki/VTK/Java_Wrapping)
 
-## VTK JAVA Wrappers
+## VTK Java Wrappers
 
 So how do you couple VTK with Java? It’s very easy. VTK comes with support for Java in the form of Java wrappers. In the following sections we show you how to install and configure the VTK / Java development environment and how to use it to build a simple Java GUI-driven application.
 
@@ -131,7 +199,7 @@ Extra CMake options for specifying source & target versions
 
 https://github.com/Kitware/VTK/tree/master/Wrapping/Java
 
-# Documentation
+# VTK Documentation
 
 * [VTK Guide (online)](https://kitware.github.io/vtk-examples/site/VTKBook/00Preface/)
 * [VTK Guide PDF](./doc/VTKTextBook.pdf)

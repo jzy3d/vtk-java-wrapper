@@ -2,6 +2,7 @@ package vtk;
 
 import java.io.File;
 import java.util.Map;
+import org.jzy3d.os.OperatingSystem;
 
 public class VTKUtils {
 
@@ -22,6 +23,26 @@ public class VTKUtils {
     if(!loadVtkNativeLibraries(null)){
       System.out.println("Current -Djava.library.path=" + System.getProperty("java.library.path"));
       System.out.println("Suggest -Djava.library.path=" + absolutePath);
+      
+      OperatingSystem os = new OperatingSystem();
+
+
+      if(os.isMac()) {
+        printEnv("PATH", ":");
+        printEnv("DYLD_LIBRARY_PATH", ":");
+      }
+      else if(os.isUnix()) {
+        printEnv("LD_LIBRARY_PATH", ":");
+      }
+      else if(os.isWindows()) {
+        printEnv("PATH", ";");
+      }
+      else {
+        System.out.println("Undetected OS !!");
+      }
+      
+      System.out.println(os);
+      
     }
   }
 
@@ -100,6 +121,42 @@ public class VTKUtils {
         System.out.println(entry.getKey() + " : " + entry.getValue());
     }
   }
+  
+  public static void printEnv(String var) {
+    printEnv(var, null);
+  }
+
+  public static void printEnv(String var, String splitWith) {
+    Map<String, String> env = System.getenv();
+
+    boolean found = false;
+    
+    for (Map.Entry<String, String> entry : env.entrySet()) {
+      if(entry.getKey().toLowerCase().equals(var.toLowerCase())) {
+        found = true;
+        
+        if(splitWith==null) {
+          System.out.println(entry.getKey() + " : " + entry.getValue());
+        }
+        else {
+          System.out.println(entry.getKey() + " : ");
+
+          String[] values = entry.getValue().split(splitWith);
+
+          for(String value: values) {
+            System.out.println(" " + value);
+          }
+
+        }
+
+      }
+    }
+    
+    if(!found) {
+      System.out.println("Undefined environment variable " + var);
+    }
+  }
+
 
   ///////////////////////////
 
