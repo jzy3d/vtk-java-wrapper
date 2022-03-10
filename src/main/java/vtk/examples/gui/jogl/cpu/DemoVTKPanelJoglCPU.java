@@ -1,15 +1,15 @@
-package vtk.examples.gui.jogl;
+package vtk.examples.gui.jogl.cpu;
 
 import java.awt.BorderLayout;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.Map;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.GLProfile;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
-import vtk.VTKUtils;
 import vtk.vtkActor;
 import vtk.vtkConeSource;
 import vtk.vtkGenericOpenGLRenderWindow;
@@ -63,8 +63,8 @@ public class DemoVTKPanelJoglCPU {
     }
     vtkNativeLibrary.DisableOutputWindow(null);
     
-    VTKUtils.printEnv("PATH", ";");
-    VTKUtils.printEnv("LIBGL_ALWAYS_SOFTWARE");
+    printEnv("PATH", ";");
+    printEnv("LIBGL_ALWAYS_SOFTWARE");
   }
 
   public interface LibC extends Library {
@@ -217,5 +217,40 @@ public class DemoVTKPanelJoglCPU {
 
       }
     });
+  }
+  
+  public static void printEnv(String var) {
+    printEnv(var, null);
+  }
+
+  public static void printEnv(String var, String splitWith) {
+    Map<String, String> env = System.getenv();
+
+    boolean found = false;
+    
+    for (Map.Entry<String, String> entry : env.entrySet()) {
+      if(entry.getKey().toLowerCase().equals(var.toLowerCase())) {
+        found = true;
+        
+        if(splitWith==null) {
+          System.out.println(entry.getKey() + " : " + entry.getValue());
+        }
+        else {
+          System.out.println(entry.getKey() + " : ");
+
+          String[] values = entry.getValue().split(splitWith);
+
+          for(String value: values) {
+            System.out.println(" " + value);
+          }
+
+        }
+
+      }
+    }
+    
+    if(!found) {
+      System.out.println("Undefined environment variable " + var);
+    }
   }
 }
