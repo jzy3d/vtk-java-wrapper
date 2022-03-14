@@ -28,6 +28,7 @@ public class VTKVersatileCanvas {
     
     VTKUtils.loadVtkNativeLibraries();
   }
+  
   protected static Chip defaultChip;
   
   /*protected static ChipSelector selector;
