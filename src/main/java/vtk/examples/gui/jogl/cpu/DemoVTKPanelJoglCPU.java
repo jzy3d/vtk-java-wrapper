@@ -90,6 +90,9 @@ public class DemoVTKPanelJoglCPU {
       if (isWindows()) {
         System.loadLibrary("opengl32");
       }
+      else if (isMac()) {
+        System.loadLibrary("GL");
+      }
 
       // Load VTK
       if (!vtkNativeLibrary.LoadAllNativeLibraries()) {
@@ -298,4 +301,9 @@ public class DemoVTKPanelJoglCPU {
   public static boolean isWindows() {
     return System.getProperty("os.name").toLowerCase().indexOf("win") >= 0;
   }
+
+  public static boolean isMac() {
+    return System.getProperty("os.name").toLowerCase().indexOf("mac") >= 0;
+  }
+
 }
