@@ -54,6 +54,7 @@ public class ChipSelector {
   /**                                                  */
   /*****************************************************/
 
+  public static String LINUX_ENV_VAR = "LIBGL_ALWAYS_SOFTWARE";
 
   protected void useOnLinux(Chip chip) {
 
@@ -61,15 +62,15 @@ public class ChipSelector {
     // CPU configuration
 
     if (Chip.CPU.equals(chip)) {
-      env.set("LIBGL_ALWAYS_SOFTWARE", "true");
-      loadOpenGLMesa();
+      env.set(LINUX_ENV_VAR, "true");
+      //loadOpenGLWindows_MesaLibrary();
     }
 
     // ------------------------------
     // GPU configuration
 
     else if (Chip.GPU.equals(chip)) {
-      env.set("LIBGL_ALWAYS_SOFTWARE", "false");
+      env.set(LINUX_ENV_VAR, "false");
     }
 
     // ------------------------------
@@ -107,7 +108,7 @@ public class ChipSelector {
       if (debug)
         System.out.println("newpath : " + env.get("PATH"));
 
-      loadOpenGLMesa();
+      loadOpenGLWindows_MesaLibrary();
 
     }
 
@@ -126,7 +127,7 @@ public class ChipSelector {
       if (debug)
         System.out.println("newpath : " + env.get("PATH"));
 
-      loadOpenGLWindows();
+      loadOpenGLWindows_System();
     }
 
     // ------------------------------
@@ -149,16 +150,18 @@ public class ChipSelector {
     System.loadLibrary("opengl32");
   }
 
-  protected void loadOpenGLWindows() {
+  protected void loadOpenGLWindows_System() {
+    String path = "C:\\Windows\\System32\\opengl32.dll";
     if (debug)
-      System.out.println("Try loading Windows GL");
-    System.load("C:\\Windows\\System32\\opengl32.dll");
+      System.out.println("Try loading Windows GL " + path);
+    System.load(path);
   }
 
-  protected void loadOpenGLMesa() {
+  protected void loadOpenGLWindows_MesaLibrary() {
+    String path = mesaPath + "/opengl32.dll";
     if (debug)
-      System.out.println("Try loading MESA GL");
-    System.load(mesaPath + "/opengl32.dll");
+      System.out.println("Try loading MESA GL " + path);
+    System.load(path);
   }
 
   /*****************************************************/

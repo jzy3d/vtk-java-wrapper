@@ -22,16 +22,16 @@ public class Environment {
   }
 
   public String get(String name) {
-
     if (OS.isWindows()) {
       WinLibC libc = (WinLibC) Native.loadLibrary("msvcrt", WinLibC.class);
       return libc.getenv(name);
-    } else {
+    } else if(OS.isUnix()){
       LibC libc = (LibC) Native.loadLibrary("c", LibC.class);
-      libc.getenv(name);
-      return System.getenv(name);
+      return libc.getenv(name);
     }
-    // return null;
+    else {
+      throw new RuntimeException("Not supported yet");
+    }
   }
 
   public interface LibC extends Library {
