@@ -3,9 +3,12 @@ package vtk.examples.gui.jogl.cpu;
 import java.awt.BorderLayout;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.lang.reflect.Field;
 import java.util.Map;
+import java.util.Vector;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
+import org.jzy3d.maths.Array;
 import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.GLProfile;
 import com.sun.jna.Library;
@@ -15,6 +18,7 @@ import vtk.vtkConeSource;
 import vtk.vtkGenericOpenGLRenderWindow;
 import vtk.vtkNativeLibrary;
 import vtk.vtkPolyDataMapper;
+import vtk.examples.gui.jogl.cpu.DemoVTKPanelJoglCPU.ChipSelector.Chip;
 import vtk.rendering.jogl.vtkAbstractJoglComponent;
 import vtk.rendering.jogl.vtkJoglPanelComponent;
 
@@ -41,9 +45,10 @@ import vtk.rendering.jogl.vtkJoglPanelComponent;
  * </ul>
  * 
  * <h4>Requirements on Windows</h4>
+ * 
+ * Get a MESA distribution from https://download.jzy3d.org/mesa/mesa-21.3.7-Windows-x86_64.zip and
+ * unpack it somewhere, e.g. in ./lib/
  * <ul>
- * <li>Get a MESA distribution from https://download.jzy3d.org/mesa/mesa-21.3.7-Windows-x86_64.zip
- * and unpack it somewhere, e.g. in ./lib/</li>
  * <li>System PATH should hold MESA path (e.g.
  * C:\Users\Martin\Dev\jzy3d\private\vtk-java-wrapper\lib\9.1.0\mesa-Windows-x86_64) and VTK path
  * (C:\Users\Martin\Dev\jzy3d\private\vtk-java-wrapper\lib\9.1.0\vtk-Windows-x86_64) before system32
@@ -52,6 +57,12 @@ import vtk.rendering.jogl.vtkJoglPanelComponent;
  * <li>Run with -Djava.library.path="${env_var:PATH}" (this is the Eclipse way of providing the PATH
  * variable to java.library.path)</li>
  * </ul>
+ * 
+ * -Djava.library.path=C:\Users\Martin\Dev\jzy3d\private\vtk-java-wrapper\lib\9.1.0\mesa-Windows-x86_64;C:\Users\Martin\Dev\jzy3d\private\vtk-java-wrapper\lib\9.1.0\vtk-Windows-x86_64
+ * 
+ * 
+ * 
+ * C:\Users\Martin\Dev\jzy3d\private\vtk-java-wrapper\lib\9.1.0\mesa-Windows-x86_64;${env_var:PATH}
  * 
  * <h4>Requirements on MacOS</h4>
  * <ul>
@@ -83,16 +94,25 @@ import vtk.rendering.jogl.vtkJoglPanelComponent;
  * is due to the fact that GL_MAX_TEXTURE_MAX_ANISOTROPY is a not supported extension.
  */
 public class DemoVTKPanelJoglCPU {
-
+  static Chip startChip = Chip.CPU;
+  
+  static ChipSelector selector = new ChipSelector();
+  
   static {
+
+
     try {
       // Preload opengl on Windows only
-      if (isWindows()) {
+      /*if (isWindows()) {
         System.loadLibrary("opengl32");
       }
       else if (isMac()) {
         System.loadLibrary("GL");
-      }
+      }*/
+      // Preload opengl library configuration according to OS
+      // Linux : configure LIBGL_ALWAYS_SOFTWARE=true to use MESA in CPU mode
+      // Windows : configure PATH to let MESA appear before system32 if CPU is required
+      selector.use(startChip);
 
       // Load VTK
       if (!vtkNativeLibrary.LoadAllNativeLibraries()) {
@@ -107,24 +127,16 @@ public class DemoVTKPanelJoglCPU {
     } catch (UnsatisfiedLinkError e) {
       e.printStackTrace();
     } finally {
-      printEnv("PATH", ";");
-      printEnv("LIBGL_ALWAYS_SOFTWARE");
+      Environment.print("PATH", ";");
+      Environment.print("LIBGL_ALWAYS_SOFTWARE");
       System.out.println("-Djava.library.path=" + System.getProperty("java.library.path"));
     }
   }
 
-  public interface LibC extends Library {
-    public int setenv(String name, String value, int overwrite);
-  }
 
-  static vtkConeSource cone;
-  static vtkPolyDataMapper coneMapper;
-  static vtkActor actor;
   static JFrame frame;
   static vtkAbstractJoglComponent<?> joglWidget;
   static boolean report = true;
-
-  static boolean libC = false;
 
   public static void init() {
 
@@ -186,10 +198,14 @@ public class DemoVTKPanelJoglCPU {
         if (report == true) {
           Object[] lines = joglWidget.getRenderWindow().ReportCapabilities().lines().toArray();
 
-          System.out.println("Report: ");
+          Chip chip = Chip.GPU;
           for (int i = 0; i < 3; i++) {
-            System.out.println((String) lines[i]);
+            if(((String)lines[i]).contains("llvm")) {
+              chip = Chip.CPU;
+            }
           }
+          
+          System.out.println("JOGL is now using : " + chip);
 
           report = false;
         }
@@ -208,14 +224,16 @@ public class DemoVTKPanelJoglCPU {
         if (e.getKeyChar() == 'r') {
           joglWidget.resetCamera();
         } else if (e.getKeyChar() == 'c') {
-          LibC libc = (LibC) Native.loadLibrary("c", LibC.class);
-          libc.setenv("LIBGL_ALWAYS_SOFTWARE", "true", 1);
+
+          ChipSelector s = new ChipSelector();
+          s.use(Chip.CPU);
 
           clean();
           init();
         } else if (e.getKeyChar() == 'g') {
-          LibC libc = (LibC) Native.loadLibrary("c", LibC.class);
-          libc.setenv("LIBGL_ALWAYS_SOFTWARE", "false", 1);
+
+          ChipSelector s = new ChipSelector();
+          s.use(Chip.GPU);
 
           clean();
           init();
@@ -232,24 +250,12 @@ public class DemoVTKPanelJoglCPU {
     });
   }
 
-  public static void useCPU(boolean cpu) {
-    try {
-      LibC libc = (LibC) Native.loadLibrary("c", LibC.class);
-
-      if (cpu)
-        libc.setenv("LIBGL_ALWAYS_SOFTWARE", "true", 1);
-      else
-        libc.setenv("LIBGL_ALWAYS_SOFTWARE", "false", 1);
-    } catch (Throwable e) {
-      System.err.println("Can't dynamically change CPU/GPU because could not invoke libC");
-    }
-  }
-
   public static void clean() {
     frame.setVisible(false);
     frame.dispose();
 
     frame = null;
+    selector = null;
     System.gc();
   }
 
@@ -257,46 +263,201 @@ public class DemoVTKPanelJoglCPU {
     SwingUtilities.invokeLater(new Runnable() {
       public void run() {
 
-        useCPU(true);
-        init();
+        selector = new ChipSelector();
+        selector.use(startChip);
 
+        init();
       }
     });
   }
 
-  public static void printEnv(String var) {
-    printEnv(var, null);
+  /****************************************/
+  /**                                    **/
+  /** GPU/CPU TOGGLE **/
+  /**                                    **/
+  /****************************************/
+
+  public static class ChipSelector {
+    enum Chip {
+      CPU, GPU
+    }
+
+    public void use(Chip chip) {
+     
+      
+      System.out.println("--------------------");
+      System.out.println("WANT TO USE : " + chip);
+      
+      // WIndows
+      if (isWindows()) {
+        Environment e = new Environment();
+        e.set("TEST_ENV_VAR", "toto");
+        System.out.println("TEST_ENV_VAR:" + e.get("TEST_ENV_VAR"));
+
+        String oldpath = e.get("PATH");
+
+        System.out.println("oldpath : " + oldpath);
+        
+        if (Chip.CPU.equals(chip)) {
+
+          e.set("PATH", MESA_PATH + ";" + oldpath);
+          System.out.println("newpath : " + e.get("PATH"));
+          
+          loadOpenGLMesa();
+          
+        } else if (Chip.GPU.equals(chip)) {
+          
+          String newpath = oldpath.replace(MESA_PATH, "");
+          newpath = newpath.replace(";;", ";");
+          // TODO : avec et sans slash final
+          // TODO : faire slash et backslash
+          
+          e.set("PATH", newpath);
+          System.out.println("newpath : " + e.get("PATH"));
+          
+          loadOpenGLWindows();
+        } else
+          throw new RuntimeException("Unsupported " + chip);
+        
+      } 
+      
+      // ----------------------------------
+      // Linux
+      else {
+        Environment e = new Environment();
+
+        if (Chip.CPU.equals(chip)) {
+          e.set("LIBGL_ALWAYS_SOFTWARE", "true");
+
+          loadOpenGLMesa();
+        } else if (Chip.GPU.equals(chip)) {
+          e.set("LIBGL_ALWAYS_SOFTWARE", "false");
+
+          // loadOpenGLWindows();
+        } else
+          throw new RuntimeException("Unsupported " + chip);
+      }
+
+
+    }
+
+    // unload :
+    // https://web.archive.org/web/20140704120535/http://www.codethesis.com/blog/unload-java-jni-dll
+    /*public static void init(Chip chip) {
+
+      if (isWindows()) {
+        if (Chip.CPU.equals(chip))
+          loadOpenGLMesa();
+        else if (Chip.GPU.equals(chip))
+          loadOpenGLWindows();
+        else
+          throw new RuntimeException("Unsupported " + chip);
+      }
+    }*/
+    
+    protected static void loadOpenGL() {
+      System.loadLibrary("opengl32");
+    }
+
+    protected static void loadOpenGLWindows() {
+      // System.un
+      System.out.println("Try loading Windows GL");
+      System.load("C:\\Windows\\System32\\opengl32.dll");
+    }
+
+    protected static void loadOpenGLMesa() {
+      System.out.println("Try loading MESA GL");
+
+      System.load(
+          MESA_PATH + "/opengl32.dll");
+    }
+    
+    static String MESA_PATH = "C:\\Users\\Martin\\Dev\\jzy3d\\private\\vtk-java-wrapper\\lib\\9.1.0\\mesa-Windows-x86_64";
+    //static String MESA_PATH = "C:/Users/Martin/Dev/jzy3d/private/vtk-java-wrapper/lib/9.1.0/mesa-Windows-x86_64/";
+
   }
+  
 
-  public static void printEnv(String var, String splitWith) {
-    Map<String, String> env = System.getenv();
+  /****************************************/
+  /**                                    **/
+  /** ENVIRONMENT **/
+  /**                                    **/
+  /****************************************/
 
-    boolean found = false;
 
-    for (Map.Entry<String, String> entry : env.entrySet()) {
-      if (entry.getKey().toLowerCase().equals(var.toLowerCase())) {
-        found = true;
+  public static class Environment {
 
-        if (splitWith == null) {
-          System.out.println(entry.getKey() + " : " + entry.getValue());
-        } else {
-          System.out.println(entry.getKey() + " : ");
+    public void set(String name, String value) {
+      if (isWindows()) {
+        WinLibC libc = (WinLibC) Native.loadLibrary("msvcrt", WinLibC.class);
+        libc._putenv(name +"="+ value);
+      } else {
+        LibC libc = (LibC) Native.loadLibrary("c", LibC.class);
+        libc.setenv(name, value, 1);
+      }
+    }
+    
+    public String get(String name) {
+      
+      if (isWindows()) {
+        WinLibC libc = (WinLibC) Native.loadLibrary("msvcrt", WinLibC.class);
+        return libc.getenv(name);
+      } else {
+        LibC libc = (LibC) Native.loadLibrary("c", LibC.class);
+        libc.getenv(name);
+        return System.getenv(name);
+      }
+      //return null;
+    }
 
-          String[] values = entry.getValue().split(splitWith);
+    public interface LibC extends Library {
+      public int setenv(String name, String value, int overwrite);
+      public String getenv(String name);
+    }
 
-          for (String value : values) {
-            System.out.println(" " + value);
+    public interface WinLibC extends Library {
+      public int _putenv(String value);
+      public String getenv(String name);
+    }
+
+
+    public static void print(String var) {
+      print(var, null);
+    }
+
+    public static void print(String var, String splitWith) {
+      Map<String, String> env = System.getenv();
+
+      boolean found = false;
+
+      for (Map.Entry<String, String> entry : env.entrySet()) {
+        if (entry.getKey().toLowerCase().equals(var.toLowerCase())) {
+          found = true;
+
+          if (splitWith == null) {
+            System.out.println(entry.getKey() + " : " + entry.getValue());
+          } else {
+            System.out.println(entry.getKey() + " : ");
+
+            String[] values = entry.getValue().split(splitWith);
+
+            for (String value : values) {
+              System.out.println(" " + value);
+            }
+
           }
 
         }
+      }
 
+      if (!found) {
+        System.out.println("Undefined environment variable " + var);
       }
     }
 
-    if (!found) {
-      System.out.println("Undefined environment variable " + var);
-    }
   }
+
+
 
   public static boolean isWindows() {
     return System.getProperty("os.name").toLowerCase().indexOf("win") >= 0;

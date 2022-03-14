@@ -193,8 +193,9 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>2.3.2</version>
 				<configuration>
-					<source>1.9</source>
-					<target>1.9</target>
+					<!-- <source>1.9</source> -->
+					<source>11</source>
+					<target>11</target>
 					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>
@@ -204,7 +205,8 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>3.0.0-M5</version>
 				<configuration>
-					<argLine>-Djava.library.path=${vtk.lib.path}</argLine>
+					<!-- <argLine>-Dvtk.lib.dir=${vtk.lib.path}</argLine>
+					<argLine>-Djava.library.path=${vtk.lib.path}</argLine>-->
 					
 					<environmentVariables>
 	                    <PATH>$PATH${path.separator}${vtk.lib.path}</PATH>
