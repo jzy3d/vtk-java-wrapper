@@ -1,6 +1,25 @@
 package vtk.rendering.jogl;
 
+import org.apache.log4j.Logger;
+
+/**
+ * 
+ * 
+ * 
+ * Useful for debugging
+ * 
+ * <ul>
+ * <li>DYLD_PRINT_LIBRARIES=YES env var on macOS will let dyld print all library as soon as they are
+ * loaded.
+ * <li>DYLD_INSERT_LIBRARIES=/usr/local/Cellar/mesa/21.1.2/lib/libGL.dylib to force a lib to be loaded before the other
+ * </ul>
+ * 
+ * @author martin
+ *
+ */
 public class ChipSelector {
+  Logger log = Logger.getLogger(ChipSelector.class);
+
   public enum Chip {
     CPU, GPU
   }
@@ -32,10 +51,10 @@ public class ChipSelector {
   public void use(Chip chip) {
     queriedChip = chip;
 
-    if (debug) {
-      System.out.println("--------------------");
-      System.out.println("WANT TO USE : " + chip);
-    }
+    // if (debug) {
+    // log.debug("--------------------");
+    log.debug("Select chip : " + chip);
+    // }
 
     // WIndows
     if (OS.isWindows()) {
@@ -48,7 +67,7 @@ public class ChipSelector {
     }
 
     // Linux
-    else if(OS.isUnix()){
+    else if (OS.isUnix()) {
       useOnLinux(chip);
     }
   }
@@ -62,12 +81,14 @@ public class ChipSelector {
   public static String LINUX_ENV_VAR = "LIBGL_ALWAYS_SOFTWARE";
 
   protected void useOnLinux(Chip chip) {
+    log.debug("unix config starting");
 
     // ------------------------------
     // CPU configuration
 
     if (Chip.CPU.equals(chip)) {
       env.set(LINUX_ENV_VAR, "true");
+      log.debug(LINUX_ENV_VAR + " is now set to " + env.get(LINUX_ENV_VAR));
     }
 
     // ------------------------------
@@ -75,6 +96,7 @@ public class ChipSelector {
 
     else if (Chip.GPU.equals(chip)) {
       env.set(LINUX_ENV_VAR, "false");
+      log.debug(LINUX_ENV_VAR + " is now set to " + env.get(LINUX_ENV_VAR));
     }
 
     // ------------------------------
@@ -83,7 +105,7 @@ public class ChipSelector {
     else
       throw new RuntimeException("Unsupported " + chip);
   }
-  
+
   /*****************************************************/
   /**                                                  */
   /** MAC */
@@ -92,13 +114,15 @@ public class ChipSelector {
 
 
   protected void useOnMac(Chip chip) {
+    log.debug("macOS config starting");
 
     // ------------------------------
     // CPU configuration
 
     if (Chip.CPU.equals(chip)) {
       env.set(LINUX_ENV_VAR, "true");
-      
+      log.debug(LINUX_ENV_VAR + " is now set to " + env.get(LINUX_ENV_VAR));
+
       loadOpenGLMac_MesaLibrary();
 
     }
@@ -108,8 +132,9 @@ public class ChipSelector {
 
     else if (Chip.GPU.equals(chip)) {
       env.set(LINUX_ENV_VAR, "false");
-      
-      //loadOpenGLMac_MesaLibrary();
+      log.debug(LINUX_ENV_VAR + " is now set to " + env.get(LINUX_ENV_VAR));
+
+      // loadOpenGLMac_MesaLibrary();
 
     }
 
@@ -119,20 +144,19 @@ public class ChipSelector {
     else
       throw new RuntimeException("Unsupported " + chip);
   }
-  
-  /*protected void loadOpenGLMac_System() {
-    String path = "C:\\Windows\\System32\\opengl32.dll";
-    if (debug)
-      System.out.println("Try loading Windows GL " + path);
-    System.load(path);
-  }*/
+
+  /*
+   * protected void loadOpenGLMac_System() { String path = "C:\\Windows\\System32\\opengl32.dll"; if
+   * (debug) log.debug("Try loading Windows GL " + path); System.load(path); }
+   */
 
   protected void loadOpenGLMac_MesaLibrary() {
     mesaPath = "/opt/homebrew/Cellar/mesa/21.3.7/lib";
-    
+    mesaPath = "/usr/local/Cellar/mesa/21.1.2/lib";
+
     String path = mesaPath + "/libGL.dylib";
-    if (debug)
-      System.out.println("Try loading MESA GL " + path);
+
+    log.debug("Try loading MESA GL " + path);
     System.load(path);
   }
 
@@ -145,15 +169,11 @@ public class ChipSelector {
 
 
   protected void useOnWindows(Chip chip) {
-    env.set("TEST_ENV_VAR", "toto");
-
-    if (debug)
-      System.out.println("TEST_ENV_VAR:" + env.get("TEST_ENV_VAR"));
+    log.debug("Windows config starting");
 
     String oldpath = env.get("PATH");
 
-    if (debug)
-      System.out.println("oldpath : " + oldpath);
+    log.debug("oldpath : " + oldpath);
 
     // ------------------------------
     // CPU configuration
@@ -162,8 +182,7 @@ public class ChipSelector {
 
       env.set("PATH", mesaPath + ";" + oldpath);
 
-      if (debug)
-        System.out.println("newpath : " + env.get("PATH"));
+      log.debug("newpath : " + env.get("PATH"));
 
       loadOpenGLWindows_MesaLibrary();
 
@@ -181,8 +200,7 @@ public class ChipSelector {
 
       env.set("PATH", newpath);
 
-      if (debug)
-        System.out.println("newpath : " + env.get("PATH"));
+      log.debug("newpath : " + env.get("PATH"));
 
       loadOpenGLWindows_System();
     }
@@ -209,15 +227,15 @@ public class ChipSelector {
 
   protected void loadOpenGLWindows_System() {
     String path = "C:\\Windows\\System32\\opengl32.dll";
-    if (debug)
-      System.out.println("Try loading Windows GL " + path);
+
+    log.debug("Try loading Windows GL " + path);
     System.load(path);
   }
 
   protected void loadOpenGLWindows_MesaLibrary() {
     String path = mesaPath + "/opengl32.dll";
-    if (debug)
-      System.out.println("Try loading MESA GL " + path);
+
+    log.debug("Try loading MESA GL " + path);
     System.load(path);
   }
 

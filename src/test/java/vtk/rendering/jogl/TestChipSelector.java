@@ -39,11 +39,30 @@ public class TestChipSelector {
 
     // When using CPU, Mesa env variable is set for CPU rendering
     selector.use(Chip.CPU);
-    Assert.assertEquals("true", getEnv("LIBGL_ALWAYS_SOFTWARE"));
+    Assert.assertEquals("true", getEnv(ChipSelector.LINUX_ENV_VAR));
 
     // When using GPU, Mesa env variable is set for CPU rendering
     selector.use(Chip.GPU);
-    Assert.assertEquals("false", getEnv("LIBGL_ALWAYS_SOFTWARE"));
+    Assert.assertEquals("false", getEnv(ChipSelector.LINUX_ENV_VAR));
+
+  }
+  
+  @Test
+  public void whenMacOS_ThenEdit() {
+    if (!OS.isMac()) {
+      System.err.println("Not running MacOS test on this computer");
+      return;
+    }
+
+    ChipSelector selector = new ChipSelector();
+
+    // When using CPU, Mesa env variable is set for CPU rendering
+    selector.use(Chip.CPU);
+    Assert.assertEquals("true", getEnv(ChipSelector.LINUX_ENV_VAR));
+
+    // When using GPU, Mesa env variable is set for CPU rendering
+    selector.use(Chip.GPU);
+    Assert.assertEquals("false", getEnv(ChipSelector.LINUX_ENV_VAR));
 
   }
 

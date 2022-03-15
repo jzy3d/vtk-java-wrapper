@@ -1,6 +1,7 @@
 package vtk.rendering.jogl;
 
 import java.util.Map;
+import org.apache.log4j.Logger;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 
@@ -12,6 +13,7 @@ import com.sun.jna.Native;
  * @author Martin
  */
 public class Environment {
+  Logger log = Logger.getLogger(Environment.class);
 
   public void set(String name, String value) {
     if (OS.isWindows()) {
@@ -23,15 +25,25 @@ public class Environment {
     }
   }
 
+  /**
+   * This get method is more powerfull than System.getenv because it returns the state of the
+   * variable as it is when the get method is called, whereas System.getenv returns the state of the
+   * variable as it was when the program was started.
+   * 
+   * @param name
+   * @return
+   */
   public String get(String name) {
     if (OS.isWindows()) {
       WinLibC libc = (WinLibC) Native.loadLibrary("msvcrt", WinLibC.class);
       return libc.getenv(name);
-    } else if(OS.isUnix()){
+    } else if (OS.isUnix()) {
       LibC libc = (LibC) Native.loadLibrary("c", LibC.class);
       return libc.getenv(name);
-    }
-    else {
+    } else if (OS.isMac()) {
+      LibC libc = (LibC) Native.loadLibrary("c", LibC.class);
+      return libc.getenv(name);
+    } else {
       throw new RuntimeException("Not supported yet");
     }
   }

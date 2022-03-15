@@ -2,6 +2,7 @@ package vtk.rendering.jogl;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.log4j.Logger;
 import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.GLProfile;
 import vtk.VTKUtils;
@@ -20,6 +21,29 @@ import vtk.rendering.jogl.ChipSelector.Chip;
  *
  */
 public class VTKVersatileCanvas {
+  Logger log = Logger.getLogger(VTKVersatileCanvas.class);
+  
+  /** 
+   * Configure environment variable as it is expected on the target OS for the expected rendering chip.
+   * 
+   * CPU will require
+   * <ul>
+   * <li>On Linux : To edit the LIBGL_ALWAYS_SOFTWARE variable to value "true"
+   * <li>On MacOS : To edit LIBGL_ALWAYS_SOFTWARE variable to value "true"
+   * <li>On Windows : To edit the PATH variable so that MESA library path appears before System32 path.
+   * </ul>
+   * 
+   * GPU will require
+   * <ul>
+   * <li>On Linux : To edit the LIBGL_ALWAYS_SOFTWARE variable to value "false"
+   * <li>On MacOS : To edit LIBGL_ALWAYS_SOFTWARE variable to value "false"
+   * <li>On Windows : To edit the PATH variable so that MESA library path disappear from path.
+   * </ul>
+   * 
+   * Then performs loading of all VTK libraries.
+   * 
+   * @param chip
+   */
   public static void loadNativesFor(Chip chip) {
     defaultChip = chip;
     
@@ -30,17 +54,10 @@ public class VTKVersatileCanvas {
   }
   
   protected static Chip defaultChip;
-  
-  /*protected static ChipSelector selector;
 
-  static{
-    selector = new ChipSelector();
-    selector.use(defaultChip);
-    
-    VTKUtils.loadVtkNativeLibraries();
-  }*/
+  /*********************************************************/
   
-  protected vtkAbstractJoglComponent canvas;
+  protected vtkAbstractJoglComponent<?> canvas;
   protected boolean hasRenderedOnce;
   protected Chip actualChip;
   protected Chip queriedChip;
@@ -94,7 +111,7 @@ public class VTKVersatileCanvas {
             if(reportLine.contains("llvm")) {
               actualChip = Chip.CPU;
             }
-            System.out.println(reportLine);
+            log.debug(reportLine);
           }
           
           //System.out.println("JOGL is now using : " + actualChip);
@@ -164,7 +181,7 @@ public class VTKVersatileCanvas {
   }
   
   
-  public vtkAbstractJoglComponent getCanvas() {
+  public vtkAbstractJoglComponent<?> getCanvas() {
     return canvas;
   }
 
@@ -175,7 +192,4 @@ public class VTKVersatileCanvas {
   public Chip getQueriedChip() {
     return queriedChip;
   }
-  
-  
-
 }
