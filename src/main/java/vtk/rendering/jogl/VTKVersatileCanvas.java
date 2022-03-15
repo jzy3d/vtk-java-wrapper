@@ -90,9 +90,11 @@ public class VTKVersatileCanvas {
 
           actualChip = Chip.GPU;
           for (int i = 0; i < 3; i++) {
-            if(((String)lines[i]).contains("llvm")) {
+            String reportLine = (String)lines[i];
+            if(reportLine.contains("llvm")) {
               actualChip = Chip.CPU;
             }
+            System.out.println(reportLine);
           }
           
           //System.out.println("JOGL is now using : " + actualChip);

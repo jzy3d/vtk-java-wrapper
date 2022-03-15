@@ -42,8 +42,13 @@ public class ChipSelector {
       useOnWindows(chip);
     }
 
+    // WIndows
+    if (OS.isMac()) {
+      useOnMac(chip);
+    }
+
     // Linux
-    else {
+    else if(OS.isUnix()){
       useOnLinux(chip);
     }
   }
@@ -63,7 +68,6 @@ public class ChipSelector {
 
     if (Chip.CPU.equals(chip)) {
       env.set(LINUX_ENV_VAR, "true");
-      //loadOpenGLWindows_MesaLibrary();
     }
 
     // ------------------------------
@@ -79,6 +83,59 @@ public class ChipSelector {
     else
       throw new RuntimeException("Unsupported " + chip);
   }
+  
+  /*****************************************************/
+  /**                                                  */
+  /** MAC */
+  /**                                                  */
+  /*****************************************************/
+
+
+  protected void useOnMac(Chip chip) {
+
+    // ------------------------------
+    // CPU configuration
+
+    if (Chip.CPU.equals(chip)) {
+      env.set(LINUX_ENV_VAR, "true");
+      
+      loadOpenGLMac_MesaLibrary();
+
+    }
+
+    // ------------------------------
+    // GPU configuration
+
+    else if (Chip.GPU.equals(chip)) {
+      env.set(LINUX_ENV_VAR, "false");
+      
+      //loadOpenGLMac_MesaLibrary();
+
+    }
+
+    // ------------------------------
+    // Error
+
+    else
+      throw new RuntimeException("Unsupported " + chip);
+  }
+  
+  /*protected void loadOpenGLMac_System() {
+    String path = "C:\\Windows\\System32\\opengl32.dll";
+    if (debug)
+      System.out.println("Try loading Windows GL " + path);
+    System.load(path);
+  }*/
+
+  protected void loadOpenGLMac_MesaLibrary() {
+    mesaPath = "/opt/homebrew/Cellar/mesa/21.3.7/lib";
+    
+    String path = mesaPath + "/libGL.dylib";
+    if (debug)
+      System.out.println("Try loading MESA GL " + path);
+    System.load(path);
+  }
+
 
   /*****************************************************/
   /**                                                  */

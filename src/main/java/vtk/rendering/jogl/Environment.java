@@ -7,6 +7,8 @@ import com.sun.jna.Native;
 /**
  * A helper class to set and get environement variables.
  * 
+ * https://developer.apple.com/library/archive/documentation/DeveloperTools/Conceptual/DynamicLibraries/100-Articles/DynamicLibraryUsageGuidelines.html
+ * 
  * @author Martin
  */
 public class Environment {
