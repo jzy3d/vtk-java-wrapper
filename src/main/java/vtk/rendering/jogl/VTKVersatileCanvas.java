@@ -22,15 +22,17 @@ import vtk.rendering.jogl.ChipSelector.Chip;
  */
 public class VTKVersatileCanvas {
   Logger log = Logger.getLogger(VTKVersatileCanvas.class);
-  
-  /** 
-   * Configure environment variable as it is expected on the target OS for the expected rendering chip.
+
+  /**
+   * Configure environment variable as it is expected on the target OS for the expected rendering
+   * chip.
    * 
    * CPU will require
    * <ul>
    * <li>On Linux : To edit the LIBGL_ALWAYS_SOFTWARE variable to value "true"
    * <li>On MacOS : To edit LIBGL_ALWAYS_SOFTWARE variable to value "true"
-   * <li>On Windows : To edit the PATH variable so that MESA library path appears before System32 path.
+   * <li>On Windows : To edit the PATH variable so that MESA library path appears before System32
+   * path.
    * </ul>
    * 
    * GPU will require
@@ -46,29 +48,29 @@ public class VTKVersatileCanvas {
    */
   public static void loadNativesFor(Chip chip) {
     defaultChip = chip;
-    
+
     ChipSelector selector = new ChipSelector();
     selector.use(chip);
-    
+
     VTKUtils.loadVtkNativeLibraries();
   }
-  
+
   protected static Chip defaultChip;
 
   /*********************************************************/
-  
+
   protected vtkAbstractJoglComponent<?> canvas;
   protected boolean hasRenderedOnce;
   protected Chip actualChip;
   protected Chip queriedChip;
-  
+
   public VTKVersatileCanvas() {
     init(defaultChip);
   }
 
   protected void init(Chip chip) {
     queriedChip = chip;
-    
+
     // ---------------------------------------------
     // Reset GL profile to ensure we load capabilities with a profile matching the driver
     // we use (CPU or GPU), so that we do not start a CPU rendering configured with the GPU
@@ -84,16 +86,16 @@ public class VTKVersatileCanvas {
     GLCapabilities capabilities = new GLCapabilities(GLProfile.getMaximum(true));
     // GLCapabilities capabilities = new GLCapabilities(GLProfile.get(GLProfile.GL3));
 
-    //canvas = new VTKRemoveableCanvasAWT(window, capabilities);
+    // canvas = new VTKRemoveableCanvasAWT(window, capabilities);
     canvas = new VTKRemoveableCanvasSwing(window, capabilities);
 
     // Disable multisampling that is not supported by MESA
-    if(Chip.CPU.equals(queriedChip))
+    if (Chip.CPU.equals(queriedChip))
       canvas.getRenderWindow().SetMultiSamples(0);
-    
+
     // enable a listener to get notified of actual chip usage
     listeners = new ArrayList<Listener>();
-    
+
     initActualChipRetriever();
   }
 
@@ -107,17 +109,17 @@ public class VTKVersatileCanvas {
 
           actualChip = Chip.GPU;
           for (int i = 0; i < 3; i++) {
-            String reportLine = (String)lines[i];
-            if(reportLine.contains("llvm")) {
+            String reportLine = (String) lines[i];
+            if (reportLine.contains("llvm")) {
               actualChip = Chip.CPU;
             }
             log.debug(reportLine);
           }
-          
-          //System.out.println("JOGL is now using : " + actualChip);
-          
+
+          // System.out.println("JOGL is now using : " + actualChip);
+
           hasRenderedOnce = true;
-          
+
           fireOnFirstRender();
         }
       }
@@ -125,42 +127,61 @@ public class VTKVersatileCanvas {
 
     canvas.getRenderWindow().AddObserver("RenderEvent", reportCallback, "run");
   }
-  
+
   /****************************************/
-  
-  public static interface Listener{
+
+  public static interface Listener {
     public void onFirstRender(VTKVersatileCanvas canvas);
   }
-  
+
   protected List<Listener> listeners = new ArrayList<Listener>();
-  
+
   public void addListener(Listener listener) {
     listeners.add(listener);
   }
-  
+
   public void removeListener(Listener listener) {
     listeners.remove(listener);
   }
-  
+
   protected void fireOnFirstRender() {
-    for(Listener listener: listeners) {
+    for (Listener listener : listeners) {
       listener.onFirstRender(this);
     }
   }
-  
-  /****************************************/  
-  
+
+  /****************************************/
+
   protected void clean() {
     listeners.clear();
     listeners = null;
     canvas = null;
     System.gc();
   }
-  
+
+  /**
+   * 
+   * After performing customizable pre-switch action through the {@link OnChipSwitch#preSwitch()}
+   * callback, this method will :
+   * <ul>
+   * <li>Apply the environment variable changes required for each OS to be able to change the GL
+   * library to either native (system) or software (mesa).</li>
+   * <li>After changing these settings, resources held by this class will be deleted and
+   * {@link System.gc()} call will be performed to unload the existing GL library and hence allow
+   * replacing with the new one.</li>
+   * <li>Once unloading is successful, the canvas gets re-initialized in order to reload the
+   * appropriate GL library.</li>
+   * </ul>
+   * 
+   * Once everything is loaded, the {@link OnChipSwitch#postSwitch()} callback is called.
+   * 
+   * @param chip
+   * @param onswitch
+   */
   public void switchTo(Chip chip, OnChipSwitch onswitch) {
     // Release parent container
     onswitch.preSwitch();
-    
+
     // Reconfigure environment to allow selecting good chip
     ChipSelector s = new ChipSelector();
     s.use(chip);
@@ -168,19 +189,20 @@ public class VTKVersatileCanvas {
     // Call GC to unload natives
     clean();
 
-    // Initialize JOGL components 
+    // Initialize JOGL components
     init(chip);
-    
-    // Rebuild parent container and 
+
+    // Rebuild parent container and
     onswitch.postSwitch();
   }
-  
-  public static interface OnChipSwitch{
+
+  public static interface OnChipSwitch {
     public void preSwitch();
+
     public void postSwitch();
   }
-  
-  
+
+
   public vtkAbstractJoglComponent<?> getCanvas() {
     return canvas;
   }

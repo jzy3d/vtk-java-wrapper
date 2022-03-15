@@ -6,12 +6,14 @@ import org.apache.log4j.Logger;
  * 
  * 
  * 
- * Useful for debugging
+ * Useful for macOS
  * 
  * <ul>
  * <li>DYLD_PRINT_LIBRARIES=YES env var on macOS will let dyld print all library as soon as they are
  * loaded.
- * <li>DYLD_INSERT_LIBRARIES=/usr/local/Cellar/mesa/21.1.2/lib/libGL.dylib to force a lib to be loaded before the other
+ * <li>DYLD_INSERT_LIBRARIES=/usr/local/Cellar/mesa/21.1.2/lib/libGL.dylib to force a lib to be
+ * loaded before the other
+ * <li>DYLD_LIBRARY_PATH=/usr/local/Cellar/mesa/21.1.2/lib:/Users/martin/Dev/jzy3d/private/vtk-java-wrapper/lib/9.1.0/vtk-Darwin-x86_64:${env_var:DYLD_LIBRARY_PATH}
  * </ul>
  * 
  * @author martin
@@ -31,6 +33,8 @@ public class ChipSelector {
 
   static String DEFAULT_MESA_PATH =
       "C:\\Users\\Martin\\Dev\\jzy3d\\private\\vtk-java-wrapper\\lib\\9.1.0\\mesa-Windows-x86_64";
+  
+  
   protected String mesaPath = "";
   protected boolean debug = false;
 
@@ -145,18 +149,23 @@ public class ChipSelector {
       throw new RuntimeException("Unsupported " + chip);
   }
 
-  /*
-   * protected void loadOpenGLMac_System() { String path = "C:\\Windows\\System32\\opengl32.dll"; if
-   * (debug) log.debug("Try loading Windows GL " + path); System.load(path); }
-   */
+
+  protected void loadOpenGLMac_System() {
+    String path = "/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib";
+    if (debug)
+      log.debug("Try loading MacOS System GL " + path);
+    System.load(path);
+  }
+
 
   protected void loadOpenGLMac_MesaLibrary() {
     mesaPath = "/opt/homebrew/Cellar/mesa/21.3.7/lib";
     mesaPath = "/usr/local/Cellar/mesa/21.1.2/lib";
 
-    String path = mesaPath + "/libGL.dylib";
+    String path = mesaPath + "/libGLU.dylib";
 
     log.debug("Try loading MESA GL " + path);
+
     System.load(path);
   }
 
