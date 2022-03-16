@@ -6,13 +6,26 @@ import org.apache.log4j.Logger;
  * 
  * 
  * 
- * Useful for debugging
+ * <h2>Useful for debugging on MacOS</h2>
+ * 
+ * <h4>dyld</h4>
+ * 
+ * 
  * 
  * <ul>
  * <li>DYLD_PRINT_LIBRARIES=YES env var on macOS will let dyld print all library as soon as they are
  * loaded.
+ * <li>DYLD_PRINT_BINDINGS=YES
  * <li>DYLD_INSERT_LIBRARIES=/usr/local/Cellar/mesa/21.1.2/lib/libGL.dylib to force a lib to be loaded before the other
+ * <li>DYLD_INSERT_LIBRARIES=/opt/homebrew/Cellar/mesa/21.3.7/lib/libGL.dylib
  * </ul>
+ * 
+ * man dyld to get documentation on these env var.
+ * https://stackoverflow.com/questions/51504439/what-environment-variables-control-dyld
+ * 
+ * 
+ * <h4>otool</h4>
+ * 
  * 
  * @author martin
  *
@@ -152,7 +165,7 @@ public class ChipSelector {
 
   protected void loadOpenGLMac_MesaLibrary() {
     mesaPath = "/opt/homebrew/Cellar/mesa/21.3.7/lib";
-    mesaPath = "/usr/local/Cellar/mesa/21.1.2/lib";
+    //mesaPath = "/usr/local/Cellar/mesa/21.1.2/lib";
 
     String path = mesaPath + "/libGL.dylib";
 

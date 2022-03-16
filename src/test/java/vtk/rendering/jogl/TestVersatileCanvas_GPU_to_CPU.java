@@ -19,22 +19,24 @@ public class TestVersatileCanvas_GPU_to_CPU extends TestVersatileCanvas{
   
     VTKVersatileCanvas canvas = new VTKVersatileCanvas();
     
-    // Embedding GUI with auto-reload hability    
+    // When Embedding GUI with auto-reload hability    
     frame = newSceneAndFrame(canvas);
     
-    // When 
+    // Then
     Thread.sleep(1000);
     
-    Assert.assertEquals(chip, canvas.getQueriedChip());
-    Assert.assertEquals(chip, canvas.getActualChip());
+    Assert.assertEquals("Init on GPU", Chip.GPU, canvas.getQueriedChip());
+    Assert.assertEquals("Init on GPU", Chip.GPU, canvas.getActualChip());
     
+    
+    // When 
     canvas.switchTo(Chip.CPU, newOnSwitch(canvas));
-
-    // When 
+    
+    // Then
     Thread.sleep(1000);
     
-    Assert.assertEquals(Chip.CPU, canvas.getQueriedChip());
-    Assert.assertEquals(Chip.CPU, canvas.getActualChip());
+    Assert.assertEquals("Switch to CPU", Chip.CPU, canvas.getQueriedChip());
+    Assert.assertEquals("Switch to CPU", Chip.CPU, canvas.getActualChip());
 
   }
 }

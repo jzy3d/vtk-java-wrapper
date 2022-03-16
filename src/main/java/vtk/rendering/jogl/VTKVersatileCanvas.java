@@ -80,6 +80,8 @@ public class VTKVersatileCanvas {
     // Create a window and panel with bounded GL capabilities to ensure compatibility
     // between native and software GL
 
+    //System.out.println("Default profile : " + GLProfile.getDefault());
+    
     vtkGenericOpenGLRenderWindow window = new vtkGenericOpenGLRenderWindow();
     GLCapabilities capabilities = new GLCapabilities(GLProfile.getMaximum(true));
     // GLCapabilities capabilities = new GLCapabilities(GLProfile.get(GLProfile.GL3));

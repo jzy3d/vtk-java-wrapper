@@ -15,7 +15,7 @@ import vtk.rendering.jogl.VTKVersatileCanvas.OnChipSwitch;
 
 public class DemoVTKVersatileCanvas {
   static {
-    VTKVersatileCanvas.loadNativesFor(Chip.CPU);
+    VTKVersatileCanvas.loadNativesFor(Chip.GPU);
   }
   
   public static void main(String[] args) {
