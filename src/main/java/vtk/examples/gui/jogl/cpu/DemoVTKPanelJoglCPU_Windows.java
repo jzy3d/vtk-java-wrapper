@@ -18,7 +18,7 @@ import vtk.vtkConeSource;
 import vtk.vtkGenericOpenGLRenderWindow;
 import vtk.vtkNativeLibrary;
 import vtk.vtkPolyDataMapper;
-import vtk.examples.gui.jogl.cpu.DemoVTKPanelJoglCPU.ChipSelector.Chip;
+import vtk.examples.gui.jogl.cpu.DemoVTKPanelJoglCPU_Windows.ChipSelector.Chip;
 import vtk.rendering.jogl.vtkAbstractJoglComponent;
 import vtk.rendering.jogl.vtkJoglPanelComponent;
 
@@ -93,7 +93,7 @@ import vtk.rendering.jogl.vtkJoglPanelComponent;
  * 
  * is due to the fact that GL_MAX_TEXTURE_MAX_ANISOTROPY is a not supported extension.
  */
-public class DemoVTKPanelJoglCPU {
+public class DemoVTKPanelJoglCPU_Windows {
   static Chip startChip = Chip.CPU;
   
   static ChipSelector selector = new ChipSelector();
@@ -179,7 +179,7 @@ public class DemoVTKPanelJoglCPU {
     // ----------------------------------------------
     // Frame
 
-    frame = new JFrame(DemoVTKPanelJoglCPU.class.getSimpleName());
+    frame = new JFrame(DemoVTKPanelJoglCPU_Windows.class.getSimpleName());
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     frame.getContentPane().setLayout(new BorderLayout());
     frame.getContentPane().add(joglWidget.getComponent(), BorderLayout.CENTER);
