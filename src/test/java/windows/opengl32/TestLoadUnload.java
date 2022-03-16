@@ -2,6 +2,7 @@ package windows.opengl32;
 
 import com.sun.jna.Library;
 import com.sun.jna.Native;
+import com.sun.jna.Pointer;
 
 // https://www.baeldung.com/java-jna-dynamic-libraries
 /** experimental */
@@ -9,7 +10,7 @@ public class TestLoadUnload {
   
 
   public interface WinOpenGL extends Library {
-    public int glGetString(int value);
+    public long glGetString(int value);
     
     //https://docs.microsoft.com/en-us/windows/win32/opengl/glgetintegerv
     public void glGetIntegerv(int pname, int[] params);
@@ -23,8 +24,16 @@ public class TestLoadUnload {
     
     //Native.unregister(WinOpenGL.class);
     //System.gc();
-    
-    System.out.println("Out:" + lib.glGetString(GL_RENDERER));
+    //https://docs.microsoft.com/en-us/windows/win32/opengl/glgetstring
+    //https://java-native-access.github.io/jna/4.2.1/com/sun/jna/Native.html
+    long addr = lib.glGetString(GL_VERSION);
+
+    System.out.println("Out:" + addr);
+
+    Pointer p = new Pointer(addr);
+      
+    String value = p.getString(0);
+    System.out.println("Out:" + value);
     
     int[] out = {-1};
     
