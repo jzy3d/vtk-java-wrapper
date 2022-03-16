@@ -3,7 +3,7 @@ package vtk.rendering.jogl;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import vtk.rendering.jogl.ChipSelector.Chip;
+import vtk.rendering.jogl.chip.Chip;
 
 /**
  * -Djava.library.path=/Users/martin/Dev/jzy3d/private/vtk-java-wrapper/lib/9.1.0/vtk-Darwin-arm64

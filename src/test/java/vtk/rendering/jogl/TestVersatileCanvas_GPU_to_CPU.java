@@ -3,7 +3,7 @@ package vtk.rendering.jogl;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import vtk.rendering.jogl.ChipSelector.Chip;
+import vtk.rendering.jogl.chip.Chip;
 
 public class TestVersatileCanvas_GPU_to_CPU extends TestVersatileCanvas{
  

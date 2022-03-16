@@ -1,5 +1,6 @@
 package vtk.rendering.jogl;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.log4j.Logger;
@@ -7,7 +8,8 @@ import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.GLProfile;
 import vtk.VTKUtils;
 import vtk.vtkGenericOpenGLRenderWindow;
-import vtk.rendering.jogl.ChipSelector.Chip;
+import vtk.rendering.jogl.chip.Chip;
+import vtk.rendering.jogl.chip.stat.ChipSelectorStatic;
 
 /**
  * Add several enhancements to the standard VTK Panels.
@@ -49,11 +51,21 @@ public class VTKVersatileCanvas {
   public static void loadNativesFor(Chip chip) {
     defaultChip = chip;
 
-    ChipSelector selector = new ChipSelector();
-    selector.use(chip);
+    /*ChipSelector selector = new ChipSelector();
+    selector.use(chip);*/
+    
+    css = new ChipSelectorStatic();
+    try {
+      css.chipSelect(chip);
+    } catch (ClassNotFoundException | NoSuchMethodException | InstantiationException
+        | IllegalAccessException | InvocationTargetException e) {
+      e.printStackTrace();
+    }
 
     VTKUtils.loadVtkNativeLibraries();
   }
+  
+  
 
   protected static Chip defaultChip;
 
@@ -184,12 +196,34 @@ public class VTKVersatileCanvas {
     // Release parent container
     onswitch.preSwitch();
 
-    // Reconfigure environment to allow selecting good chip
+    // Reconfigure environment to allow selecting the target chip (and openGL lib)
+    /*
     ChipSelector s = new ChipSelector();
     s.use(chip);
 
     // Call GC to unload natives
-    clean();
+    clean();*/
+    
+    css.clean();
+    css = null;
+    System.gc();
+    System.runFinalization();
+    css = new ChipSelectorStatic();
+    try {
+      css.chipSelect(chip);
+    } catch (ClassNotFoundException | NoSuchMethodException | InstantiationException
+        | IllegalAccessException | InvocationTargetException e) {
+      e.printStackTrace();
+    }
+    
+    /*ChipSelectorStatic.clean();
+    try {
+      ChipSelectorStatic.chipSelect(chip);
+    } catch (ClassNotFoundException | NoSuchMethodException | InstantiationException
+        | IllegalAccessException | InvocationTargetException e) {
+      e.printStackTrace();
+    }
+    ChipSelectorStatic.clean();*/
 
     // Initialize JOGL components
     init(chip);
@@ -197,6 +231,8 @@ public class VTKVersatileCanvas {
     // Rebuild parent container and
     onswitch.postSwitch();
   }
+  
+  static ChipSelectorStatic css;
 
   public static interface OnChipSwitch {
     public void preSwitch();

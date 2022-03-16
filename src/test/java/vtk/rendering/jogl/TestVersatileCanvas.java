@@ -6,9 +6,9 @@ import javax.swing.JFrame;
 import vtk.vtkActor;
 import vtk.vtkConeSource;
 import vtk.vtkPolyDataMapper;
-import vtk.rendering.jogl.ChipSelector.Chip;
 import vtk.rendering.jogl.VTKVersatileCanvas.Listener;
 import vtk.rendering.jogl.VTKVersatileCanvas.OnChipSwitch;
+import vtk.rendering.jogl.chip.Chip;
 
 public class TestVersatileCanvas {
   static JFrame frame;

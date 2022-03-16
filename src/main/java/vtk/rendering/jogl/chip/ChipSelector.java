@@ -1,6 +1,8 @@
-package vtk.rendering.jogl;
+package vtk.rendering.jogl.chip;
 
 import org.apache.log4j.Logger;
+import vtk.rendering.jogl.Environment;
+import vtk.rendering.jogl.OS;
 
 /**
  * 
@@ -33,10 +35,6 @@ import org.apache.log4j.Logger;
  */
 public class ChipSelector {
   Logger log = Logger.getLogger(ChipSelector.class);
-
-  public enum Chip {
-    CPU, GPU
-  }
 
   protected Environment env = new Environment();
 

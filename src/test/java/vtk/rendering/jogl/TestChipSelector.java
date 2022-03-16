@@ -2,7 +2,8 @@ package vtk.rendering.jogl;
 
 import org.junit.Assert;
 import org.junit.Test;
-import vtk.rendering.jogl.ChipSelector.Chip;
+import vtk.rendering.jogl.chip.Chip;
+import vtk.rendering.jogl.chip.ChipSelector;
 
 public class TestChipSelector {
   @Test
