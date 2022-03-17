@@ -175,13 +175,6 @@ public class TestLoadUnloadWithClassloader {
     }
 
     // ------------------------------------------------------
-    // Try invoking something
-
-    // gl.getGL2().glClear(0);
-    // gl.getGL4bc().glClear(0);
-
-
-    // ------------------------------------------------------
     // We are done, release context for further work
 
     drawable.getContext().release();
