@@ -24,15 +24,12 @@ import vtk.rendering.jogl.Environment;
 public class TestLoadUnloadWithClassloader {
   static String mesa =
       "C:\\Users\\Martin\\Dev\\jzy3d\\private\\vtk-java-wrapper\\lib\\9.1.0\\mesa-Windows-x86_64";
-  //static String vtk =
-  //    "C:\\Users\\Martin\\Dev\\jzy3d\\private\\vtk-java-wrapper\\lib\\9.1.0\\vtk-Windows-x86_64";
-
 
   public static void main(String[] args) throws Exception {
 
-    loadUnload_Mesa();
-
     loadUnload_Windows();
+
+    loadUnload_Mesa();
 
   }
 
@@ -74,7 +71,6 @@ public class TestLoadUnloadWithClassloader {
     // Add MESA DLL to path
     Environment env = new Environment();
     env.appendFirst("PATH", mesa, ";");
-    // env.appendFirst("PATH", vtk, ";");
 
     // create print/console method
     // env.console("PATH", ";");
