@@ -89,20 +89,32 @@ Eclipse path
 Path=C:\Users\Martin\Dev\jzy3d\private\vtk-java-wrapper\lib\9.1.0\vtk-Windows-x86_64;C:\msys64\mingw64\bin;${env_var:PATH}
 ```
 
+### Get MESA on MacOS
 
+```
+brew install mesa
+```
+
+### Run MESA on MacOS
+
+Run `DemoVTKPanelJoglCPU`
+
+with environment variable
+* `DYLD_LIBRARY_PATH=/Users/martin/Dev/jzy3d/private/vtk-java-wrapper/lib/9.1.0/vtk-Darwin-arm64:/opt/homebrew/Cellar/mesa/21.3.7:${env_var:DYLD_LIBRARY_PATH}`
+* `LIBGL_ALWAYS_SOFTWARE=true`
 
 
 ### Build MESA on MacOS
 
-Work in progress...
+Read [this](https://docs.mesa3d.org/macos.html)
 
-WARNING : macOS 10.12 may require to manually download 
+```
+meson builddir/ -Dosmesa=true -Dglx=xlib -Dgallium-drivers=swrast -Ddri-drivers=[] -Dvulkan-drivers=[] -Dprefix=/Users/Martin/Dev/jzy3d/external/osmesa
+ninja -C builddir/ 
+ninja -C builddir/ install
+```
 
-https://github.com/llvm/llvm-project/releases/download/llvmorg-6.0.1/llvm-6.0.1.src.tar.xz
 
-in current folder
-
-The outcome is in `OSMESA_PREFIX`
 
 
 # Let VTK use Mesa, either at runtime (prefered) or build time 

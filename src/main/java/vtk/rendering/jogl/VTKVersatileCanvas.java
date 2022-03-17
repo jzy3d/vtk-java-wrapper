@@ -8,6 +8,7 @@ import com.jogamp.opengl.GLProfile;
 import vtk.VTKUtils;
 import vtk.vtkGenericOpenGLRenderWindow;
 import vtk.rendering.jogl.chip.Chip;
+import vtk.rendering.jogl.chip.ChipSelector;
 import vtk.rendering.jogl.chip.stat.ChipSelectorStatic;
 
 /**
@@ -25,16 +26,16 @@ public class VTKVersatileCanvas {
   public static void loadNativesFor(Chip chip) {
     defaultChip = chip;
 
-    /*ChipSelector selector = new ChipSelector();
-    selector.use(chip);*/
+    ChipSelector selector = new ChipSelector();
+    selector.use(chip);
     
-    css = new ChipSelectorStatic();
+    /*css = new ChipSelectorStatic();
     try {
       css.chipSelect(chip);
     } catch (ClassNotFoundException | NoSuchMethodException | InstantiationException
         | IllegalAccessException | InvocationTargetException e) {
       e.printStackTrace();
-    }
+    }*/
 
     VTKUtils.loadVtkNativeLibraries();
   }
@@ -154,15 +155,14 @@ public class VTKVersatileCanvas {
     onswitch.preSwitch();
 
     // Reconfigure environment to allow selecting the target chip (and openGL lib)
-    /*
-
+    
     ChipSelector s = new ChipSelector();
     s.use(chip);
 
     // Call GC to unload natives
-    clean();*/
+    clean();
     
-    css.clean();
+    /*css.clean();
     css = null;
     System.gc();
     System.runFinalization();
@@ -172,7 +172,7 @@ public class VTKVersatileCanvas {
     } catch (ClassNotFoundException | NoSuchMethodException | InstantiationException
         | IllegalAccessException | InvocationTargetException e) {
       e.printStackTrace();
-    }
+    }*/
     
     /*ChipSelectorStatic.clean();
     try {

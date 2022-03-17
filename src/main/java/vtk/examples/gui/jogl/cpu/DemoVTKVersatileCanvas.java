@@ -13,9 +13,19 @@ import vtk.rendering.jogl.VTKVersatileCanvas.Listener;
 import vtk.rendering.jogl.VTKVersatileCanvas.OnChipSwitch;
 import vtk.rendering.jogl.chip.Chip;
 
+/**
+ * 
+DYLD_INSERT_LIBRARIES=/Users/martin/Dev/jzy3d/external/osmesa/lib/libGL.dylib
+ 
+DYLD_INSERT_LIBRARIES=/opt/homebrew/Cellar/mesa/21.3.7/lib/libGL.dylib
+DYLD_LIBRARY_PATH=/Users/martin/Dev/jzy3d/private/vtk-java-wrapper/lib/9.1.0/vtk-Darwin-arm64:${env_var:DYLD_LIBRARY_PATH}
+DYLD_PRINT_BINDINGS=YES
+DYLD_PRINT_LIBRARIES=YES
+LIBGL_ALWAYS_SOFTWARE=true
+ */
 public class DemoVTKVersatileCanvas {
   static {
-    VTKVersatileCanvas.loadNativesFor(Chip.GPU);
+    VTKVersatileCanvas.loadNativesFor(Chip.CPU);
   }
   
   public static void main(String[] args) {

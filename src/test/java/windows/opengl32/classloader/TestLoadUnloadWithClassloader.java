@@ -25,11 +25,17 @@ public class TestLoadUnloadWithClassloader {
   static String mesa =
       "C:\\Users\\Martin\\Dev\\jzy3d\\private\\vtk-java-wrapper\\lib\\9.1.0\\mesa-Windows-x86_64";
 
+
+  //static String mesa =
+   //   "/Users/martin/Dev/jzy3d/external/osmesa/lib/";
+
   public static void main(String[] args) throws Exception {
 
     loadUnload_Windows();
 
     loadUnload_Mesa();
+    
+    //loadUnload_Mesa_MacOS();
 
   }
 
@@ -79,6 +85,43 @@ public class TestLoadUnloadWithClassloader {
     // later
     CustomClassLoader classLoader = new CustomClassLoader();
     Class mesaLoaderClass = classLoader.findClass("windows.opengl32.classloader.OpenGLMesaLoader");
+    Object mesaLoader = mesaLoaderClass.newInstance();
+
+    // Start JOGL to get GL_RENDERER string
+    initJOGLAndPrint();
+
+    // UNLOAD DLL
+    mesaLoaderClass = null;
+    mesaLoader = null;
+    classLoader = null;
+
+
+    System.gc();
+    System.runFinalization();
+    System.gc();
+    System.runFinalization();
+
+    System.out.flush();
+
+  }
+  
+  protected static void loadUnload_Mesa_MacOS()
+      throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+
+    System.out.println("-------------------");
+    System.out.println("LOADING MESA GL MACOS");
+
+    // Add MESA DLL to path
+    Environment env = new Environment();
+    env.appendFirst("PATH", mesa, ";");
+
+    // create print/console method
+    // env.console("PATH", ";");
+
+    // Load and attach a DLL to a nullable classloader which purpose is to unload the DLL manually
+    // later
+    CustomClassLoader classLoader = new CustomClassLoader();
+    Class mesaLoaderClass = classLoader.findClass("windows.opengl32.classloader.OpenGLMesaLoader_macOS");
     Object mesaLoader = mesaLoaderClass.newInstance();
 
     // Start JOGL to get GL_RENDERER string

@@ -169,10 +169,13 @@ public class ChipSelector {
 
 
   protected void loadOpenGLMac_MesaLibrary() {
-    mesaPath = "/opt/homebrew/Cellar/mesa/21.3.7/lib";
+    //mesaPath = "/opt/homebrew/Cellar/mesa/21.3.7/lib";
     //mesaPath = "/usr/local/Cellar/mesa/21.1.2/lib";
+    
+    mesaPath = "/Users/martin/Dev/jzy3d/external/osmesa/lib";
+    
 
-    String path = mesaPath + "/libGLU.dylib";
+    String path = mesaPath + "/libGL.dylib";
 
     log.debug("Try loading MESA GL " + path);
 
