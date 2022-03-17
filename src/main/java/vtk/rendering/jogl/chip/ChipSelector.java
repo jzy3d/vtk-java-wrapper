@@ -199,8 +199,8 @@ public class ChipSelector {
 
     if (Chip.CPU.equals(chip)) {
 
-      env.set("PATH", mesaPath + ";" + oldpath);
-
+      env.appendFirst("PATH", mesaPath, ";");
+      
       log.debug("newpath : " + env.get("PATH"));
 
       loadOpenGLWindows_MesaLibrary();
@@ -212,12 +212,12 @@ public class ChipSelector {
 
     else if (Chip.GPU.equals(chip)) {
 
-      String newpath = oldpath.replace(mesaPath, "");
+      env.removeFrom("PATH", mesaPath);
+      /*String newpath = oldpath.replace(mesaPath, "");
       newpath = newpath.replace(";;", ";");
       // TODO : avec et sans slash final
       // TODO : faire slash et backslash
-
-      env.set("PATH", newpath);
+      env.set("PATH", newpath);*/
 
       log.debug("newpath : " + env.get("PATH"));
 

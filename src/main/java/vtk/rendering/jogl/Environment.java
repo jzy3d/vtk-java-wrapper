@@ -1,14 +1,13 @@
 package vtk.rendering.jogl;
 
 import java.util.Map;
-import org.apache.log4j.Logger;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 
 /**
- * A helper class to set and get environement variables immediately.
+ * A helper class to set and get environment variables immediately.
  * 
- * This method is more powerfull than System.getenv because it returns the state of the variable as
+ * This method is more powerful than System.getenv because it returns the state of the variable as
  * it is when the get method is called, whereas System.getenv returns the state of the variable as
  * it was when the program was started.
  * 
@@ -18,10 +17,9 @@ import com.sun.jna.Native;
  * @author Martin
  */
 public class Environment {
-  Logger log = Logger.getLogger(Environment.class);
 
   /**
-   * This get method is more powerfull than System.getenv because it returns the state of the
+   * This get method is more powerful than System.getenv because it returns the state of the
    * variable as it is when the get method is called, whereas System.getenv returns the state of the
    * variable as it was when the program was started.
    * 
@@ -57,13 +55,19 @@ public class Environment {
   public void appendLast(String name, String value, String separator) {
     set(name, get(name)+ ";" + value);
   }
+  
+  public void removeFrom(String name, String toBeRemoved) {
+    String oldvalue = get(name);
+    String newvalue = oldvalue.replace(toBeRemoved, "");
+    //newpath = newpath.replace(";;", ";");
+    set(name, newvalue);
+  }
 
   public void console(String name, String splitWidth) {
     print(name, get(name), splitWidth);
   }
   
   /*************** LIBC INTERFACE **************/
-
 
   /**
    * LibC interface for Unix, Linux, MacOS

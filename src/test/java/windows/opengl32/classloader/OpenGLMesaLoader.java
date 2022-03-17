@@ -7,11 +7,8 @@ public class OpenGLMesaLoader {
 
   static {
     System.load(lib);
-    // System.loadLibrary(path);
   }
-
-  //public native void print();
-
+  
   public void finalize() {
     System.out.println(this.getClass().getSimpleName() + " garbage collected");
   }
