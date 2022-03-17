@@ -8,17 +8,22 @@ import com.jogamp.opengl.GLProfile;
 import vtk.rendering.jogl.Environment;
 
 /**
- * Trying to unload a DLL as suggested here :
- * https://web.archive.org/web/20131202083900/http://www.codeslices.net/snippets/java-custom-url-class-loader-implementation-with-repository
- * 
  * To verify loading/unloading, we init a JOGL context to ask to the currently available GL what is
  * the current GL_RENDERER.
  * 
- * May require
  * 
- * -Djava.library.path=C:\Users\Martin\Dev\jzy3d\private\vtk-java-wrapper\lib\9.1.0\vtk-Windows-x86_64;"${env_var:PATH}"
- * -Djava.library.path=C:\Users\Martin\Dev\jzy3d\private\vtk-java-wrapper\lib\9.1.0\mesa-Windows-x86_64;C:\Users\Martin\Dev\jzy3d\private\vtk-java-wrapper\lib\9.1.0\vtk-Windows-x86_64;"${env_var:PATH}"
- * -Djava.library.path=C:\Users\Martin\Dev\jzy3d\private\vtk-java-wrapper\lib\9.1.0\vtk-Windows-x86_64;"${env_var:PATH}"
+ * May use these env. var (but this does not change the result
+
+DYLD_INSERT_LIBRARIES=/Users/martin/Dev/jzy3d/external/osmesa/lib/libGL.dylib
+DYLD_PRINT_BINDINGS=YES
+DYLD_PRINT_LIBRARIES=YES
+LIBGL_ALWAYS_SOFTWARE=true
+
+This one corrupts execution
+
+DYLD_LIBRARY_PATH=/Users/martin/Dev/jzy3d/external/osmesa/lib/:${env_var:DYLD_LIBRARY_PATH}
+
+ * 
  * 
  */
 public class TestLoadMesaOnMacOS {
@@ -33,9 +38,6 @@ public class TestLoadMesaOnMacOS {
 
   protected static void loadUnload_Mesa_MacOS()
       throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-
-    System.out.println("-------------------");
-    System.out.println("LOADING MESA GL MACOS");
 
     // Add MESA DLL to path
     Environment env = new Environment();
@@ -127,8 +129,6 @@ public class TestLoadMesaOnMacOS {
     } else {
       sb.append("GL_EXTENSIONS : null\n");
     }
-
-    sb.append("GL INSTANCE : " + gl.getClass().getName() + "\n");
 
     return sb.toString();
   }
