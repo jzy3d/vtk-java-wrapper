@@ -21,88 +21,16 @@ import vtk.rendering.jogl.Environment;
  * -Djava.library.path=C:\Users\Martin\Dev\jzy3d\private\vtk-java-wrapper\lib\9.1.0\vtk-Windows-x86_64;"${env_var:PATH}"
  * 
  */
-public class TestLoadUnloadWithClassloader {
-  static String mesa =    "C:\\Users\\Martin\\Dev\\jzy3d\\private\\vtk-java-wrapper\\lib\\9.1.0\\mesa-Windows-x86_64";
-
-
-  //static String mesa = "/Users/martin/Dev/jzy3d/external/osmesa/lib/";
+public class TestLoadMesaOnMacOS {
+  static String mesa = "/Users/martin/Dev/jzy3d/external/osmesa/lib/";
 
   public static void main(String[] args) throws Exception {
 
-    loadUnload_Windows();
-
-    loadUnload_Mesa();
-    
     loadUnload_Mesa_MacOS();
 
   }
 
-  protected static void loadUnload_Windows()
-      throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-    System.out.println("-------------------");
-    System.out.println("LOADING WINDOWS GL");
 
-    // Load and attach a DLL to a nullable classloader which purpose is to unload the DLL manually
-    // later
-    CustomClassLoader classLoader = new CustomClassLoader();
-    Class windowsLoaderClass =
-        classLoader.findClass("windows.opengl32.classloader.OpenGLWindowsLoader");
-    Object windowsLoader = windowsLoaderClass.newInstance();
-
-    // Start JOGL to get GL_RENDERER string
-    initJOGLAndPrint();
-
-    // UNLOAD DLL
-    windowsLoaderClass = null;
-    windowsLoader = null;
-    classLoader = null;
-
-    System.gc();
-    System.runFinalization();
-    System.gc();
-    System.runFinalization();
-
-    System.out.flush();
-
-  }
-
-  protected static void loadUnload_Mesa()
-      throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-
-    System.out.println("-------------------");
-    System.out.println("LOADING MESA GL");
-
-    // Add MESA DLL to path
-    Environment env = new Environment();
-    env.appendFirst("PATH", mesa, ";");
-
-    // create print/console method
-    // env.console("PATH", ";");
-
-    // Load and attach a DLL to a nullable classloader which purpose is to unload the DLL manually
-    // later
-    CustomClassLoader classLoader = new CustomClassLoader();
-    Class mesaLoaderClass = classLoader.findClass("windows.opengl32.classloader.OpenGLMesaLoader");
-    Object mesaLoader = mesaLoaderClass.newInstance();
-
-    // Start JOGL to get GL_RENDERER string
-    initJOGLAndPrint();
-
-    // UNLOAD DLL
-    mesaLoaderClass = null;
-    mesaLoader = null;
-    classLoader = null;
-
-
-    System.gc();
-    System.runFinalization();
-    System.gc();
-    System.runFinalization();
-
-    System.out.flush();
-
-  }
-  
   protected static void loadUnload_Mesa_MacOS()
       throws ClassNotFoundException, InstantiationException, IllegalAccessException {
 
@@ -119,7 +47,8 @@ public class TestLoadUnloadWithClassloader {
     // Load and attach a DLL to a nullable classloader which purpose is to unload the DLL manually
     // later
     CustomClassLoader classLoader = new CustomClassLoader();
-    Class mesaLoaderClass = classLoader.findClass("windows.opengl32.classloader.OpenGLMesaLoader_macOS");
+    Class mesaLoaderClass =
+        classLoader.findClass("windows.opengl32.classloader.OpenGLMesaLoader_macOS");
     Object mesaLoader = mesaLoaderClass.newInstance();
 
     // Start JOGL to get GL_RENDERER string
@@ -159,10 +88,6 @@ public class TestLoadUnloadWithClassloader {
   }
 
   public static void createGLContextAndPrintInfo(GLProfile glp, GLCapabilities caps) {
-    boolean glVersion = false;
-    boolean glProfile = false;
-    boolean glContext = false;
-    boolean glVendor = true;
 
     // ------------------------------------------------------
     // Drawable to get a GL context
@@ -177,39 +102,7 @@ public class TestLoadUnloadWithClassloader {
     GL gl = drawable.getContext().getGL();
 
 
-    // ------------------------------------------------------
-    // Report
-
-    if (glProfile) {
-      System.out.println("PROFILE       : " + glp);
-      System.out.println("CAPS (query)  : " + caps);
-      System.out.println("CAPS (found)  : " + drawable.getChosenGLCapabilities());
-
-      System.out.println("--------------------------------------------------");
-    }
-
-    if (glVendor) {
-      System.out.println(getDebugInfo(gl));
-    }
-
-    if (glContext) {
-      System.out.println("--------------------------------------------------");
-      System.out.println(drawable.getContext());
-      System.out.println();
-      System.out.println("Is compat profile : " + drawable.getContext().isGLCompatibilityProfile());
-    }
-
-
-    if (glVersion) {
-      System.out.println("--------------------------------------------------");
-      System.out.println("GL2    : " + GLProfile.isAvailable(GLProfile.GL2));
-      System.out.println("GL2GL3 : " + GLProfile.isAvailable(GLProfile.GL2GL3));
-      System.out.println("GL3    : " + GLProfile.isAvailable(GLProfile.GL3));
-      System.out.println("GL3bc  : " + GLProfile.isAvailable(GLProfile.GL3bc));
-      System.out.println("GL4    : " + GLProfile.isAvailable(GLProfile.GL4));
-      System.out.println("GL4ES3 : " + GLProfile.isAvailable(GLProfile.GL4ES3));
-      System.out.println("GL4bc  : " + GLProfile.isAvailable(GLProfile.GL4bc));
-    }
+    System.out.println(getDebugInfo(gl));
 
     // ------------------------------------------------------
     // We are done, release context for further work
