@@ -5,20 +5,45 @@ import vtk.rendering.jogl.Environment;
 import vtk.rendering.jogl.OS;
 
 /**
+ * A class allowing to configure path and other env. variable to configure GPU or CPU rendering on
+ * demand.
+ * 
+ * Switching GPU/CPU rendering may not be supported on some OS (e.g. Windows).
+ * 
+ * <h2>CPU rendering configuration</h2>
+ * 
+ * A path to the mesa library should be provided either by
+ * <ul>
+ * <li>invoking <code>new ChipSelector("/path/to/mesa/folder/");</code>
+ * <li>configuring the environment variable mesa.path through a call to <code>System.setProperty("mesa.path", "/path/to/mesa/folder/");</code>
+ * <li>configuring the environment variable mesa.path through the JVM argument <code>-Dmesa.path="/path/to/mesa/folder/"</code>
+ * </ul>
+ * 
+ * <h2>GPU rendering configuration</h2>
+ * 
+ * The path to the system OpenGL library is expected to be
+ * 
+ * <ul>
+ * <li>C:/Windows/System32/opengl32.dll on Windows</li>
+ * <li>/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib on macOS</li>
+ * <li>Already in the path in Linux
+ * </ul>
  * 
  * 
  * 
- * <h2>Useful for debugging on MacOS</h2>
+ * 
+ * 
+ * 
+ * <h2>Useful notes for debugging on MacOS</h2>
  * 
  * <h4>dyld</h4>
- * 
- * 
  * 
  * <ul>
  * <li>DYLD_PRINT_LIBRARIES=YES env var on macOS will let dyld print all library as soon as they are
  * loaded.
  * <li>DYLD_PRINT_BINDINGS=YES
- * <li>DYLD_INSERT_LIBRARIES=/usr/local/Cellar/mesa/21.1.2/lib/libGL.dylib to force a lib to be loaded before the other
+ * <li>DYLD_INSERT_LIBRARIES=/usr/local/Cellar/mesa/21.1.2/lib/libGL.dylib to force a lib to be
+ * loaded before the other
  * <li>DYLD_INSERT_LIBRARIES=/opt/homebrew/Cellar/mesa/21.3.7/lib/libGL.dylib
  * <li>DYLD_LIBRARY_PATH=/usr/local/Cellar/mesa/21.1.2/lib:/Users/martin/Dev/jzy3d/private/vtk-java-wrapper/lib/9.1.0/vtk-Darwin-x86_64:${env_var:DYLD_LIBRARY_PATH}
  * </ul>
@@ -30,44 +55,38 @@ import vtk.rendering.jogl.OS;
  * <h4>otool</h4>
  * 
  * 
- * @author martin
+ * @author Martin Pernollet
  *
  */
 public class ChipSelector {
   public static final String MESA_PATH_PROPERTY_NAME = "mesa.path";
   public static final String MESA_CPU_RENDERING_ENV_VAR = "LIBGL_ALWAYS_SOFTWARE";
+  
+  protected static String OPENGL_SYSTEM_PATH_MACOS =
+      "/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/";
+  protected static String OPENGL_LIB_MACOS = "libGL.dylib";
+  protected static String OPENGL_SYSTEM_PATH_WINDOWS = "C:\\Windows\\System32\\";
+  protected static String OPENGL_LIB_WINDOWS = "opengl32.dll";
 
-  Logger log = Logger.getLogger(ChipSelector.class);
+  protected static Logger log = Logger.getLogger(ChipSelector.class);
 
   protected Environment env = new Environment();
-
   protected Chip queriedChip;
-
-  //static String UNDEFINED_MESA_PATH = "please";
-  //static String DEFAULT_MESA_PATH =
-  //    "C:\\Users\\Martin\\Dev\\jzy3d\\private\\vtk-java-wrapper\\lib\\9.1.0\\mesa-Windows-x86_64";
-  
-  //static String DEFAULT_MESA_PATH =
-  //    "C:\\Users\\Martin\\Dev\\jzy3d\\external\\osmesa\\bin\\";
-  
-  //mesaPath = "/opt/homebrew/Cellar/mesa/21.3.7/lib";
-  //mesaPath = "/usr/local/Cellar/mesa/21.1.2/lib";
-  //mesaPath = "/Users/martin/Dev/jzy3d/external/osmesa/lib";
-  
   protected String mesaPath = "";
   protected boolean debug = false;
 
   public ChipSelector() {
     this(getMesaPathValue());
   }
-  
+
   protected static String getMesaPathValue() {
-    
     String path = System.getProperty(MESA_PATH_PROPERTY_NAME);
-    
-    if(path!=null && !"".equals(path))
+
+    if (path != null && !"".equals(path))
       return path;
-    throw new IllegalArgumentException("Either define MESA path through " + MESA_PATH_PROPERTY_NAME + " property, or invoke " + ChipSelector.class.getSimpleName() + " with a valid path to a MESA installation.");
+    throw new IllegalArgumentException(
+        "Either define MESA path through " + MESA_PATH_PROPERTY_NAME + " property, or invoke "
+            + ChipSelector.class.getSimpleName() + " with a valid path to a MESA installation.");
   }
 
 
@@ -87,7 +106,7 @@ public class ChipSelector {
 
     // WIndows
     if (OS.isWindows()) {
-      //configureMesaEnvironmentVariable(chip);
+      // configureMesaEnvironmentVariable(chip);
       configureWindowsPathWithMesaOrNotAndLoadGL(chip);
     }
 
@@ -117,7 +136,8 @@ public class ChipSelector {
 
     if (Chip.CPU.equals(chip)) {
       env.set(MESA_CPU_RENDERING_ENV_VAR, "true");
-      log.debug(MESA_CPU_RENDERING_ENV_VAR + " is now set to " + env.get(MESA_CPU_RENDERING_ENV_VAR));
+      log.debug(
+          MESA_CPU_RENDERING_ENV_VAR + " is now set to " + env.get(MESA_CPU_RENDERING_ENV_VAR));
     }
 
     // ------------------------------
@@ -125,7 +145,8 @@ public class ChipSelector {
 
     else if (Chip.GPU.equals(chip)) {
       env.set(MESA_CPU_RENDERING_ENV_VAR, "false");
-      log.debug(MESA_CPU_RENDERING_ENV_VAR + " is now set to " + env.get(MESA_CPU_RENDERING_ENV_VAR));
+      log.debug(
+          MESA_CPU_RENDERING_ENV_VAR + " is now set to " + env.get(MESA_CPU_RENDERING_ENV_VAR));
     }
 
     // ------------------------------
@@ -150,7 +171,8 @@ public class ChipSelector {
 
     if (Chip.CPU.equals(chip)) {
       env.set(MESA_CPU_RENDERING_ENV_VAR, "true");
-      log.debug(MESA_CPU_RENDERING_ENV_VAR + " is now set to " + env.get(MESA_CPU_RENDERING_ENV_VAR));
+      log.debug(
+          MESA_CPU_RENDERING_ENV_VAR + " is now set to " + env.get(MESA_CPU_RENDERING_ENV_VAR));
 
       loadOpenGLMac_MesaLibrary();
 
@@ -161,7 +183,8 @@ public class ChipSelector {
 
     else if (Chip.GPU.equals(chip)) {
       env.set(MESA_CPU_RENDERING_ENV_VAR, "false");
-      log.debug(MESA_CPU_RENDERING_ENV_VAR + " is now set to " + env.get(MESA_CPU_RENDERING_ENV_VAR));
+      log.debug(
+          MESA_CPU_RENDERING_ENV_VAR + " is now set to " + env.get(MESA_CPU_RENDERING_ENV_VAR));
 
       // loadOpenGLMac_MesaLibrary();
 
@@ -195,8 +218,6 @@ public class ChipSelector {
     return mesaPath + "/" + OPENGL_LIB_MACOS;
   }
 
-  protected static String OPENGL_SYSTEM_PATH_MACOS = "/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/"; 
-  protected static String OPENGL_LIB_MACOS = "libGL.dylib"; 
 
 
   /*****************************************************/
@@ -219,7 +240,7 @@ public class ChipSelector {
     if (Chip.CPU.equals(chip)) {
 
       env.appendFirst("PATH", mesaPath, ";");
-      
+
       log.debug("newpath : " + env.get("PATH"));
 
       loadOpenGLWindows_MesaLibrary();
@@ -232,11 +253,11 @@ public class ChipSelector {
     else if (Chip.GPU.equals(chip)) {
 
       env.removeFrom("PATH", mesaPath);
-      /*String newpath = oldpath.replace(mesaPath, "");
-      newpath = newpath.replace(";;", ";");
-      // TODO : avec et sans slash final
-      // TODO : faire slash et backslash
-      env.set("PATH", newpath);*/
+      /*
+       * String newpath = oldpath.replace(mesaPath, ""); newpath = newpath.replace(";;", ";"); //
+       * TODO : avec et sans slash final // TODO : faire slash et backslash env.set("PATH",
+       * newpath);
+       */
 
       log.debug("newpath : " + env.get("PATH"));
 
@@ -259,9 +280,9 @@ public class ChipSelector {
    * loadOpenGLWindows(); else throw new RuntimeException("Unsupported " + chip); } }
    */
 
-  /*protected void loadOpenGL() {
-    System.loadLibrary("opengl32");
-  }*/
+  /*
+   * protected void loadOpenGL() { System.loadLibrary("opengl32"); }
+   */
 
   protected void loadOpenGLWindows_System() {
     String path = getOpenGLPath_Windows_System();
@@ -282,10 +303,6 @@ public class ChipSelector {
   protected String getOpenGLPath_Windows_Mesa() {
     return mesaPath + "/" + OPENGL_LIB_WINDOWS;
   }
-
-  protected static String OPENGL_SYSTEM_PATH_WINDOWS = "C:\\Windows\\System32\\"; 
-  protected static String OPENGL_LIB_WINDOWS = "opengl32.dll"; 
-
 
   /*****************************************************/
 
