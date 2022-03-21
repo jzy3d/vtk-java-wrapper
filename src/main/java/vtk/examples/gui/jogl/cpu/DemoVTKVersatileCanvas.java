@@ -3,11 +3,13 @@ package vtk.examples.gui.jogl.cpu;
 import java.awt.BorderLayout;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.File;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import vtk.vtkActor;
 import vtk.vtkConeSource;
 import vtk.vtkPolyDataMapper;
+import vtk.rendering.jogl.OS;
 import vtk.rendering.jogl.VTKVersatileCanvas;
 import vtk.rendering.jogl.VTKVersatileCanvas.Listener;
 import vtk.rendering.jogl.VTKVersatileCanvas.OnChipSwitch;
@@ -24,8 +26,25 @@ DYLD_PRINT_LIBRARIES=YES
 LIBGL_ALWAYS_SOFTWARE=true
  */
 public class DemoVTKVersatileCanvas {
+  static String WINDOWS_MESA_PATH_RELATIVE = ".\\lib\\9.1.0\\mesa-Windows-x86_64";
+  static String MACOS_MESA_PATH_RELATIVE = ".\\lib\\9.1.0\\mesa-Darwin-x86_64";
+
   static {
+    configureMesaPathProperty();
+    
     VTKVersatileCanvas.loadNativesFor(Chip.CPU);
+  }
+  
+  protected static void configureMesaPathProperty() {
+    if(OS.isMac()) {
+      System.setProperty("mesa.path", new File(MACOS_MESA_PATH_RELATIVE).getAbsolutePath());
+    }
+    else if(OS.isWindows()) {
+      System.setProperty("mesa.path", new File(WINDOWS_MESA_PATH_RELATIVE).getAbsolutePath());
+    }
+    else if(OS.isUnix()) {
+      // assume all unix use mesa and do not require loading it explicitely
+    }
   }
   
   public static void main(String[] args) {
@@ -34,6 +53,12 @@ public class DemoVTKVersatileCanvas {
     SwingUtilities.invokeLater(new Runnable() {
       public void run() {
         makeVersatileCanvasDemo();
+        
+        System.out.println("Use C key to switch to CPU rendering using MESA OpenGL library");
+        System.out.println("Use G key to switch to GPU rendering using Operating System OpenGL library");
+        System.out.println("(may not work on Windows)");
+        System.out.println("Force start of program on either CPU or GPU with : static { VTKVersatileCanvas.loadNativesFor(Chip.CPU); }");
+        
       }
     });
   }
