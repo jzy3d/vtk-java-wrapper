@@ -75,7 +75,7 @@ Then
 ```
 meson builddir/ -Dosmesa=true -Dgallium-drivers=swrast -Ddri-drivers="[]" -Dvulkan-drivers="[]" -Dprefix="C:\Users\Martin\Dev\jzy3d\external\osmesa" --reconfigure
 ninja -C builddir/ 
- ninja -C builddir/ install
+ninja -C builddir/ install
 ```
 
 
@@ -114,6 +114,7 @@ ninja -C builddir/
 ninja -C builddir/ install
 ```
 
+DYLD_LIBRARY_PATH=/Users/Martin/Dev/jzy3d/external/osmesa
 
 
 

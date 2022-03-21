@@ -41,7 +41,8 @@ public class TestLoadMesaOnMacOS {
 
     // Add MESA DLL to path
     Environment env = new Environment();
-    env.appendFirst("PATH", mesa, ";");
+    //env.appendFirst("PATH", mesa, ";");
+    env.appendFirst("LD_LIBRARY_PATH", mesa, ":");
 
     // create print/console method
     // env.console("PATH", ";");
