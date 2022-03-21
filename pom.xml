@@ -9,15 +9,9 @@
 	<name>VTK Java Wrapper</name>
 
 	<profiles>
-	
-		<!-- 
-			This section defines the path to natives. 
-			
-			Debug how the OS and CPU names are detected by maven with 
-			
-			mvn enforcer:display-info
-		
-		-->
+
+		<!-- This section defines the path to natives. Debug how the OS and CPU 
+			names are detected by maven with mvn enforcer:display-info -->
 
 		<!-- Unix related settings -->
 
@@ -104,7 +98,7 @@
 
 		<vtk.version>9.1.0</vtk.version>
 		<vtk.lib.path>${project.basedir}/lib/${vtk.version}/vtk-${vtk.platform}/</vtk.lib.path>
-		
+
 	</properties>
 
 
@@ -205,16 +199,59 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>3.0.0-M5</version>
 				<configuration>
-					<!-- <argLine>-Dvtk.lib.dir=${vtk.lib.path}</argLine>
-					<argLine>-Djava.library.path=${vtk.lib.path}</argLine>-->
+					<includes>
+						<include>**/Test*.java</include>
+						<include>**/*Test.java</include>
+						<include>**/ITTest.java</include>
+					</includes>
+
+					<!-- <excludes>
+						<exclude>**/ITTest*.java</exclude>
+					</excludes>-->
 					
+					<forkCount>1</forkCount>
+                    <reuseForks>false</reuseForks>
+
+					<!-- <argLine>-Dvtk.lib.dir=${vtk.lib.path}</argLine> <argLine>-Djava.library.path=${vtk.lib.path}</argLine> -->
+
 					<environmentVariables>
-	                    <PATH>$PATH${path.separator}${vtk.lib.path}</PATH>
-	                    <LD_LIBRARY_PATH>${vtk.lib.path}${path.separator}$LD_LIBRARY_PATH</LD_LIBRARY_PATH>
-	                    <DYLD_LIBRARY_PATH>${vtk.lib.path}${path.separator}$DYLD_LIBRARY_PATH</DYLD_LIBRARY_PATH>
-	                </environmentVariables>
+						<PATH>$PATH${path.separator}${vtk.lib.path}</PATH>
+						<LD_LIBRARY_PATH>${vtk.lib.path}${path.separator}$LD_LIBRARY_PATH</LD_LIBRARY_PATH>
+						<DYLD_LIBRARY_PATH>${vtk.lib.path}${path.separator}$DYLD_LIBRARY_PATH</DYLD_LIBRARY_PATH>
+					</environmentVariables>
+
+					<!-- DISABLE PARALLEL TEST OTHERWISE CANVAS DO NOT UPDATE PROPERLY (?!) 
+						Parallel tests <parallel>classes</parallel> <useUnlimitedThreads>true</useUnlimitedThreads> -->
 				</configuration>
 			</plugin>
+
+			<!--<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-failsafe-plugin</artifactId>
+				<version>3.0.0-M5</version>
+				<configuration>
+					<includes>
+						<include>**/ITTest*.java</include>
+					</includes>
+					
+					<environmentVariables>
+						<PATH>$PATH${path.separator}${vtk.lib.path}</PATH>
+						<LD_LIBRARY_PATH>${vtk.lib.path}${path.separator}$LD_LIBRARY_PATH</LD_LIBRARY_PATH>
+						<DYLD_LIBRARY_PATH>${vtk.lib.path}${path.separator}$DYLD_LIBRARY_PATH</DYLD_LIBRARY_PATH>
+					</environmentVariables>
+					
+				</configuration>
+				<executions>
+					<execution>
+						<id>integration-test</id>
+						<goals>
+							<goal>integration-test</goal>
+							<goal>verify</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>-->
+
 
 			<!-- SOURCE JAR -->
 

@@ -9,14 +9,19 @@ public class TestVersatileCanvas_GPU_to_CPU extends TestVersatileCanvas{
  
   @BeforeClass
   public static void load() {
-    VTKVersatileCanvas.loadNativesFor(Chip.GPU);
+    configureMesaPathProperty();
+
+    VTKVersatileCanvas.loadNativesFor(Chip.GPU);    
   }
   
   @Test
   public void whenQueryGPU_To_CPU_ThenCPUIsUsed() throws InterruptedException {
-    Chip chip = Chip.GPU;
+    if(!OS.isUnix()) {
+      System.err.println(TestVersatileCanvas_GPU_to_CPU.class.getSimpleName() + " not supposed to run on Mac or Windows");
+      System.err.println("Exiting test without verifying anything");
+      return;
+    }
     
-  
     VTKVersatileCanvas canvas = new VTKVersatileCanvas();
     
     // When Embedding GUI with auto-reload hability    

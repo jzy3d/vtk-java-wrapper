@@ -9,8 +9,10 @@ public class TestVersatileCanvas_GPU extends TestVersatileCanvas{
  
   @BeforeClass
   public static void load() {
-    System.out.println("LOADING NATIVE");
-    VTKVersatileCanvas.loadNativesFor(Chip.GPU);
+    configureMesaPathProperty();
+
+    //System.out.println("LOADING NATIVE / GPU");
+    VTKVersatileCanvas.loadNativesFor(Chip.GPU);    
   }
   
   @Test

@@ -20,12 +20,13 @@ LIBGL_ALWAYS_SOFTWARE=true
 public class TestVersatileCanvas_CPU extends TestVersatileCanvas{
   @BeforeClass
   public static void load() {
-    VTKVersatileCanvas.loadNativesFor(Chip.CPU);
+    configureMesaPathProperty();
+
+    VTKVersatileCanvas.loadNativesFor(Chip.CPU);    
   }
   
   @Test
   public void whenQueryCPU_ThenCPUIsUsed() throws InterruptedException {
-    Chip chip = Chip.CPU;
     
     VTKVersatileCanvas canvas = new VTKVersatileCanvas();
     
@@ -34,7 +35,7 @@ public class TestVersatileCanvas_CPU extends TestVersatileCanvas{
     
     Thread.sleep(1000);
     
-    Assert.assertEquals(chip, canvas.getQueriedChip());
-    Assert.assertEquals(chip, canvas.getActualChip());
+    Assert.assertEquals(Chip.CPU, canvas.getQueriedChip());
+    Assert.assertEquals(Chip.CPU, canvas.getActualChip());
   }
 }

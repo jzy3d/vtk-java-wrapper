@@ -34,22 +34,40 @@ import vtk.rendering.jogl.OS;
  *
  */
 public class ChipSelector {
+  public static final String MESA_PATH_PROPERTY_NAME = "mesa.path";
+  public static final String MESA_CPU_RENDERING_ENV_VAR = "LIBGL_ALWAYS_SOFTWARE";
+
   Logger log = Logger.getLogger(ChipSelector.class);
 
   protected Environment env = new Environment();
 
   protected Chip queriedChip;
 
-
-  static String DEFAULT_MESA_PATH =
-      "C:\\Users\\Martin\\Dev\\jzy3d\\private\\vtk-java-wrapper\\lib\\9.1.0\\mesa-Windows-x86_64";
+  //static String UNDEFINED_MESA_PATH = "please";
+  //static String DEFAULT_MESA_PATH =
+  //    "C:\\Users\\Martin\\Dev\\jzy3d\\private\\vtk-java-wrapper\\lib\\9.1.0\\mesa-Windows-x86_64";
   
+  //static String DEFAULT_MESA_PATH =
+  //    "C:\\Users\\Martin\\Dev\\jzy3d\\external\\osmesa\\bin\\";
+  
+  //mesaPath = "/opt/homebrew/Cellar/mesa/21.3.7/lib";
+  //mesaPath = "/usr/local/Cellar/mesa/21.1.2/lib";
+  //mesaPath = "/Users/martin/Dev/jzy3d/external/osmesa/lib";
   
   protected String mesaPath = "";
   protected boolean debug = false;
 
   public ChipSelector() {
-    this(DEFAULT_MESA_PATH);
+    this(getMesaPathValue());
+  }
+  
+  protected static String getMesaPathValue() {
+    
+    String path = System.getProperty(MESA_PATH_PROPERTY_NAME);
+    
+    if(path!=null && !"".equals(path))
+      return path;
+    throw new IllegalArgumentException("Either define MESA path through " + MESA_PATH_PROPERTY_NAME + " property, or invoke " + ChipSelector.class.getSimpleName() + " with a valid path to a MESA installation.");
   }
 
 
@@ -65,24 +83,22 @@ public class ChipSelector {
   public void use(Chip chip) {
     queriedChip = chip;
 
-    // if (debug) {
-    // log.debug("--------------------");
     log.debug("Select chip : " + chip);
-    // }
 
     // WIndows
     if (OS.isWindows()) {
-      useOnWindows(chip);
+      //configureMesaEnvironmentVariable(chip);
+      configureWindowsPathWithMesaOrNotAndLoadGL(chip);
     }
 
     // WIndows
     if (OS.isMac()) {
-      useOnMac(chip);
+      configureMacOSPathWithMesaOrNotAndLoadGL(chip);
     }
 
     // Linux
     else if (OS.isUnix()) {
-      useOnLinux(chip);
+      configureMesaEnvironmentVariable(chip);
     }
   }
 
@@ -92,25 +108,24 @@ public class ChipSelector {
   /**                                                  */
   /*****************************************************/
 
-  public static String LINUX_ENV_VAR = "LIBGL_ALWAYS_SOFTWARE";
 
-  protected void useOnLinux(Chip chip) {
+  protected void configureMesaEnvironmentVariable(Chip chip) {
     log.debug("unix config starting");
 
     // ------------------------------
     // CPU configuration
 
     if (Chip.CPU.equals(chip)) {
-      env.set(LINUX_ENV_VAR, "true");
-      log.debug(LINUX_ENV_VAR + " is now set to " + env.get(LINUX_ENV_VAR));
+      env.set(MESA_CPU_RENDERING_ENV_VAR, "true");
+      log.debug(MESA_CPU_RENDERING_ENV_VAR + " is now set to " + env.get(MESA_CPU_RENDERING_ENV_VAR));
     }
 
     // ------------------------------
     // GPU configuration
 
     else if (Chip.GPU.equals(chip)) {
-      env.set(LINUX_ENV_VAR, "false");
-      log.debug(LINUX_ENV_VAR + " is now set to " + env.get(LINUX_ENV_VAR));
+      env.set(MESA_CPU_RENDERING_ENV_VAR, "false");
+      log.debug(MESA_CPU_RENDERING_ENV_VAR + " is now set to " + env.get(MESA_CPU_RENDERING_ENV_VAR));
     }
 
     // ------------------------------
@@ -127,15 +142,15 @@ public class ChipSelector {
   /*****************************************************/
 
 
-  protected void useOnMac(Chip chip) {
+  protected void configureMacOSPathWithMesaOrNotAndLoadGL(Chip chip) {
     log.debug("macOS config starting");
 
     // ------------------------------
     // CPU configuration
 
     if (Chip.CPU.equals(chip)) {
-      env.set(LINUX_ENV_VAR, "true");
-      log.debug(LINUX_ENV_VAR + " is now set to " + env.get(LINUX_ENV_VAR));
+      env.set(MESA_CPU_RENDERING_ENV_VAR, "true");
+      log.debug(MESA_CPU_RENDERING_ENV_VAR + " is now set to " + env.get(MESA_CPU_RENDERING_ENV_VAR));
 
       loadOpenGLMac_MesaLibrary();
 
@@ -145,8 +160,8 @@ public class ChipSelector {
     // GPU configuration
 
     else if (Chip.GPU.equals(chip)) {
-      env.set(LINUX_ENV_VAR, "false");
-      log.debug(LINUX_ENV_VAR + " is now set to " + env.get(LINUX_ENV_VAR));
+      env.set(MESA_CPU_RENDERING_ENV_VAR, "false");
+      log.debug(MESA_CPU_RENDERING_ENV_VAR + " is now set to " + env.get(MESA_CPU_RENDERING_ENV_VAR));
 
       // loadOpenGLMac_MesaLibrary();
 
@@ -161,26 +176,27 @@ public class ChipSelector {
 
 
   protected void loadOpenGLMac_System() {
-    String path = "/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib";
-    if (debug)
-      log.debug("Try loading MacOS System GL " + path);
+    String path = getOpenGLPath_MacOS_System();
+    log.debug("Try loading MacOS System GL " + path);
     System.load(path);
   }
-
 
   protected void loadOpenGLMac_MesaLibrary() {
-    //mesaPath = "/opt/homebrew/Cellar/mesa/21.3.7/lib";
-    //mesaPath = "/usr/local/Cellar/mesa/21.1.2/lib";
-    
-    mesaPath = "/Users/martin/Dev/jzy3d/external/osmesa/lib";
-    
-
-    String path = mesaPath + "/libGL.dylib";
-
+    String path = getOpenGLPath_MacOS_Mesa();
     log.debug("Try loading MESA GL " + path);
-
     System.load(path);
   }
+
+  protected String getOpenGLPath_MacOS_System() {
+    return OPENGL_SYSTEM_PATH_MACOS + OPENGL_LIB_MACOS;
+  }
+
+  protected String getOpenGLPath_MacOS_Mesa() {
+    return mesaPath + "/" + OPENGL_LIB_MACOS;
+  }
+
+  protected static String OPENGL_SYSTEM_PATH_MACOS = "/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/"; 
+  protected static String OPENGL_LIB_MACOS = "libGL.dylib"; 
 
 
   /*****************************************************/
@@ -190,7 +206,7 @@ public class ChipSelector {
   /*****************************************************/
 
 
-  protected void useOnWindows(Chip chip) {
+  protected void configureWindowsPathWithMesaOrNotAndLoadGL(Chip chip) {
     log.debug("Windows config starting");
 
     String oldpath = env.get("PATH");
@@ -243,23 +259,33 @@ public class ChipSelector {
    * loadOpenGLWindows(); else throw new RuntimeException("Unsupported " + chip); } }
    */
 
-  protected void loadOpenGL() {
+  /*protected void loadOpenGL() {
     System.loadLibrary("opengl32");
-  }
+  }*/
 
   protected void loadOpenGLWindows_System() {
-    String path = "C:\\Windows\\System32\\opengl32.dll";
-
+    String path = getOpenGLPath_Windows_System();
     log.debug("Try loading Windows GL " + path);
     System.load(path);
   }
 
   protected void loadOpenGLWindows_MesaLibrary() {
-    String path = mesaPath + "/opengl32.dll";
-
+    String path = getOpenGLPath_Windows_Mesa();
     log.debug("Try loading MESA GL " + path);
     System.load(path);
   }
+
+  protected String getOpenGLPath_Windows_System() {
+    return OPENGL_SYSTEM_PATH_WINDOWS + OPENGL_LIB_WINDOWS;
+  }
+
+  protected String getOpenGLPath_Windows_Mesa() {
+    return mesaPath + "/" + OPENGL_LIB_WINDOWS;
+  }
+
+  protected static String OPENGL_SYSTEM_PATH_WINDOWS = "C:\\Windows\\System32\\"; 
+  protected static String OPENGL_LIB_WINDOWS = "opengl32.dll"; 
+
 
   /*****************************************************/
 
