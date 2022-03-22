@@ -3,9 +3,19 @@ package vtk.rendering.jogl;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import vtk.rendering.jogl.ChipSelector.Chip;
+import vtk.rendering.jogl.chip.Chip;
 
 /**
+ * 
+ * Limitations
+ * <ul>
+ * <li>this test may fail on Windows if the executing JVM already executed {@link TestVersatileCanvas_GPU}
+ * </ul>
+ * 
+ * @author Martin Pernollet
+ * 
+ * 
+ * 
  * -Djava.library.path=/Users/martin/Dev/jzy3d/private/vtk-java-wrapper/lib/9.1.0/vtk-Darwin-arm64
  * 
  * 
@@ -20,12 +30,13 @@ LIBGL_ALWAYS_SOFTWARE=true
 public class TestVersatileCanvas_CPU extends TestVersatileCanvas{
   @BeforeClass
   public static void load() {
-    VTKVersatileCanvas.loadNativesFor(Chip.CPU);
+    configureMesaPathProperty();
+
+    VTKVersatileCanvas.loadNativesFor(Chip.CPU);    
   }
   
   @Test
   public void whenQueryCPU_ThenCPUIsUsed() throws InterruptedException {
-    Chip chip = Chip.CPU;
     
     VTKVersatileCanvas canvas = new VTKVersatileCanvas();
     
@@ -34,7 +45,7 @@ public class TestVersatileCanvas_CPU extends TestVersatileCanvas{
     
     Thread.sleep(1000);
     
-    Assert.assertEquals(chip, canvas.getQueriedChip());
-    Assert.assertEquals(chip, canvas.getActualChip());
+    Assert.assertEquals(Chip.CPU, canvas.getQueriedChip());
+    Assert.assertEquals(Chip.CPU, canvas.getActualChip());
   }
 }

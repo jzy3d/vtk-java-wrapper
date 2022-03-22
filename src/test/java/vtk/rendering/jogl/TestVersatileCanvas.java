@@ -6,14 +6,25 @@ import javax.swing.JFrame;
 import vtk.vtkActor;
 import vtk.vtkConeSource;
 import vtk.vtkPolyDataMapper;
-import vtk.rendering.jogl.ChipSelector.Chip;
 import vtk.rendering.jogl.VTKVersatileCanvas.Listener;
 import vtk.rendering.jogl.VTKVersatileCanvas.OnChipSwitch;
+import vtk.rendering.jogl.chip.Chip;
+import vtk.rendering.jogl.chip.TestChipSelector;
 
 public class TestVersatileCanvas {
   static JFrame frame;
 
-  
+  protected static void configureMesaPathProperty() {
+    if(OS.isMac()) {
+      System.setProperty("mesa.path", TestChipSelector.MACOS_MESA_PATH.getAbsolutePath());
+    }
+    else if(OS.isWindows()) {
+      System.setProperty("mesa.path", TestChipSelector.WINDOWS_MESA_PATH.getAbsolutePath());
+    }
+    else if(OS.isUnix()) {
+      // assume all unix use mesa and do not require loading it explicitely
+    }
+  }
   
   
 
