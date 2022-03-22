@@ -5,8 +5,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jzy3d.colors.Color;
+import org.jzy3d.io.vtk.drawable.VTKDrawableVBOBuilder.GeometryMode;
+import org.jzy3d.io.vtk.drawable.VTKDrawableVBOBuilder.VerticeMode;
 import org.jzy3d.maths.Coord3d;
 import org.jzy3d.maths.Normal;
 import org.jzy3d.maths.Normal.NormalMode;
@@ -41,7 +44,7 @@ import vtk.processing.VTKNormalProcessor.VTKNormalPerVertex;
  *
  */
 public class VTKDrawableVBOBuilder extends AbstractVTKDrawableBuilder implements IDrawableBuilder {
-  protected static Logger log = Logger.getLogger(VTKDrawableVBOBuilder.class);
+  protected static Logger log = LogManager.getLogger(VTKDrawableVBOBuilder.class);
 
   protected float[] coordinates;
   protected float[] normals;

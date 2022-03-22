@@ -1,7 +1,8 @@
 package vtk.rendering.jogl.chip;
 
 import java.io.File;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import vtk.rendering.jogl.Environment;
 import vtk.rendering.jogl.OS;
 
@@ -81,7 +82,9 @@ public class ChipSelector {
   protected static String OPENGL_LIB_MACOS = "libGL.dylib";
   protected static String OPENGL_LIB_WINDOWS = "opengl32.dll";
 
-  protected static Logger log = Logger.getLogger(ChipSelector.class);
+  
+  protected static Logger log = LogManager.getLogger(ChipSelector.class);
+
 
   protected Environment env = new Environment();
   protected Chip queriedChip;
