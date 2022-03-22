@@ -52,7 +52,7 @@ Then go (expect 5 minutes excluding LLVM which will make build longer than that 
 ./osmesa-install.sh -release
 ```
 
-### Get MESA on Windows
+### Get pre-built MESA on Windows
 
 1. Install [Msys2](https://www.msys2.org/)
 1. Install [Mesa with Msys2](https://packages.msys2.org/package/mingw-w64-x86_64-mesa?repo=mingw64)
@@ -60,6 +60,9 @@ Then go (expect 5 minutes excluding LLVM which will make build longer than that 
 
 
 ### Build MESA on Windows
+
+
+#### Install build tools for Windows
 
 Following the [install guide](https://docs.mesa3d.org/install.html)
 
@@ -70,12 +73,12 @@ Following the [install guide](https://docs.mesa3d.org/install.html)
 * Install Flex/Bison for Windows and add its path to PATH variable
 * Install Ninja (pip install ninja)
 
-Then
+#### Build for Windows
 
 ```
 meson builddir/ -Dosmesa=true -Dgallium-drivers=swrast -Ddri-drivers="[]" -Dvulkan-drivers="[]" -Dprefix="C:\Users\Martin\Dev\jzy3d\external\osmesa" --reconfigure
 ninja -C builddir/ 
- ninja -C builddir/ install
+ninja -C builddir/ install
 ```
 
 
@@ -89,20 +92,48 @@ Eclipse path
 Path=C:\Users\Martin\Dev\jzy3d\private\vtk-java-wrapper\lib\9.1.0\vtk-Windows-x86_64;C:\msys64\mingw64\bin;${env_var:PATH}
 ```
 
+### Get pre-built MESA on MacOS
 
+```
+brew install mesa
+```
+
+### Run MESA on MacOS
+
+Run `DemoVTKPanelJoglCPU`
+
+with environment variable
+* `DYLD_LIBRARY_PATH=/Users/martin/Dev/jzy3d/private/vtk-java-wrapper/lib/9.1.0/vtk-Darwin-arm64:/opt/homebrew/Cellar/mesa/21.3.7:${env_var:DYLD_LIBRARY_PATH}`
+* `LIBGL_ALWAYS_SOFTWARE=true`
 
 
 ### Build MESA on MacOS
 
-Work in progress...
 
-WARNING : macOS 10.12 may require to manually download 
+#### Install build tools for MacOS
 
-https://github.com/llvm/llvm-project/releases/download/llvmorg-6.0.1/llvm-6.0.1.src.tar.xz
+Following the [install guide](https://docs.mesa3d.org/install.html)
 
-in current folder
+* Install Python
+* Install Meson (pip install meson)
+* Install Mako (pip install Mako)
+* Install Flex (brew install flex)
+* Install Bison (brew install bison)
+* Install Ninja (pip install ninja)
 
-The outcome is in `OSMESA_PREFIX`
+
+#### Build for MacOS
+
+Read [this](https://docs.mesa3d.org/macos.html)
+
+```
+meson builddir/ -Dosmesa=true -Dglx=xlib -Dgallium-drivers=swrast -Ddri-drivers=[] -Dvulkan-drivers=[] -Dprefix=/Users/Martin/Dev/jzy3d/external/osmesa
+ninja -C builddir/ 
+ninja -C builddir/ install
+```
+
+DYLD_LIBRARY_PATH=/Users/Martin/Dev/jzy3d/external/osmesa
+
 
 
 # Let VTK use Mesa, either at runtime (prefered) or build time 

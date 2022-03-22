@@ -49,16 +49,19 @@ An ```Exception in thread "main" java.lang.UnsatisfiedLinkError``` in your appli
 
 ### Method 1 (prefered) : Define path to VTK in an environment variable
 
-You may either define this variables through your operating system setting
+#### Method 1.1 : Append VTK to the operating system environment variables
+
+Depending on your OS, VTK should be added to the following environment variable.
 
 * Linux   : `LD_LIBRARY_PATH   = /home/martin/Dev/jzy3d/vtk-java-wrapper/lib/9.1.0/vtk-Linux-x86_64/:$LD_LIBRARY_PATH`   
 * macOS   : `DYLD_LIBRARY_PATH = /Users/martin/Dev/jzy3d/vtk-java-wrapper/lib/9.1.0/vtk-Darwin-arm64/:$DYLD_LIBRARY_PATH`
 * Windows : `PATH              = C:/Users/martin/Dev/jzy3d/vtk-java-wrapper/lib/9.1.0/vtk-Windows-x86_64;PATH`
 
+#### Method 1.2 : Append VTK to the IDE run configuration environment variables
 
 Eclipse users can define environment variables from the IDE Run Configurations
 
-`DYLD_LIBRARY_PATH = /Users/martin/Dev/jzy3d/private/vtk-java-wrapper/lib/9.1.0/vtk-Darwin-arm64:${env_var:DYLD_LIBRARY_PATH}``
+`DYLD_LIBRARY_PATH = /Users/martin/Dev/jzy3d/private/vtk-java-wrapper/lib/9.1.0/vtk-Darwin-arm64:${env_var:DYLD_LIBRARY_PATH}`
 
 <img src="doc/eclipse-settings.png"/>
 

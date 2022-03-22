@@ -10,9 +10,6 @@ import java.util.Arrays;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
-import com.jogamp.opengl.GLAutoDrawable;
-import com.jogamp.opengl.GLContext;
-import com.jogamp.opengl.GLPipelineFactory;
 import vtk.vtkActor;
 import vtk.vtkBoxRepresentation;
 import vtk.vtkBoxWidget2;
@@ -25,11 +22,10 @@ import vtk.vtkPolyDataMapper;
 import vtk.vtkScalarBarRepresentation;
 import vtk.vtkScalarBarWidget;
 import vtk.vtkTransform;
-import vtk.*;
 import vtk.rendering.vtkAbstractEventInterceptor;
+import vtk.rendering.jogl.VTKRemoveableCanvasAWT;
 import vtk.rendering.jogl.vtkAbstractJoglComponent;
 import vtk.rendering.jogl.vtkJoglCanvasComponent;
-import vtk.rendering.jogl.vtkJoglPanelComponent;
 
 /**
  * Reproduce the docking/undocking panel problem : click remove/add button to remove the JOGL panel
@@ -53,46 +49,6 @@ public class JoglConeRenderingPanelMove {
     vtkNativeLibrary.DisableOutputWindow(null);
   }
 
-  /**
-   * Overrides JOGL canvas to more cleanly deal with resources.
-   * 
-   * @author Martin
-   */
-  public static class RemoveableComponent extends vtkJoglCanvasComponent {
-    private boolean keepVTKResources = false;
-
-    /**
-     * Allows keeping VTK resources hence keeping the interactor.
-     * 
-     * This should be set to true before removing a panel that will be reused later. It should then
-     * be set back to false right after addition.
-     * 
-     * <pre>
-     * <code>
-     * joglWidget.keepVTKResources(true);
-     * frame.getContentPane().remove(joglWidget.getComponent());
-     * joglWidget.keepVTKResources(false);
-     * frame.getContentPane().add(joglWidget.getComponent(), BorderLayout.CENTER);
-     * </code>
-     * </pre>
-     */
-    public void keepVTKResources(boolean on) {
-      this.keepVTKResources = on;
-    }
-
-    /**
-     * Customize Delete to allow keeping VTK ressources if the panel is supposed to be re-used.
-     */
-    @Override
-    public void Delete() {
-      this.glRenderWindow.Finalize();
-
-      if (this.keepVTKResources) {
-        return;
-      }
-      super.Delete();
-    }
-  }
 
   public static void main(String[] args) {
     final boolean usePanel = Boolean.getBoolean("usePanel");
@@ -118,7 +74,7 @@ public class JoglConeRenderingPanelMove {
         // ------------------------------------------
         // JOGL configuration
 
-        RemoveableComponent joglWidget = new RemoveableComponent();
+        VTKRemoveableCanvasAWT joglWidget = new VTKRemoveableCanvasAWT();
         System.out.println("We are using " + joglWidget.getComponent().getClass().getName()
             + " for the rendering.");
 

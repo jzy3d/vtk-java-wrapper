@@ -1,9 +1,7 @@
 package vtk.examples.gui.jogl.cpu;
-
 import java.awt.BorderLayout;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.util.Map;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import com.jogamp.opengl.GLCapabilities;
@@ -51,7 +49,7 @@ import vtk.rendering.jogl.vtkJoglPanelComponent;
  * 
  * is due to the fact that GL_MAX_TEXTURE_MAX_ANISOTROPY is a not supported extension.
  */
-public class DemoVTKPanelJoglCPU {
+public class DemoVTKPanelJoglCPU_Ubuntu {
 
   static {
     if (!vtkNativeLibrary.LoadAllNativeLibraries()) {
@@ -62,9 +60,6 @@ public class DemoVTKPanelJoglCPU {
       }
     }
     vtkNativeLibrary.DisableOutputWindow(null);
-    
-    printEnv("PATH", ";");
-    printEnv("LIBGL_ALWAYS_SOFTWARE");
   }
 
   public interface LibC extends Library {
@@ -77,8 +72,6 @@ public class DemoVTKPanelJoglCPU {
   static JFrame frame;
   static vtkAbstractJoglComponent<?> joglWidget;
   static boolean report = true;
-  
-  static boolean libC = false;
 
   public static void init() {
     
@@ -121,7 +114,7 @@ public class DemoVTKPanelJoglCPU {
     // ----------------------------------------------
     // Frame
     
-    frame = new JFrame(DemoVTKPanelJoglCPU.class.getSimpleName());
+    frame = new JFrame(DemoVTKPanelJoglCPU_Ubuntu.class.getSimpleName());
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     frame.getContentPane().setLayout(new BorderLayout());
     frame.getContentPane().add(joglWidget.getComponent(), BorderLayout.CENTER);
@@ -185,20 +178,6 @@ public class DemoVTKPanelJoglCPU {
       public void keyPressed(KeyEvent e) {}
     });
   }
-  
-  public static void useCPU(boolean cpu) {
-    try {
-    LibC libc = (LibC) Native.loadLibrary("c", LibC.class);
-    
-    if(cpu)
-      libc.setenv("LIBGL_ALWAYS_SOFTWARE", "true", 1);
-    else
-      libc.setenv("LIBGL_ALWAYS_SOFTWARE", "false", 1);
-    }
-    catch(Throwable e) {
-      System.err.println("Can't dynamically change CPU/GPU because could not invoke libC");      
-    }
-  }
 
   public static void clean() {
     frame.setVisible(false);
@@ -212,45 +191,12 @@ public class DemoVTKPanelJoglCPU {
     SwingUtilities.invokeLater(new Runnable() {
       public void run() {
 
-        useCPU(true);
+        LibC libc = (LibC) Native.loadLibrary("c", LibC.class);
+        libc.setenv("LIBGL_ALWAYS_SOFTWARE", "true", 1);
+        
         init();
 
       }
     });
-  }
-  
-  public static void printEnv(String var) {
-    printEnv(var, null);
-  }
-
-  public static void printEnv(String var, String splitWith) {
-    Map<String, String> env = System.getenv();
-
-    boolean found = false;
-    
-    for (Map.Entry<String, String> entry : env.entrySet()) {
-      if(entry.getKey().toLowerCase().equals(var.toLowerCase())) {
-        found = true;
-        
-        if(splitWith==null) {
-          System.out.println(entry.getKey() + " : " + entry.getValue());
-        }
-        else {
-          System.out.println(entry.getKey() + " : ");
-
-          String[] values = entry.getValue().split(splitWith);
-
-          for(String value: values) {
-            System.out.println(" " + value);
-          }
-
-        }
-
-      }
-    }
-    
-    if(!found) {
-      System.out.println("Undefined environment variable " + var);
-    }
   }
 }
