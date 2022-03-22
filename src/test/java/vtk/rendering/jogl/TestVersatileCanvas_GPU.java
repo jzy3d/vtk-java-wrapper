@@ -12,6 +12,9 @@ import vtk.rendering.jogl.chip.Chip;
  * <li>this test may fail on Windows if the executing JVM already executed {@link TestVersatileCanvas_CPU}
  * </ul>
  * 
+ * <h2>MacOS IDE configuration</h2>
+ * -Djava.library.path=/Users/martin/Dev/jzy3d/private/vtk-java-wrapper/lib/9.1.0/vtk-Darwin-x86_64:${env_var:PATH}
+ * 
  * @author Martin Pernollet
  */
 public class TestVersatileCanvas_GPU extends TestVersatileCanvas{
