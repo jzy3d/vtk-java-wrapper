@@ -15,6 +15,7 @@ import vtk.rendering.jogl.chip.Chip;
  * @author Martin Pernollet
  * 
  * 
+ * -Djava.library.path=/Users/martin/Dev/jzy3d/private/vtk-java-wrapper/lib/9.1.0/vtk-Darwin-x86_64:${env_var:PATH}
  * 
  * -Djava.library.path=/Users/martin/Dev/jzy3d/private/vtk-java-wrapper/lib/9.1.0/vtk-Darwin-arm64
  * 
