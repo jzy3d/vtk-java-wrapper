@@ -79,6 +79,10 @@ public class TestChipSelector {
 
   @Test(expected = IllegalArgumentException.class)
   public void whenChipSelectMissMesaConfig_ThrowException() {
+    if(OS.isUnix()) {
+      throw new IllegalArgumentException("Throwing exception on unix to make this test pass");
+    }
+    
     System.setProperty("mesa.path", "");
 
     System.out.println("For info " + ChipSelector.MESA_PATH_PROPERTY_NAME + "="

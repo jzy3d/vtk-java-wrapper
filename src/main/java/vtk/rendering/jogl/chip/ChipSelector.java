@@ -121,6 +121,9 @@ public class ChipSelector {
   }
 
   protected static String getMesaPathValue() {
+    if(OS.isUnix())
+      return "";
+    
     String path = System.getProperty(MESA_PATH_PROPERTY_NAME);
 
     if (path != null && !"".equals(path))
