@@ -5,6 +5,16 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import vtk.rendering.jogl.chip.Chip;
 
+/**
+ * 
+ * Limitations
+ * <ul>
+ * <li>this test will only execute on Unix which supports hot switch from GPU to CPU without restarting the JVM 
+ * <li>this test may fail on Windows if the executing JVM already executed TestVersatileCanvas_CPU
+ * </ul>
+ * 
+ * @author Martin Pernollet
+ */
 public class TestVersatileCanvas_GPU_to_CPU extends TestVersatileCanvas{
  
   @BeforeClass
@@ -15,7 +25,7 @@ public class TestVersatileCanvas_GPU_to_CPU extends TestVersatileCanvas{
   }
   
   @Test
-  public void whenQueryGPU_To_CPU_ThenCPUIsUsed() throws InterruptedException {
+  public void whenQueryGPU_To_CPU_ThenCPUIsUsed_UnixOnly() throws InterruptedException {
     if(!OS.isUnix()) {
       System.err.println(TestVersatileCanvas_GPU_to_CPU.class.getSimpleName() + " not supposed to run on Mac or Windows");
       System.err.println("Exiting test without verifying anything");

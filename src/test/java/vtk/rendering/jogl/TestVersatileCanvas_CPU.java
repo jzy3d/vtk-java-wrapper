@@ -6,6 +6,16 @@ import org.junit.Test;
 import vtk.rendering.jogl.chip.Chip;
 
 /**
+ * 
+ * Limitations
+ * <ul>
+ * <li>this test may fail on Windows if the executing JVM already executed {@link TestVersatileCanvas_GPU}
+ * </ul>
+ * 
+ * @author Martin Pernollet
+ * 
+ * 
+ * 
  * -Djava.library.path=/Users/martin/Dev/jzy3d/private/vtk-java-wrapper/lib/9.1.0/vtk-Darwin-arm64
  * 
  * 

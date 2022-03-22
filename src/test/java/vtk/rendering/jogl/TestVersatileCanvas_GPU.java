@@ -5,6 +5,15 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import vtk.rendering.jogl.chip.Chip;
 
+/**
+ * 
+ * Limitations
+ * <ul>
+ * <li>this test may fail on Windows if the executing JVM already executed {@link TestVersatileCanvas_CPU}
+ * </ul>
+ * 
+ * @author Martin Pernollet
+ */
 public class TestVersatileCanvas_GPU extends TestVersatileCanvas{
  
   @BeforeClass

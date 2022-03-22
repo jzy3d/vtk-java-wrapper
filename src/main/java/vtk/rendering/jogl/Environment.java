@@ -1,5 +1,6 @@
 package vtk.rendering.jogl;
 
+import java.io.File;
 import java.util.Map;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
@@ -47,18 +48,52 @@ public class Environment {
       libc.setenv(name, value, 1);
     }
   }
-  
+
+  public void appendFirst(String name, String value) {
+    appendFirst(name, value, File.pathSeparator);
+  }
+
   public void appendFirst(String name, String value, String separator) {
-    set(name, value + ";" + get(name));
+    set(name, value + separator + get(name));
+  }
+  
+  public void appendLast(String name, String value) {
+    appendLast(name, value, File.pathSeparator);
   }
 
   public void appendLast(String name, String value, String separator) {
-    set(name, get(name)+ ";" + value);
+    set(name, get(name)+ separator + value);
   }
-  
+
   public void removeFrom(String name, String toBeRemoved) {
     String oldvalue = get(name);
+    
+    if(!oldvalue.contains(toBeRemoved))
+      return;
+    
+    // identify position of string
+    int position = oldvalue.indexOf(toBeRemoved);
+    int endsAt = position + toBeRemoved.length();
+    
+    // remove string
     String newvalue = oldvalue.replace(toBeRemoved, "");
+    
+    // remove related separator(s) 
+    // at first position
+    if(position==0 && (newvalue.charAt(position)==File.pathSeparatorChar)) {
+      newvalue = newvalue.substring(1);
+    }
+    // at last position
+    else if((endsAt==oldvalue.length()) && (newvalue.charAt(newvalue.length()-1)==File.pathSeparatorChar)) {
+      newvalue = newvalue.substring(0, position-1);
+    }
+    // in the middle
+    else {
+      newvalue = newvalue.substring(0, position-1) + newvalue.substring(position, endsAt-1) + newvalue.substring(endsAt-1);
+      
+    }
+    
+    
     //newpath = newpath.replace(";;", ";");
     set(name, newvalue);
   }

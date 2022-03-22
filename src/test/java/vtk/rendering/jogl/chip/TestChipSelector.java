@@ -89,8 +89,38 @@ public class TestChipSelector {
   }
 
   @Test
-  public void whenChipSelectConfigureMesaPath() {
+  public void whenChipSelectConfigureMesaPath_Windows() {
+    if(!OS.isMac()) {
+      System.err.println("DO not execute this test for Windows");
+      return;
+    }
+    
+    // Given path to MESA given explicitely
+    String path = "/path/to/mesa";
 
+    ChipSelector c = new ChipSelector(path);
+
+    // When getting path 
+    Assert.assertEquals(path + "/opengl32.dll", c.getOpenGLPath_Windows_Mesa());
+
+
+    // Given path to MESA given through env variable
+    System.setProperty("mesa.path", path);
+
+    ChipSelector c2 = new ChipSelector();
+
+    // When getting path 
+    Assert.assertEquals(path + "/opengl32.dll", c.getOpenGLPath_Windows_Mesa());
+  }
+  
+  @Test
+  public void whenChipSelectConfigureMesaPath_MacOS() {
+    if(!OS.isMac()) {
+      System.err.println("DO not execute this test for macOS");
+      return;
+    }
+    
+    
     // Given path to MESA given explicitely
     String path = "/path/to/mesa";
 
@@ -98,7 +128,6 @@ public class TestChipSelector {
 
     // When getting path on mac
     Assert.assertEquals(path + "/libGL.dylib", c.getOpenGLPath_MacOS_Mesa());
-    Assert.assertEquals(path + "/opengl32.dll", c.getOpenGLPath_Windows_Mesa());
 
 
     // Given path to MESA given through env variable
@@ -108,9 +137,31 @@ public class TestChipSelector {
 
     // When getting path on mac
     Assert.assertEquals(path + "/libGL.dylib", c2.getOpenGLPath_MacOS_Mesa());
-    Assert.assertEquals(path + "/opengl32.dll", c.getOpenGLPath_Windows_Mesa());
   }
 
+  @Test
+  public void whenFixPath() {
+    String pathWithSlash = "/path/with/wrong/separator";
+    String pathWithAntislash = "\\path\\with\\wrong\\separator";
+    
+    if(OS.isWindows()) {
+      // Given a path with slash on Windows
+      ChipSelector c = new ChipSelector(pathWithSlash);
+      String mesaPath = c.getOpenGLPath_Windows_Mesa();
+      
+      // Then path is fixed with antislashes
+      Assert.assertTrue(mesaPath.startsWith(pathWithAntislash));
+    }
+    else if(OS.isMac()){
+      // Given a path with antislash on mac
+      ChipSelector c = new ChipSelector(pathWithAntislash);
+      String mesaPath = c.getOpenGLPath_MacOS_Mesa();
+      
+      // Then path is fixed with slashes
+      Assert.assertTrue(mesaPath.startsWith(pathWithSlash));
+
+    }
+  }
 
   ////////////////////////////////////////////////////////
 

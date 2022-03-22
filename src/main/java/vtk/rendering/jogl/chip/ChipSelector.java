@@ -1,5 +1,6 @@
 package vtk.rendering.jogl.chip;
 
+import java.io.File;
 import org.apache.log4j.Logger;
 import vtk.rendering.jogl.Environment;
 import vtk.rendering.jogl.OS;
@@ -65,6 +66,7 @@ public class ChipSelector {
   protected static String OPENGL_SYSTEM_PATH_MACOS =
       "/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/";
   protected static String OPENGL_LIB_MACOS = "libGL.dylib";
+  
   protected static String OPENGL_SYSTEM_PATH_WINDOWS = "C:\\Windows\\System32\\";
   protected static String OPENGL_LIB_WINDOWS = "opengl32.dll";
 
@@ -96,7 +98,16 @@ public class ChipSelector {
    *        system32.
    */
   public ChipSelector(String mesaPath) {
-    this.mesaPath = mesaPath;
+    this.mesaPath = fixPath(mesaPath);
+  }
+
+  protected String fixPath(String mesaPath) {
+    if(OS.isWindows()) {
+      return mesaPath.replace("/", File.separator);
+    }
+    else {
+      return mesaPath.replace("\\", File.separator);
+    }
   }
 
   public void use(Chip chip) {
@@ -239,7 +250,7 @@ public class ChipSelector {
 
     if (Chip.CPU.equals(chip)) {
 
-      env.appendFirst("PATH", mesaPath, ";");
+      env.appendFirst("PATH", mesaPath, File.pathSeparator);
 
       log.debug("newpath : " + env.get("PATH"));
 
