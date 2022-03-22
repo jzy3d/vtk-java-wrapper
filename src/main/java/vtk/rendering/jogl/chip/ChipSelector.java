@@ -30,6 +30,13 @@ import vtk.rendering.jogl.OS;
  * <li>Already in the path in Linux
  * </ul>
  * 
+ * To override this, use the following system properties
+ * <ul>
+ * <li>opengl.windows.path
+ * <li>opengl.macos.path
+ * </ul>
+ * 
+ * 
  * 
  * 
  * 
