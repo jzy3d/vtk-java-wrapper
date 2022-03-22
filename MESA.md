@@ -52,7 +52,7 @@ Then go (expect 5 minutes excluding LLVM which will make build longer than that 
 ./osmesa-install.sh -release
 ```
 
-### Get MESA on Windows
+### Get pre-built MESA on Windows
 
 1. Install [Msys2](https://www.msys2.org/)
 1. Install [Mesa with Msys2](https://packages.msys2.org/package/mingw-w64-x86_64-mesa?repo=mingw64)
@@ -60,6 +60,9 @@ Then go (expect 5 minutes excluding LLVM which will make build longer than that 
 
 
 ### Build MESA on Windows
+
+
+#### Install build tools for Windows
 
 Following the [install guide](https://docs.mesa3d.org/install.html)
 
@@ -70,7 +73,7 @@ Following the [install guide](https://docs.mesa3d.org/install.html)
 * Install Flex/Bison for Windows and add its path to PATH variable
 * Install Ninja (pip install ninja)
 
-Then
+#### Build for Windows
 
 ```
 meson builddir/ -Dosmesa=true -Dgallium-drivers=swrast -Ddri-drivers="[]" -Dvulkan-drivers="[]" -Dprefix="C:\Users\Martin\Dev\jzy3d\external\osmesa" --reconfigure
@@ -89,7 +92,7 @@ Eclipse path
 Path=C:\Users\Martin\Dev\jzy3d\private\vtk-java-wrapper\lib\9.1.0\vtk-Windows-x86_64;C:\msys64\mingw64\bin;${env_var:PATH}
 ```
 
-### Get MESA on MacOS
+### Get pre-built MESA on MacOS
 
 ```
 brew install mesa
@@ -105,6 +108,21 @@ with environment variable
 
 
 ### Build MESA on MacOS
+
+
+#### Install build tools for MacOS
+
+Following the [install guide](https://docs.mesa3d.org/install.html)
+
+* Install Python
+* Install Meson (pip install meson)
+* Install Mako (pip install Mako)
+* Install Flex (brew install flex)
+* Install Bison (brew install bison)
+* Install Ninja (pip install ninja)
+
+
+#### Build for MacOS
 
 Read [this](https://docs.mesa3d.org/macos.html)
 

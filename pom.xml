@@ -212,7 +212,7 @@
 					<forkCount>1</forkCount>
                     <reuseForks>false</reuseForks>
 
-					<!-- <argLine>-Dvtk.lib.dir=${vtk.lib.path}</argLine> <argLine>-Djava.library.path=${vtk.lib.path}</argLine> -->
+					<!-- <argLine>-Djava.library.path=${vtk.lib.path}</argLine>-->
 
 					<environmentVariables>
 						<PATH>$PATH${path.separator}${vtk.lib.path}</PATH>
