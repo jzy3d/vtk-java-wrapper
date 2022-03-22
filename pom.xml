@@ -200,13 +200,15 @@
 				</configuration>
 			</plugin>
 
+            <!-- Running tests from IDE will require
+            -Djava.library.path=/Users/martin/Dev/jzy3d/private/vtk-java-wrapper/lib/9.1.0/vtk-Darwin-x86_64:${env_var:PATH}
+             -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>3.0.0-M5</version>
 				<configuration>
-					<!-- <argLine>-Dvtk.lib.dir=${vtk.lib.path}</argLine>
-					<argLine>-Djava.library.path=${vtk.lib.path}</argLine>-->
+					<argLine>-Djava.library.path=${vtk.lib.path}${path.separator}$PATH</argLine>
 					
 					<environmentVariables>
 	                    <PATH>$PATH${path.separator}${vtk.lib.path}</PATH>
