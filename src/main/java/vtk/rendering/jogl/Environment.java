@@ -90,7 +90,6 @@ public class Environment {
     // in the middle
     else {
       newvalue = newvalue.substring(0, position-1) + newvalue.substring(position, endsAt-1) + newvalue.substring(endsAt-1);
-      
     }
     
     

@@ -63,11 +63,15 @@ public class ChipSelector {
   public static final String MESA_PATH_PROPERTY_NAME = "mesa.path";
   public static final String MESA_CPU_RENDERING_ENV_VAR = "LIBGL_ALWAYS_SOFTWARE";
   
-  protected static String OPENGL_SYSTEM_PATH_MACOS =
-      "/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/";
-  protected static String OPENGL_LIB_MACOS = "libGL.dylib";
+  public static final String OPENGL_LIB_PATH_WINDOWS_PROPERTY_NAME = "opengl.windows.path";
+  public static final String OPENGL_LIB_PATH_MACOS_PROPERTY_NAME = "opengl.macos.path";
   
-  protected static String OPENGL_SYSTEM_PATH_WINDOWS = "C:\\Windows\\System32\\";
+  protected static final String OPENGL_SYSTEM_PATH_MACOS_DEFAULT =
+      "/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/";
+  protected static final String OPENGL_SYSTEM_PATH_WINDOWS_DEFAULT = "C:\\Windows\\System32\\";
+
+  
+  protected static String OPENGL_LIB_MACOS = "libGL.dylib";
   protected static String OPENGL_LIB_WINDOWS = "opengl32.dll";
 
   protected static Logger log = Logger.getLogger(ChipSelector.class);
@@ -75,10 +79,38 @@ public class ChipSelector {
   protected Environment env = new Environment();
   protected Chip queriedChip;
   protected String mesaPath = "";
+  protected String openglPathWindows = "";
+  protected String openglPathMacOS = "";
   protected boolean debug = false;
+  
+
 
   public ChipSelector() {
     this(getMesaPathValue());
+  }
+  
+  /**
+   * 
+   * @param mesaPath is required for Windows to allow adding Mesa to the PATH variable before
+   *        system32.
+   */
+  public ChipSelector(String mesaPath) {
+    this(fixPath(mesaPath), getOpenGLPathWindows(), getOpenGLPathMacOS());
+  }
+  
+  public ChipSelector(String mesaPath, String windowsPath, String macOSPath) {
+    this.mesaPath = fixPath(mesaPath);
+    this.openglPathMacOS = fixPath(macOSPath);
+    this.openglPathWindows = fixPath(windowsPath);
+  }
+
+  protected static String fixPath(String mesaPath) {
+    if(OS.isWindows()) {
+      return mesaPath.replace("/", File.separator);
+    }
+    else {
+      return mesaPath.replace("\\", File.separator);
+    }
   }
 
   protected static String getMesaPathValue() {
@@ -90,25 +122,27 @@ public class ChipSelector {
         "Either define MESA path through " + MESA_PATH_PROPERTY_NAME + " property, or invoke "
             + ChipSelector.class.getSimpleName() + " with a valid path to a MESA installation.");
   }
+  
+  protected static String getOpenGLPathWindows() {
+    String path = System.getProperty(OPENGL_LIB_PATH_WINDOWS_PROPERTY_NAME);
 
+    if (path != null && !"".equals(path))
+      return path;
+    else
+      return OPENGL_SYSTEM_PATH_WINDOWS_DEFAULT;
+  }
+  
+  protected static String getOpenGLPathMacOS() {
+    String path = System.getProperty(OPENGL_LIB_PATH_MACOS_PROPERTY_NAME);
 
-  /**
-   * 
-   * @param mesaPath is required for Windows to allow adding Mesa to the PATH variable before
-   *        system32.
-   */
-  public ChipSelector(String mesaPath) {
-    this.mesaPath = fixPath(mesaPath);
+    if (path != null && !"".equals(path))
+      return path;
+    else
+      return OPENGL_SYSTEM_PATH_MACOS_DEFAULT;
   }
 
-  protected String fixPath(String mesaPath) {
-    if(OS.isWindows()) {
-      return mesaPath.replace("/", File.separator);
-    }
-    else {
-      return mesaPath.replace("\\", File.separator);
-    }
-  }
+
+  
 
   public void use(Chip chip) {
     queriedChip = chip;
@@ -222,11 +256,21 @@ public class ChipSelector {
   }
 
   protected String getOpenGLPath_MacOS_System() {
-    return OPENGL_SYSTEM_PATH_MACOS + OPENGL_LIB_MACOS;
+    if(openglPathMacOS.endsWith(File.separator)) {
+      return openglPathMacOS + OPENGL_LIB_MACOS; 
+    }
+    else {
+      return openglPathMacOS + File.separator + OPENGL_LIB_MACOS;      
+    }
   }
 
   protected String getOpenGLPath_MacOS_Mesa() {
-    return mesaPath + "/" + OPENGL_LIB_MACOS;
+    if(mesaPath.endsWith(File.separator)) {
+      return mesaPath + OPENGL_LIB_MACOS; 
+    }
+    else {
+      return mesaPath + File.separator + OPENGL_LIB_MACOS;      
+    }
   }
 
 
@@ -308,11 +352,21 @@ public class ChipSelector {
   }
 
   protected String getOpenGLPath_Windows_System() {
-    return OPENGL_SYSTEM_PATH_WINDOWS + OPENGL_LIB_WINDOWS;
+    if(openglPathWindows.endsWith(File.separator)) {
+      return openglPathWindows + OPENGL_LIB_WINDOWS;     
+    }
+    else {
+      return openglPathWindows + File.separator + OPENGL_LIB_WINDOWS; 
+    }
   }
 
   protected String getOpenGLPath_Windows_Mesa() {
-    return mesaPath + "/" + OPENGL_LIB_WINDOWS;
+    if(mesaPath.endsWith(File.separator)) {
+      return mesaPath + OPENGL_LIB_WINDOWS;     
+    }
+    else {
+      return mesaPath + File.separator + OPENGL_LIB_WINDOWS; 
+    }
   }
 
   /*****************************************************/

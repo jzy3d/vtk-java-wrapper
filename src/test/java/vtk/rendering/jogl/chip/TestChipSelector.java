@@ -90,53 +90,57 @@ public class TestChipSelector {
 
   @Test
   public void whenChipSelectConfigureMesaPath_Windows() {
-    if(!OS.isMac()) {
-      System.err.println("DO not execute this test for Windows");
+    if(!OS.isWindows()) {
+      System.err.println("Do not execute this test for Windows");
       return;
     }
     
     // Given path to MESA given explicitely
-    String path = "/path/to/mesa";
-
-    ChipSelector c = new ChipSelector(path);
+    ChipSelector c = new ChipSelector("/path/to/mesa");
 
     // When getting path 
-    Assert.assertEquals(path + "/opengl32.dll", c.getOpenGLPath_Windows_Mesa());
+    Assert.assertEquals("\\path\\to\\mesa\\opengl32.dll", c.getOpenGLPath_Windows_Mesa());
+    
+    // Given path to MESA given explicitely, with a trailing separator
+    ChipSelector c2 = new ChipSelector("/path/to/mesa/");
 
+    // When getting path 
+    Assert.assertEquals("\\path\\to\\mesa\\opengl32.dll", c2.getOpenGLPath_Windows_Mesa());
+    
 
     // Given path to MESA given through env variable
-    System.setProperty("mesa.path", path);
-
-    ChipSelector c2 = new ChipSelector();
+    System.setProperty("mesa.path", "/path/to/mesa");
+    ChipSelector c3 = new ChipSelector();
 
     // When getting path 
-    Assert.assertEquals(path + "/opengl32.dll", c.getOpenGLPath_Windows_Mesa());
+    Assert.assertEquals("\\path\\to\\mesa\\opengl32.dll", c3.getOpenGLPath_Windows_Mesa());
   }
   
   @Test
   public void whenChipSelectConfigureMesaPath_MacOS() {
     if(!OS.isMac()) {
-      System.err.println("DO not execute this test for macOS");
+      System.err.println("Do not execute this test for macOS");
       return;
     }
     
-    
     // Given path to MESA given explicitely
-    String path = "/path/to/mesa";
-
-    ChipSelector c = new ChipSelector(path);
+    ChipSelector c = new ChipSelector("/path/to/mesa");
 
     // When getting path on mac
-    Assert.assertEquals(path + "/libGL.dylib", c.getOpenGLPath_MacOS_Mesa());
+    Assert.assertEquals("/path/to/mesa/libGL.dylib", c.getOpenGLPath_MacOS_Mesa());
 
+    // Given path to MESA given explicitely
+    ChipSelector c2 = new ChipSelector("/path/to/mesa/");
+
+    // When getting path on mac
+    Assert.assertEquals("/path/to/mesa/libGL.dylib", c2.getOpenGLPath_MacOS_Mesa());
 
     // Given path to MESA given through env variable
-    System.setProperty("mesa.path", path);
-
-    ChipSelector c2 = new ChipSelector();
+    System.setProperty("mesa.path", "/path/to/mesa");
+    ChipSelector c3 = new ChipSelector();
 
     // When getting path on mac
-    Assert.assertEquals(path + "/libGL.dylib", c2.getOpenGLPath_MacOS_Mesa());
+    Assert.assertEquals("/path/to/mesa/libGL.dylib", c3.getOpenGLPath_MacOS_Mesa());
   }
 
   @Test
@@ -161,6 +165,42 @@ public class TestChipSelector {
       Assert.assertTrue(mesaPath.startsWith(pathWithSlash));
 
     }
+  }
+  
+  @Test
+  public void configureGLSystemPath_MacOS() {
+    if(!OS.isMac()) {
+      System.err.println("Do not execute this test for macOS");
+      return;
+    }
+    
+    
+    // Given path to MESA given through env variable
+    System.setProperty("mesa.path", "/path/to/mesa");
+    System.setProperty("opengl.macos.path", "/path/to/gl");
+    ChipSelector c3 = new ChipSelector();
+
+    // When getting path on mac
+    Assert.assertEquals("/path/to/mesa/libGL.dylib", c3.getOpenGLPath_MacOS_Mesa());
+    Assert.assertEquals("/path/to/gl/libGL.dylib", c3.getOpenGLPath_MacOS_System());
+  }
+  
+  @Test
+  public void configureGLSystemPath_Windows() {
+    if(!OS.isWindows()) {
+      System.err.println("Do not execute this test for windows");
+      return;
+    }
+    
+    
+    // Given path to MESA given through env variable
+    System.setProperty("mesa.path", "/path/to/mesa");
+    System.setProperty("opengl.windows.path", "/path/to/gl");
+    ChipSelector c3 = new ChipSelector();
+
+    // When getting path on mac
+    Assert.assertEquals("\\path\\to\\mesa\\opengl32.dll", c3.getOpenGLPath_Windows_Mesa());
+    Assert.assertEquals("\\path\\to\\gl\\opengl32.dll", c3.getOpenGLPath_Windows_System());
   }
 
   ////////////////////////////////////////////////////////
