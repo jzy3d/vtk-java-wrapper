@@ -3,22 +3,26 @@ package vtk.rendering.jogl.chip;
 import java.io.File;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import vtk.VTKUtils;
 import vtk.rendering.jogl.Environment;
 import vtk.rendering.jogl.OS;
 
 /**
- * A class allowing to configure path and other env. variable to configure GPU or CPU rendering on
- * demand.
+ * A class allowing to configure path and other environment variable to configure GPU or CPU
+ * rendering on demand.
  * 
- * Switching GPU/CPU rendering may not be supported on some OS (e.g. Windows).
+ * Switching GPU/CPU rendering without restarting the JVM may not be supported on some OS (e.g.
+ * Windows).
  * 
  * <h2>CPU rendering configuration</h2>
  * 
  * A path to the mesa library should be provided either by
  * <ul>
  * <li>invoking <code>new ChipSelector("/path/to/mesa/folder/");</code>
- * <li>configuring the environment variable mesa.path through a call to <code>System.setProperty("mesa.path", "/path/to/mesa/folder/");</code>
- * <li>configuring the environment variable mesa.path through the JVM argument <code>-Dmesa.path="/path/to/mesa/folder/"</code>
+ * <li>configuring the environment variable mesa.path through a call to
+ * <code>System.setProperty("mesa.path", "/path/to/mesa/folder/");</code>
+ * <li>configuring the environment variable mesa.path through the JVM argument
+ * <code>-Dmesa.path="/path/to/mesa/folder/"</code>
  * </ul>
  * 
  * <h2>GPU rendering configuration</h2>
@@ -26,12 +30,13 @@ import vtk.rendering.jogl.OS;
  * The path to the system OpenGL library is expected to be
  * 
  * <ul>
- * <li>C:/Windows/System32/opengl32.dll on Windows</li>
+ * <li>%PATH%/opengl32.dll on Windows, which may be C:/Windows/System32/</li>
  * <li>/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib on macOS</li>
  * <li>Already in the path in Linux
  * </ul>
  * 
- * To override this, use the following system properties
+ * If these default settings aren't appropriate and if you need to override this, use the following
+ * system properties
  * <ul>
  * <li>opengl.windows.path
  * <li>opengl.macos.path
@@ -70,19 +75,19 @@ import vtk.rendering.jogl.OS;
 public class ChipSelector {
   public static final String MESA_PATH_PROPERTY_NAME = "mesa.path";
   public static final String MESA_CPU_RENDERING_ENV_VAR = "LIBGL_ALWAYS_SOFTWARE";
-  
+
   public static final String OPENGL_LIB_PATH_WINDOWS_PROPERTY_NAME = "opengl.windows.path";
   public static final String OPENGL_LIB_PATH_MACOS_PROPERTY_NAME = "opengl.macos.path";
-  
-  protected static final String OPENGL_SYSTEM_PATH_MACOS_DEFAULT =
-      "/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/";
-  protected static final String OPENGL_SYSTEM_PATH_WINDOWS_DEFAULT = "C:\\Windows\\System32\\";
 
-  
+  // protected static final String OPENGL_SYSTEM_PATH_MACOS_DEFAULT =
+  // "/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/";
+  // protected static final String OPENGL_SYSTEM_PATH_WINDOWS_DEFAULT = "C:\\Windows\\System32\\";
+
+
   protected static String OPENGL_LIB_MACOS = "libGL.dylib";
-  protected static String OPENGL_LIB_WINDOWS = "opengl32.dll";
-
+  protected static String OPENGL_LIB_WINDOWS = "opengl32";
   
+
   protected static Logger log = LogManager.getLogger(ChipSelector.class);
 
 
@@ -92,13 +97,13 @@ public class ChipSelector {
   protected String openglPathWindows = "";
   protected String openglPathMacOS = "";
   protected boolean debug = false;
-  
+
 
 
   public ChipSelector() {
-    this(getMesaPathValue());
+    this(getMesaPathFromJVMProperty());
   }
-  
+
   /**
    * 
    * @param mesaPath is required for Windows to allow adding Mesa to the PATH variable before
@@ -107,55 +112,61 @@ public class ChipSelector {
   public ChipSelector(String mesaPath) {
     this(fixPath(mesaPath), getOpenGLPathWindows(), getOpenGLPathMacOS());
   }
-  
+
   public ChipSelector(String mesaPath, String windowsPath, String macOSPath) {
     this.mesaPath = fixPath(mesaPath);
     this.openglPathMacOS = fixPath(macOSPath);
     this.openglPathWindows = fixPath(windowsPath);
   }
 
-  protected static String fixPath(String mesaPath) {
-    if(OS.isWindows()) {
-      return mesaPath.replace("/", File.separator);
+  protected static String fixPath(String path) {
+    if (path == null) {
+      return null;
     }
-    else {
-      return mesaPath.replace("\\", File.separator);
+
+    if (OS.isWindows()) {
+      return path.replace("/", File.separator);
+    } else {
+      return path.replace("\\", File.separator);
     }
   }
 
-  protected static String getMesaPathValue() {
-    if(OS.isUnix())
+  protected static String getMesaPathFromJVMProperty() {
+    if (OS.isUnix())
       return "";
-    
+
     String path = System.getProperty(MESA_PATH_PROPERTY_NAME);
 
     if (path != null && !"".equals(path))
       return path;
-    throw new IllegalArgumentException(
-        "Either define MESA path through " + MESA_PATH_PROPERTY_NAME + " property, or invoke "
-            + ChipSelector.class.getSimpleName() + " with a valid path to a MESA installation.");
+    else {
+      String warning = "Either define MESA path through " + MESA_PATH_PROPERTY_NAME
+          + " property, or invoke " + ChipSelector.class.getSimpleName()
+          + " constructor with a valid path to a MESA installation, otherwise you can not enable CPU rendering.";
+      log.warn(warning);
+      return null;
+    }
   }
-  
+
   protected static String getOpenGLPathWindows() {
     String path = System.getProperty(OPENGL_LIB_PATH_WINDOWS_PROPERTY_NAME);
 
     if (path != null && !"".equals(path))
       return path;
     else
-      return OPENGL_SYSTEM_PATH_WINDOWS_DEFAULT;
+      return null;
   }
-  
+
   protected static String getOpenGLPathMacOS() {
     String path = System.getProperty(OPENGL_LIB_PATH_MACOS_PROPERTY_NAME);
 
     if (path != null && !"".equals(path))
       return path;
     else
-      return OPENGL_SYSTEM_PATH_MACOS_DEFAULT;
+      return null;
   }
 
 
-  
 
   public void use(Chip chip) {
     queriedChip = chip;
@@ -244,7 +255,7 @@ public class ChipSelector {
       log.debug(
           MESA_CPU_RENDERING_ENV_VAR + " is now set to " + env.get(MESA_CPU_RENDERING_ENV_VAR));
 
-      // loadOpenGLMac_MesaLibrary();
+      loadOpenGLMac_System();
 
     }
 
@@ -258,8 +269,14 @@ public class ChipSelector {
 
   protected void loadOpenGLMac_System() {
     String path = getOpenGLPath_MacOS_System();
-    log.debug("Try loading MacOS System GL " + path);
-    System.load(path);
+
+    if (isDefined(path)) {
+      log.debug("Try loading MacOS System GL by fullpath : " + path);
+      System.load(path);
+    } else {
+      log.debug("Try loading MacOS System GL by name : " + OPENGL_LIB_MACOS);
+      System.loadLibrary(OPENGL_LIB_MACOS);
+    }
   }
 
   protected void loadOpenGLMac_MesaLibrary() {
@@ -269,24 +286,19 @@ public class ChipSelector {
   }
 
   protected String getOpenGLPath_MacOS_System() {
-    if(openglPathMacOS.endsWith(File.separator)) {
-      return openglPathMacOS + OPENGL_LIB_MACOS; 
+    // if a system path is given, returns a full path
+    if (openglPathMacOS != null) {
+      return getPathAndLibWithSeparator(openglPathMacOS, OPENGL_LIB_MACOS);
     }
+    // otherwise null to load lib by name
     else {
-      return openglPathMacOS + File.separator + OPENGL_LIB_MACOS;      
+      return null;
     }
   }
 
   protected String getOpenGLPath_MacOS_Mesa() {
-    if(mesaPath.endsWith(File.separator)) {
-      return mesaPath + OPENGL_LIB_MACOS; 
-    }
-    else {
-      return mesaPath + File.separator + OPENGL_LIB_MACOS;      
-    }
+    return getPathAndLibWithSeparator(mesaPath, OPENGL_LIB_MACOS);
   }
-
-
 
   /*****************************************************/
   /**                                                  */
@@ -339,50 +351,57 @@ public class ChipSelector {
       throw new RuntimeException("Unsupported " + chip);
   }
 
-  // unload :
-  // https://web.archive.org/web/20140704120535/http://www.codethesis.com/blog/unload-java-jni-dll
-  /*
-   * public static void init(Chip chip) {
-   * 
-   * if (isWindows()) { if (Chip.CPU.equals(chip)) loadOpenGLMesa(); else if (Chip.GPU.equals(chip))
-   * loadOpenGLWindows(); else throw new RuntimeException("Unsupported " + chip); } }
-   */
-
-  /*
-   * protected void loadOpenGL() { System.loadLibrary("opengl32"); }
-   */
-
   protected void loadOpenGLWindows_System() {
     String path = getOpenGLPath_Windows_System();
-    log.debug("Try loading Windows GL " + path);
-    System.load(path);
+
+    if (isDefined(path)) {
+      log.debug("Try loading Windows GL by fullpath : " + path);
+      System.load(path);
+    } else {
+      log.debug("Try loading Windows GL by name : " + OPENGL_LIB_WINDOWS);
+      
+      try {
+        System.loadLibrary(OPENGL_LIB_WINDOWS);        
+      }
+      catch(Exception e) {
+        e.printStackTrace();
+        VTKUtils.pathConfigurationReport();
+        throw e;
+      }
+    }
   }
 
   protected void loadOpenGLWindows_MesaLibrary() {
     String path = getOpenGLPath_Windows_Mesa();
-    log.debug("Try loading MESA GL " + path);
+    log.debug("Try loading MESA GL by fullpath : " + path);
     System.load(path);
   }
 
   protected String getOpenGLPath_Windows_System() {
-    if(openglPathWindows.endsWith(File.separator)) {
-      return openglPathWindows + OPENGL_LIB_WINDOWS;     
-    }
-    else {
-      return openglPathWindows + File.separator + OPENGL_LIB_WINDOWS; 
+    if (openglPathWindows != null) {
+      return getPathAndLibWithSeparator(openglPathWindows, System.mapLibraryName(OPENGL_LIB_WINDOWS));
+    } else {
+      return null;
     }
   }
 
   protected String getOpenGLPath_Windows_Mesa() {
-    if(mesaPath.endsWith(File.separator)) {
-      return mesaPath + OPENGL_LIB_WINDOWS;     
-    }
-    else {
-      return mesaPath + File.separator + OPENGL_LIB_WINDOWS; 
-    }
+    return getPathAndLibWithSeparator(mesaPath, System.mapLibraryName(OPENGL_LIB_WINDOWS));
   }
 
   /*****************************************************/
+
+  protected boolean isDefined(String path) {
+    return path!= null && !"".equals(path);
+  }
+
+  protected String getPathAndLibWithSeparator(String path, String libName) {
+    if (path.endsWith(File.separator)) {
+      return path + libName;
+    } else {
+      return path + File.separator + libName;
+    }
+  }
 
 
   public Chip getQueriedChip() {

@@ -9,7 +9,8 @@ import vtk.rendering.jogl.chip.Chip;
  * 
  * Limitations
  * <ul>
- * <li>this test may fail on Windows if the executing JVM already executed {@link TestVersatileCanvas_GPU}
+ * <li>this test may fail on Windows if the executing JVM already executed {@link TestVersatileCanvas_GPU}. Maven Surefire configuration ensure a new JVM is forked for each
+ * test, but the IDE will probably not apply this setting.
  * </ul>
  * 
  * @author Martin Pernollet

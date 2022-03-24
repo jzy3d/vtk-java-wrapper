@@ -1,5 +1,6 @@
 package vtk.rendering.jogl;
 
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +26,11 @@ import vtk.rendering.jogl.chip.stat.ChipSelectorStatic;
 public class VTKVersatileCanvas {
   public static void loadNativesFor(Chip chip) {
     defaultChip = chip;
-
+    
+    // Ensure lib path contains the path (limitation in maven when invoking System.loadLibrary("opengl32")
+    //appendSystemPathToJavaLibPath();
+    
+    // Select chip
     ChipSelector selector = new ChipSelector();
     selector.use(chip);
     
@@ -39,6 +44,8 @@ public class VTKVersatileCanvas {
 
     VTKUtils.loadVtkNativeLibraries();
   }
+
+  
   
 
   protected static Chip defaultChip;

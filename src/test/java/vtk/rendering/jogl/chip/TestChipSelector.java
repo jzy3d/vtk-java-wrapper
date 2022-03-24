@@ -7,21 +7,32 @@ import vtk.rendering.jogl.Environment;
 import vtk.rendering.jogl.OS;
 
 public class TestChipSelector {
-  static String WINDOWS_MESA_PATH_RELATIVE = ".\\lib\\9.1.0\\mesa-Windows-x86_64";
-  public static File WINDOWS_MESA_PATH = new File(WINDOWS_MESA_PATH_RELATIVE);
+  private static final String TEST_ON_WINDOWS_BYPASSED = "Not running Windows test on this computer (" + OS.name() + ")";
+  private static final String TEST_ON_MACOS_BYPASSED = "Not running MacOS test on this computer (" + OS.name() + ")";
+  private static final String TEST_ON_UNIX_BYPASSED = "Not running Unix test on this computer (" + OS.name() + ")";
+  
+  private static final String WINDOWS_MESA_PATH_RELATIVE = ".\\lib\\9.1.0\\mesa-Windows-x86_64";
+  private static final String MACOS_MESA_PATH_RELATIVE = ".\\lib\\9.1.0\\mesa-Darwin-x86_64";
 
-  static String MACOS_MESA_PATH_RELATIVE = ".\\lib\\9.1.0\\mesa-Darwin-x86_64";
-  public static File MACOS_MESA_PATH = new File(MACOS_MESA_PATH_RELATIVE);
+  public static final File WINDOWS_MESA_PATH = new File(WINDOWS_MESA_PATH_RELATIVE);
+  public static final File MACOS_MESA_PATH = new File(MACOS_MESA_PATH_RELATIVE);
 
+  ////////////////////////////////////////////////////////
+  //
+  //   CONFIGURE ENV VARIABLE PER OS
+  //
+  ////////////////////////////////////////////////////////
+
+  
   @Test
   public void whenWindows_ThenEditPath() {
     if (!OS.isWindows()) {
-      System.err.println("Not running Windows test on this computer");
+      System.err.println(TEST_ON_WINDOWS_BYPASSED);
       return;
     }
 
 
-    ChipSelector selector = new ChipSelector(WINDOWS_MESA_PATH.getAbsolutePath());
+    ChipSelector selector = new ChipSelector(WINDOWS_MESA_PATH.getAbsolutePath(), null, null);
     String mesaPath = selector.getMesaPath();
 
     // When using CPU, can find MESA in Path
@@ -39,7 +50,7 @@ public class TestChipSelector {
   @Test
   public void whenUnix_ThenEditMesaEnvVar() {
     if (!OS.isUnix()) {
-      System.err.println("Not running Unix test on this computer");
+      System.err.println(TEST_ON_UNIX_BYPASSED);
       return;
     }
 
@@ -58,7 +69,7 @@ public class TestChipSelector {
   @Test
   public void whenMacOS_ThenEditMesaEnvVar() {
     if (!OS.isMac()) {
-      System.err.println("Not running MacOS test on this computer");
+      System.err.println(TEST_ON_MACOS_BYPASSED);
       return;
     }
 
@@ -76,8 +87,9 @@ public class TestChipSelector {
 
   ////////////////////////////////////////////////////////
 
-
-  @Test(expected = IllegalArgumentException.class)
+  // DOn't throw exception anymore but just a warning informing Mesa path is not defined
+  
+  /*@Test(expected = IllegalArgumentException.class)
   public void whenChipSelectMissMesaConfig_ThrowException() {
     if(OS.isUnix()) {
       throw new IllegalArgumentException("Throwing exception on unix to make this test pass");
@@ -90,12 +102,19 @@ public class TestChipSelector {
     
     // If no argument given, neither a system property is defined, an exception is expected
     ChipSelector c = new ChipSelector();
-  }
+  }*/
+  
+  ////////////////////////////////////////////////////////
+  //
+  //   CONFIGURE MESA PATH THROUGH ENV VAR OR CONSTRUCTOR
+  //
+  ////////////////////////////////////////////////////////
+
 
   @Test
   public void whenChipSelectConfigureMesaPath_Windows() {
     if(!OS.isWindows()) {
-      System.err.println("Do not execute this test for Windows");
+      System.err.println(TEST_ON_WINDOWS_BYPASSED);
       return;
     }
     
@@ -123,7 +142,7 @@ public class TestChipSelector {
   @Test
   public void whenChipSelectConfigureMesaPath_MacOS() {
     if(!OS.isMac()) {
-      System.err.println("Do not execute this test for macOS");
+      System.err.println(TEST_ON_MACOS_BYPASSED);
       return;
     }
     
@@ -146,9 +165,16 @@ public class TestChipSelector {
     // When getting path on mac
     Assert.assertEquals("/path/to/mesa/libGL.dylib", c3.getOpenGLPath_MacOS_Mesa());
   }
+  
+  ////////////////////////////////////////////////////////
+  //
+  //      FIX PATH MISTAKE
+  //
+  ////////////////////////////////////////////////////////
+
 
   @Test
-  public void whenFixPath() {
+  public void whenPathDoNotUseOSSeparator_ThenPathIsFixed() {
     String pathWithSlash = "/path/with/wrong/separator";
     String pathWithAntislash = "\\path\\with\\wrong\\separator";
     
@@ -171,10 +197,17 @@ public class TestChipSelector {
     }
   }
   
+  ////////////////////////////////////////////////////////
+  //
+  //      CONFIGURE PATH THROUGH JVM PROPERTY
+  //
+  ////////////////////////////////////////////////////////
+
+  
   @Test
-  public void configureGLSystemPath_MacOS() {
+  public void whenConfigureGLSystemPath_ThenFullPathIsProperlyConfigure_MacOS() {
     if(!OS.isMac()) {
-      System.err.println("Do not execute this test for macOS");
+      System.err.println(TEST_ON_MACOS_BYPASSED);
       return;
     }
     
@@ -190,7 +223,7 @@ public class TestChipSelector {
   }
   
   @Test
-  public void configureGLSystemPath_Windows() {
+  public void whenConfigureGLSystemPath_ThenFullPathIsProperlyConfigure_Windows() {
     if(!OS.isWindows()) {
       System.err.println("Do not execute this test for windows");
       return;
@@ -205,6 +238,40 @@ public class TestChipSelector {
     // When getting path on mac
     Assert.assertEquals("\\path\\to\\mesa\\opengl32.dll", c3.getOpenGLPath_Windows_Mesa());
     Assert.assertEquals("\\path\\to\\gl\\opengl32.dll", c3.getOpenGLPath_Windows_System());
+  }
+  
+  ////////////////////////////////////////////////////////
+  //
+  //      USE LIB NAME TO LOAD SYSTEM PATH
+  //
+  ////////////////////////////////////////////////////////
+  
+  @Test
+  public void whenNoGLSystemPath_ThenUseSystemLibName_Windows() {
+    if(!OS.isWindows()) {
+      System.err.println(TEST_ON_WINDOWS_BYPASSED);
+      return;
+    }
+    
+    // Given no path configuration
+    ChipSelector c3 = new ChipSelector(WINDOWS_MESA_PATH.getAbsolutePath(), null, null);
+
+    // When getting path 
+    Assert.assertNull(c3.getOpenGLPath_Windows_System());
+  }
+  
+  @Test
+  public void whenNoGLSystemPath_ThenUseSystemLibName_MacOS() {
+    if(!OS.isMac()) {
+      System.err.println(TEST_ON_MACOS_BYPASSED);
+      return;
+    }
+    
+    // Given no path configuration
+    ChipSelector c3 = new ChipSelector();
+
+    // When getting path 
+    Assert.assertNull(c3.getOpenGLPath_Windows_System());
   }
 
   ////////////////////////////////////////////////////////
