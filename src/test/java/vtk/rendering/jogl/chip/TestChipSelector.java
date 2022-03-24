@@ -29,7 +29,7 @@ public class TestChipSelector {
     if(brew1!=null)
       return brew1;
     
-    // try homebrew 1
+    // try homebrew 2
     File brew2 = detectHomebrewInstall("/opt/local/Cellar/mesa");
     if(brew2!=null)
       return brew2;
@@ -39,12 +39,15 @@ public class TestChipSelector {
 
   private static File detectHomebrewInstall(String homebrew) {
     File homebrew1 = new File(homebrew);
-    File brewMesa = null;
+    
+    if(!homebrew1.exists())
+      return null;
+    
     if(homebrew1.listFiles().length>=1) {
       File v1 = homebrew1.listFiles()[0];
-      brewMesa = new File(v1.getAbsolutePath()+ "/lib/");
+      return new File(v1.getAbsolutePath()+ "/lib/");
     }
-    return brewMesa;
+    return null;
   }
 
   ////////////////////////////////////////////////////////
