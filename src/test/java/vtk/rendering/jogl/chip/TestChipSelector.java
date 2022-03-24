@@ -3,6 +3,7 @@ package vtk.rendering.jogl.chip;
 import java.io.File;
 import org.junit.Assert;
 import org.junit.Test;
+import vtk.VTKUtils;
 import vtk.rendering.jogl.Environment;
 import vtk.rendering.jogl.OS;
 
@@ -15,7 +16,36 @@ public class TestChipSelector {
   private static final String MACOS_MESA_PATH_RELATIVE = ".\\lib\\9.1.0\\mesa-Darwin-x86_64";
 
   public static final File WINDOWS_MESA_PATH = new File(WINDOWS_MESA_PATH_RELATIVE);
-  public static final File MACOS_MESA_PATH = new File(MACOS_MESA_PATH_RELATIVE);
+  public static final File MACOS_MESA_PATH = detectMesaMacOS();
+  
+  public static File detectMesaMacOS() {
+    File local = new File(MACOS_MESA_PATH_RELATIVE);
+    
+    if(local.exists())
+      return local;
+    
+    // try homebrew 1
+    File brew1 = detectHomebrewInstall("/opt/homebrew/Cellar/mesa");
+    if(brew1!=null)
+      return brew1;
+    
+    // try homebrew 1
+    File brew2 = detectHomebrewInstall("/opt/local/Cellar/mesa");
+    if(brew2!=null)
+      return brew2;
+    
+    return null;
+  }
+
+  private static File detectHomebrewInstall(String homebrew) {
+    File homebrew1 = new File(homebrew);
+    File brewMesa = null;
+    if(homebrew1.listFiles().length>=1) {
+      File v1 = homebrew1.listFiles()[0];
+      brewMesa = new File(v1.getAbsolutePath()+ "/lib/");
+    }
+    return brewMesa;
+  }
 
   ////////////////////////////////////////////////////////
   //
@@ -72,8 +102,10 @@ public class TestChipSelector {
       System.err.println(TEST_ON_MACOS_BYPASSED);
       return;
     }
+    
+    VTKUtils.pathConfigurationReport();
 
-    ChipSelector selector = new ChipSelector();
+    ChipSelector selector = new ChipSelector(MACOS_MESA_PATH.getAbsolutePath(), null, null);
 
     // When using CPU, Mesa env variable is set for CPU rendering
     selector.use(Chip.CPU);

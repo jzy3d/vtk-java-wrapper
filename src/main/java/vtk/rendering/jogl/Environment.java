@@ -144,7 +144,7 @@ public class Environment {
     }
 
     if (!found) {
-      System.out.println("Undefined environment variable \"" + var + "\"");
+      System.out.println(var + " was not found in the environment variable lists");
     }
   }
 

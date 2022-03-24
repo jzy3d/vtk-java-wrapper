@@ -217,7 +217,8 @@
 					<environmentVariables>
 						<PATH>${java.library.path}${path.separator}${vtk.lib.path}</PATH>
 						<LD_LIBRARY_PATH>${vtk.lib.path}${path.separator}$LD_LIBRARY_PATH</LD_LIBRARY_PATH>
-						<DYLD_LIBRARY_PATH>${vtk.lib.path}${path.separator}$DYLD_LIBRARY_PATH</DYLD_LIBRARY_PATH>
+						<DYLD_LIBRARY_PATH>${vtk.lib.path}${path.separator}$DYLD_LIBRARY_PATH</DYLD_LIBRARY_PATH> 
+						<!-- <DYLD_LIBRARY_PATH>${java.library.path}${path.separator}${vtk.lib.path}</DYLD_LIBRARY_PATH> -->
 					</environmentVariables>
 
 					<!-- DISABLE PARALLEL TEST OTHERWISE CANVAS DO NOT UPDATE PROPERLY (?!) 

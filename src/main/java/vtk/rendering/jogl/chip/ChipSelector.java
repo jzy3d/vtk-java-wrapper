@@ -79,14 +79,10 @@ public class ChipSelector {
   public static final String OPENGL_LIB_PATH_WINDOWS_PROPERTY_NAME = "opengl.windows.path";
   public static final String OPENGL_LIB_PATH_MACOS_PROPERTY_NAME = "opengl.macos.path";
 
-  // protected static final String OPENGL_SYSTEM_PATH_MACOS_DEFAULT =
-  // "/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/";
-  // protected static final String OPENGL_SYSTEM_PATH_WINDOWS_DEFAULT = "C:\\Windows\\System32\\";
 
+  protected static String OPENGL_LIB_MACOS = "GL"; // libGL.dylib
+  protected static String OPENGL_LIB_WINDOWS = "opengl32"; // opengl32.dll
 
-  protected static String OPENGL_LIB_MACOS = "libGL.dylib";
-  protected static String OPENGL_LIB_WINDOWS = "opengl32";
-  
 
   protected static Logger log = LogManager.getLogger(ChipSelector.class);
 
@@ -96,7 +92,6 @@ public class ChipSelector {
   protected String mesaPath = "";
   protected String openglPathWindows = "";
   protected String openglPathMacOS = "";
-  protected boolean debug = false;
 
 
 
@@ -151,20 +146,32 @@ public class ChipSelector {
   protected static String getOpenGLPathWindows() {
     String path = System.getProperty(OPENGL_LIB_PATH_WINDOWS_PROPERTY_NAME);
 
-    if (path != null && !"".equals(path))
+    if (isDefined(path))
       return path;
     else
       return null;
   }
+  
+  //protected static final String OPENGL_SYSTEM_PATH_WINDOWS_DEFAULT = "C:\\Windows\\System32\\";
+
 
   protected static String getOpenGLPathMacOS() {
     String path = System.getProperty(OPENGL_LIB_PATH_MACOS_PROPERTY_NAME);
 
-    if (path != null && !"".equals(path))
+    if (isDefined(path))
       return path;
     else
       return null;
   }
+  
+  protected static final String OPENGL_SYSTEM_PATH_MACOS_DEFAULT =
+  "/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/";
+
+  /*****************************************************/
+  /**                                                  */
+  /** CHIP SELECT API */
+  /**                                                  */
+  /*****************************************************/
 
 
 
@@ -255,7 +262,7 @@ public class ChipSelector {
       log.debug(
           MESA_CPU_RENDERING_ENV_VAR + " is now set to " + env.get(MESA_CPU_RENDERING_ENV_VAR));
 
-      loadOpenGLMac_System();
+      //loadOpenGLMac_System();
 
     }
 
@@ -274,8 +281,13 @@ public class ChipSelector {
       log.debug("Try loading MacOS System GL by fullpath : " + path);
       System.load(path);
     } else {
+      // Not working yet
       log.debug("Try loading MacOS System GL by name : " + OPENGL_LIB_MACOS);
       System.loadLibrary(OPENGL_LIB_MACOS);
+
+      // fallback on explicit default path
+      //String defaultPath = getPathAndLibWithSeparator(OPENGL_SYSTEM_PATH_MACOS_DEFAULT, System.mapLibraryName(OPENGL_LIB_MACOS));
+      //System.load(defaultPath);
     }
   }
 
@@ -288,7 +300,7 @@ public class ChipSelector {
   protected String getOpenGLPath_MacOS_System() {
     // if a system path is given, returns a full path
     if (openglPathMacOS != null) {
-      return getPathAndLibWithSeparator(openglPathMacOS, OPENGL_LIB_MACOS);
+      return getPathAndLibWithSeparator(openglPathMacOS, System.mapLibraryName(OPENGL_LIB_MACOS));
     }
     // otherwise null to load lib by name
     else {
@@ -297,7 +309,7 @@ public class ChipSelector {
   }
 
   protected String getOpenGLPath_MacOS_Mesa() {
-    return getPathAndLibWithSeparator(mesaPath, OPENGL_LIB_MACOS);
+    return getPathAndLibWithSeparator(mesaPath, System.mapLibraryName(OPENGL_LIB_MACOS));
   }
 
   /*****************************************************/
@@ -359,11 +371,10 @@ public class ChipSelector {
       System.load(path);
     } else {
       log.debug("Try loading Windows GL by name : " + OPENGL_LIB_WINDOWS);
-      
+
       try {
-        System.loadLibrary(OPENGL_LIB_WINDOWS);        
-      }
-      catch(Exception e) {
+        System.loadLibrary(OPENGL_LIB_WINDOWS);
+      } catch (Exception e) {
         e.printStackTrace();
         VTKUtils.pathConfigurationReport();
         throw e;
@@ -379,7 +390,8 @@ public class ChipSelector {
 
   protected String getOpenGLPath_Windows_System() {
     if (openglPathWindows != null) {
-      return getPathAndLibWithSeparator(openglPathWindows, System.mapLibraryName(OPENGL_LIB_WINDOWS));
+      return getPathAndLibWithSeparator(openglPathWindows,
+          System.mapLibraryName(OPENGL_LIB_WINDOWS));
     } else {
       return null;
     }
@@ -391,8 +403,8 @@ public class ChipSelector {
 
   /*****************************************************/
 
-  protected boolean isDefined(String path) {
-    return path!= null && !"".equals(path);
+  protected static boolean isDefined(String path) {
+    return path != null && !"".equals(path);
   }
 
   protected String getPathAndLibWithSeparator(String path, String libName) {
