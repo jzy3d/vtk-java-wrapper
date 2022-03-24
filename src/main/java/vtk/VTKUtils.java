@@ -39,6 +39,7 @@ public class VTKUtils {
       printEnv("DYLD_LIBRARY_PATH", ":");
     }
     else if(os.isUnix()) {
+      printEnv("PATH", ":");
       printEnv("LD_LIBRARY_PATH", ":");
     }
     else if(os.isWindows()) {
@@ -176,7 +177,7 @@ public class VTKUtils {
     }
     
     if(!found) {
-      System.out.println("Undefined environment variable " + var);
+      System.out.println(var + " : not found in the environment variable lists");
     }
   }
 

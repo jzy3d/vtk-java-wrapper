@@ -260,7 +260,7 @@ public class TestChipSelector {
   @Test
   public void whenConfigureGLSystemPath_ThenFullPathIsProperlyConfigure_Windows() {
     if(!OS.isWindows()) {
-      System.err.println("Do not execute this test for windows");
+      System.err.println(TEST_ON_WINDOWS_BYPASSED);
       return;
     }
     
