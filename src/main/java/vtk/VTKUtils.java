@@ -3,6 +3,8 @@ package vtk;
 import java.io.File;
 import java.util.Map;
 import org.jzy3d.os.OperatingSystem;
+import vtk.rendering.jogl.Environment;
+import vtk.rendering.jogl.OS;
 
 public class VTKUtils {
 
@@ -21,29 +23,51 @@ public class VTKUtils {
     
     
     if(!loadVtkNativeLibraries(null)){
-      System.out.println("Current -Djava.library.path=" + System.getProperty("java.library.path"));
       System.out.println("Suggest -Djava.library.path=" + absolutePath);
-      
-      OperatingSystem os = new OperatingSystem();
-
-
-      if(os.isMac()) {
-        printEnv("PATH", ":");
-        printEnv("DYLD_LIBRARY_PATH", ":");
-      }
-      else if(os.isUnix()) {
-        printEnv("LD_LIBRARY_PATH", ":");
-      }
-      else if(os.isWindows()) {
-        printEnv("PATH", ";");
-      }
-      else {
-        System.out.println("Undetected OS !!");
-      }
-      
-      System.out.println(os);
-      
+      pathConfigurationReport();
     }
+  }
+
+  public static void pathConfigurationReport() {
+    System.out.println("Current -Djava.library.path=" + System.getProperty("java.library.path"));
+    
+    OperatingSystem os = new OperatingSystem();
+
+
+    if(os.isMac()) {
+      printEnv("PATH", ":");
+      printEnv("DYLD_LIBRARY_PATH", ":");
+    }
+    else if(os.isUnix()) {
+      printEnv("PATH", ":");
+      printEnv("LD_LIBRARY_PATH", ":");
+    }
+    else if(os.isWindows()) {
+      printEnv("PATH", ";");
+    }
+    else {
+      System.out.println("Undetected OS !!");
+    }
+    
+    System.out.println(os);
+  }
+  
+  protected static void appendSystemPathToJavaLibPath() {
+    String javaLibPathKey = "java.library.path";
+    String javaLibraryPath = System.getProperty(javaLibPathKey);
+
+    System.err.println("=========================");
+    System.err.println("Now " + javaLibPathKey + "=" + javaLibraryPath);
+    System.err.println(" ");
+
+    if(OS.isWindows()) {
+      Environment env = new Environment();
+      env.get("PATH");
+      javaLibraryPath += File.pathSeparator + env.get("PATH");
+      System.setProperty(javaLibPathKey, javaLibraryPath);
+      System.err.println("Now " + javaLibPathKey + "=" + javaLibraryPath);
+    }
+    System.err.println("=========================");
   }
 
   /**
@@ -153,7 +177,7 @@ public class VTKUtils {
     }
     
     if(!found) {
-      System.out.println("Undefined environment variable " + var);
+      System.out.println(var + " : not found in the environment variable lists");
     }
   }
 
