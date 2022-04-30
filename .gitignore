@@ -7,4 +7,6 @@ bin/
 target/
 **/.DS_Store
 
-lib/**
+lib/**/
+
+*.log

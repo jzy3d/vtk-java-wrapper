@@ -543,8 +543,7 @@ public class TestHexahedronDecimator {
     c.add(polys);
 
     tester.setTextInvisible(true);
-    tester.assertSimilar(c,
-        ChartTester.EXPECTED_IMAGE_FOLDER + "whenSequenceOfColor_mergeLineStrip_In.png");
+    tester.assertSimilar(c, tester.path("whenSequenceOfColor_mergeLineStrip_In.png"));
     c.remove(polys);
 
 
@@ -554,7 +553,7 @@ public class TestHexahedronDecimator {
     c.add(merged);
 
     tester.assertSimilar(c,
-        ChartTester.EXPECTED_IMAGE_FOLDER + "whenSequenceOfColor_mergeLineStrip_Out.png");
+        tester.path("whenSequenceOfColor_mergeLineStrip_Out.png"));
 
     Assert.assertEquals(2, merged.size());
   }
@@ -635,7 +634,7 @@ public class TestHexahedronDecimator {
     String imgIn = "whenSequenceOfColorAndCorners_mergeLineLoop_In.png";
 
     tester.setTextInvisible(true);
-    tester.assertSimilar(c, ChartTester.EXPECTED_IMAGE_FOLDER + imgIn);
+    tester.assertSimilar(c, tester.path(imgIn));
     c.remove(in);
 
     // ------------------------------
@@ -649,7 +648,7 @@ public class TestHexahedronDecimator {
     // <<<< debug
     // showNeighbours(c, decim, Color.YELLOW);
     // String imgIn = "whenSequenceOfColorAndCorners_mergeLineLoop_In.png";
-    // tester.assertSimilar(c, ChartTester.EXPECTED_IMAGE_FOLDER + imgIn);
+    // tester.assertSimilar(c, tester.path(imgIn);
     // debug >>>>
 
     // Then
@@ -679,7 +678,7 @@ public class TestHexahedronDecimator {
     // debug >>>>
 
     String imgOut = "whenSequenceOfColorAndCorners_mergeLineLoop_Out.png";
-    tester.assertSimilar(c, ChartTester.EXPECTED_IMAGE_FOLDER + imgOut);
+    tester.assertSimilar(c, tester.path(imgOut));
   }
 
   protected void showNeighbours(Chart c, HexahedronDecimator decim, Color color) {
@@ -766,7 +765,7 @@ public class TestHexahedronDecimator {
 
     c.add(in);
     String imgIn = "whenSequenceOfColorAndCorners_mergeLineLoop2_In.png";
-    tester.assertSimilar(c, ChartTester.EXPECTED_IMAGE_FOLDER + imgIn);
+    tester.assertSimilar(c, tester.path(imgIn));
     c.remove(in);
 
     // ---------------
@@ -780,7 +779,7 @@ public class TestHexahedronDecimator {
     // <<<< debug 
     // showNeighbours(c, decim, Color.YELLOW);
     // String imgIn = "whenSequenceOfColorAndCorners_mergeLineLoop_In.png";
-    // tester.assertSimilar(c, ChartTester.EXPECTED_IMAGE_FOLDER + imgIn);
+    // tester.assertSimilar(c, tester.path(imgIn);
     // debug >>>>
 
     // ---------------
@@ -809,7 +808,7 @@ public class TestHexahedronDecimator {
 
     c.add(out);
     String imgOut = "whenSequenceOfColorAndCorners_mergeLineLoop2_Out.png";
-    tester.assertSimilar(c, ChartTester.EXPECTED_IMAGE_FOLDER + imgOut);
+    tester.assertSimilar(c, tester.path(imgOut));
   }
 
   ////////////////////////////////////////////////////////////

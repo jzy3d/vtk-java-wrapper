@@ -2,7 +2,8 @@ package org.jzy3d.io.vtk.drawable;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jzy3d.colors.Color;
 import org.jzy3d.maths.Coord3d;
 import org.jzy3d.maths.Normal.NormalPer;
@@ -32,8 +33,7 @@ import vtk.vtkUnstructuredGrid;
  *
  */
 public class VTKDrawableBuilder extends AbstractVTKDrawableBuilder implements IDrawableBuilder {
-  protected static Logger log = Logger.getLogger(VTKDrawableBuilder.class);
-
+  protected static Logger log = LogManager.getLogger(VTKDrawableBuilder.class);
 
   protected Coord3d[] coordinates;
   protected Coord3d[] normals;

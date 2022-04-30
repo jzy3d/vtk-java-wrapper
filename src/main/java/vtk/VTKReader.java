@@ -3,14 +3,16 @@ package vtk;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jzy3d.maths.Array;
 import org.jzy3d.maths.Coord3d;
 import org.jzy3d.maths.TicToc;
 
 /** A helper class that will select the appropriate reader according to the VTK file extension. */
 public class VTKReader {
-  static Logger log = Logger.getLogger(VTKReader.class);
+  static Logger log = LogManager.getLogger(VTKReader.class);
+
 
   public static vtkAlgorithm getReader(String filename) {
     if (!new File(filename).exists())

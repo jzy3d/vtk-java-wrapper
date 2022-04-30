@@ -1,6 +1,10 @@
 package vtk;
 
 import java.io.File;
+import java.util.Map;
+import org.jzy3d.os.OperatingSystem;
+import vtk.rendering.jogl.Environment;
+import vtk.rendering.jogl.OS;
 
 public class VTKUtils {
 
@@ -19,8 +23,51 @@ public class VTKUtils {
     
     
     if(!loadVtkNativeLibraries(null)){
-      System.out.println("-Djava.library.path=" + absolutePath);
+      System.out.println("Suggest -Djava.library.path=" + absolutePath);
+      pathConfigurationReport();
     }
+  }
+
+  public static void pathConfigurationReport() {
+    System.out.println("Current -Djava.library.path=" + System.getProperty("java.library.path"));
+    
+    OperatingSystem os = new OperatingSystem();
+
+
+    if(os.isMac()) {
+      printEnv("PATH", ":");
+      printEnv("DYLD_LIBRARY_PATH", ":");
+    }
+    else if(os.isUnix()) {
+      printEnv("PATH", ":");
+      printEnv("LD_LIBRARY_PATH", ":");
+    }
+    else if(os.isWindows()) {
+      printEnv("PATH", ";");
+    }
+    else {
+      System.out.println("Undetected OS !!");
+    }
+    
+    System.out.println(os);
+  }
+  
+  protected static void appendSystemPathToJavaLibPath() {
+    String javaLibPathKey = "java.library.path";
+    String javaLibraryPath = System.getProperty(javaLibPathKey);
+
+    System.err.println("=========================");
+    System.err.println("Now " + javaLibPathKey + "=" + javaLibraryPath);
+    System.err.println(" ");
+
+    if(OS.isWindows()) {
+      Environment env = new Environment();
+      env.get("PATH");
+      javaLibraryPath += File.pathSeparator + env.get("PATH");
+      System.setProperty(javaLibPathKey, javaLibraryPath);
+      System.err.println("Now " + javaLibPathKey + "=" + javaLibraryPath);
+    }
+    System.err.println("=========================");
   }
 
   /**
@@ -90,6 +137,50 @@ public class VTKUtils {
     }
     System.loadLibrary(lib.GetLibraryName());
   }
+  
+  public static void printEnv() {
+    Map<String, String> env = System.getenv();
+
+    for (Map.Entry<String, String> entry : env.entrySet()) {
+        System.out.println(entry.getKey() + " : " + entry.getValue());
+    }
+  }
+  
+  public static void printEnv(String var) {
+    printEnv(var, null);
+  }
+
+  public static void printEnv(String var, String splitWith) {
+    Map<String, String> env = System.getenv();
+
+    boolean found = false;
+    
+    for (Map.Entry<String, String> entry : env.entrySet()) {
+      if(entry.getKey().toLowerCase().equals(var.toLowerCase())) {
+        found = true;
+        
+        if(splitWith==null) {
+          System.out.println(entry.getKey() + " : " + entry.getValue());
+        }
+        else {
+          System.out.println(entry.getKey() + " : ");
+
+          String[] values = entry.getValue().split(splitWith);
+
+          for(String value: values) {
+            System.out.println(" " + value);
+          }
+
+        }
+
+      }
+    }
+    
+    if(!found) {
+      System.out.println(var + " : not found in the environment variable lists");
+    }
+  }
+
 
   ///////////////////////////
 
