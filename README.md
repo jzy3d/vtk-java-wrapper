@@ -5,7 +5,16 @@ Shows how to work with VTK Java Wrappers.
 
 # Download VTK libraries
 
-Build it by following the instruction below, or download it [here](https://download.jzy3d.org/vtk/build/).
+Build it by following the instruction below, or download it [here](https://download.jzy3d.org/vtk/build/). 
+
+When downloading prebuilt dylib files, Mac user may need to allow dylib files to be loaded by running this in the dylib folder. 
+
+```
+sudo xattr -r -d com.apple.quarantine .
+```
+
+(other way to solve this [here](https://github.com/Jackett/Jackett/issues/5589))
+
 
 
 # Running an example
