@@ -134,6 +134,38 @@ ninja -C builddir/ install
 
 DYLD_LIBRARY_PATH=/Users/Martin/Dev/jzy3d/external/osmesa
 
+```
+export LIBGL_ALWAYS_SOFTWARE=true
+martin@osxm1 ~/D/j/external (master)> glxinfo | head -n 50
+...
+OpenGL vendor string: Apple Inc.
+OpenGL renderer string: Apple Software Renderer
+OpenGL version string: 2.1 APPLE-18.5.9
+OpenGL shading language version string: 1.20
+
+export LIBGL_ALWAYS_SOFTWARE=false
+martin@osxm1 ~/D/j/external (master)> glxinfo | head -n 50
+...
+OpenGL vendor string: Apple
+OpenGL renderer string: Apple M1
+OpenGL version string: 2.1 Metal - 71.6.4
+OpenGL shading language version string: 1.20
+
+otool -L /opt/local/bin/glxgears
+/opt/local/bin/glxgears:
+	/opt/local/lib/libGL.1.dylib (compatibility version 4.0.0, current version 4.0.0)
+	/opt/local/lib/libX11.6.dylib (compatibility version 11.0.0, current version 11.0.0)
+	/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1292.60.1)
+
+
+/Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk/System/Library/Frameworks/OpenGL.framework
+/Users/martin/Dev/jzy3d/external/osmesa/include
+
+/Users/martin/Dev/jzy3d/external/osmesa/lib/libGL.dylib
+/Users/martin/Dev/jzy3d/external/osmesa/lib/libGLU.dylib
+```
+
+
 
 
 # Let VTK use Mesa, either at runtime (prefered) or build time 

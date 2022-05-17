@@ -24,12 +24,12 @@ public class TestChipSelector {
     if(local.exists())
       return local;
     
-    // try homebrew 1
+    // try homebrew on macos 11.4
     File brew1 = detectHomebrewInstall("/opt/homebrew/Cellar/mesa");
     if(brew1!=null)
       return brew1;
     
-    // try homebrew 2
+    // try homebrew on macos 10.12
     File brew2 = detectHomebrewInstall("/opt/local/Cellar/mesa");
     if(brew2!=null)
       return brew2;
