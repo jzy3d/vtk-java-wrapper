@@ -5,12 +5,12 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.jzy3d</groupId>
 	<artifactId>vtk-java-wrapper</artifactId>
-	<version>2.0.1-SNAPSHOT</version>
+	<version>2.1.1-SNAPSHOT</version>
 	<name>VTK Java Wrapper</name>
 
 	<profiles>
 
-		<!-- This section defines the path to natives. Debug how the OS and CPU 
+		<!-- This section defines the path to natives. Debug how the OS and CPU
 			names are detected by maven with mvn enforcer:display-info -->
 
 		<!-- Unix related settings -->
@@ -103,8 +103,8 @@
 
 
 	<dependencies>
-		<!-- This jar can be resolved as long as the local maven repository (in 
-			./mvn) has been created which is done with the lib/install-vtk-locally.sh 
+		<!-- This jar can be resolved as long as the local maven repository (in
+			./mvn) has been created which is done with the lib/install-vtk-locally.sh
 			command. -->
 
 		<dependency>
@@ -196,7 +196,7 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>3.0.0-M5</version>
 				<configuration>
-					
+
 					<!-- Required from CLI, but failing IDE -->
 					<!-- <argLine>-Djava.library.path=${vtk.lib.path}</argLine>-->
 
@@ -217,11 +217,11 @@
 					<environmentVariables>
 						<PATH>${java.library.path}${path.separator}${vtk.lib.path}</PATH>
 						<LD_LIBRARY_PATH>${vtk.lib.path}${path.separator}$LD_LIBRARY_PATH</LD_LIBRARY_PATH>
-						<DYLD_LIBRARY_PATH>${vtk.lib.path}${path.separator}$DYLD_LIBRARY_PATH</DYLD_LIBRARY_PATH> 
+						<DYLD_LIBRARY_PATH>${vtk.lib.path}${path.separator}$DYLD_LIBRARY_PATH</DYLD_LIBRARY_PATH>
 						<!-- <DYLD_LIBRARY_PATH>${java.library.path}${path.separator}${vtk.lib.path}</DYLD_LIBRARY_PATH> -->
 					</environmentVariables>
 
-					<!-- DISABLE PARALLEL TEST OTHERWISE CANVAS DO NOT UPDATE PROPERLY (?!) 
+					<!-- DISABLE PARALLEL TEST OTHERWISE CANVAS DO NOT UPDATE PROPERLY (?!)
 						Parallel tests <parallel>classes</parallel> <useUnlimitedThreads>true</useUnlimitedThreads> -->
 				</configuration>
 			</plugin>
@@ -234,13 +234,13 @@
 					<includes>
 						<include>**/ITTest*.java</include>
 					</includes>
-					
+
 					<environmentVariables>
 						<PATH>$PATH${path.separator}${vtk.lib.path}</PATH>
 						<LD_LIBRARY_PATH>${vtk.lib.path}${path.separator}$LD_LIBRARY_PATH</LD_LIBRARY_PATH>
 						<DYLD_LIBRARY_PATH>${vtk.lib.path}${path.separator}$DYLD_LIBRARY_PATH</DYLD_LIBRARY_PATH>
 					</environmentVariables>
-					
+
 				</configuration>
 				<executions>
 					<execution>
