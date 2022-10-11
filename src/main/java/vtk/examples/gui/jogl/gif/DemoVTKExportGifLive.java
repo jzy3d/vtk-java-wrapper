@@ -20,7 +20,7 @@ import vtk.rendering.jogl.vtkJoglPanelComponent;
 /**
  * An application that displays a 3D cone. 
  */
-public class DemoVTKExportGif {
+public class DemoVTKExportGifLive {
   public static void main(String s[]) {
     VTKUtils.loadVtkNativeLibraries();
 
