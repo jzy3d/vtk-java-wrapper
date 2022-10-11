@@ -26,6 +26,8 @@ public class GifExportListener implements GLEventListener {
   protected java.awt.Font font = new java.awt.Font("Arial", Font.PLAIN, 14);
   
   protected int imageCount = 0;
+  
+  protected long frameStart;
 
 
   public GifExportListener(GifExporter exporter) {
@@ -35,6 +37,7 @@ public class GifExportListener implements GLEventListener {
   @Override
   public void init(GLAutoDrawable drawable) {
     timer.tic();
+    frameStart = timer.getStart();
   }
 
 
@@ -59,9 +62,10 @@ public class GifExportListener implements GLEventListener {
     if (exporter != null) {
       // Count elapsed time
       timer.toc();
-      String elapsed = Utils.num2str(timer.elapsedSecond(), 4) + " seconds";
+      String frameStartAt = Utils.num2str((frameStart-timer.getStart())/1e9, 4) + " s";
+      String frameStopAt = Utils.num2str(timer.elapsedSecond(), 4) + " s";
       String nbImage = "Image " + imageCount;
-      String info = nbImage + " @ " + elapsed + " | " + exporter.getDelay() + " ms delay";
+      String info = nbImage + " | " + frameStartAt + " to " + frameStopAt;
 
       // Make screenshot
       BufferedImage i = screenshotMaker.readPixelsToBufferedImage(gl, true);
@@ -74,6 +78,9 @@ public class GifExportListener implements GLEventListener {
 
       // Do export
       exporter.export(i);
+      
+      // Get frame start for next frame
+      frameStart = timer.getStop();
     }
   }
 
