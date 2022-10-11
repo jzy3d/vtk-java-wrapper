@@ -1,6 +1,8 @@
 package vtk.examples.gui.jogl.gif;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -120,6 +122,12 @@ public class DemoVTKExportGifOffline {
       // Make screenshot
       AWTGLReadBufferUtil screenshotMaker = new AWTGLReadBufferUtil(panel.getGLProfile(), true);
       BufferedImage image = screenshotMaker.readPixelsToBufferedImage(gl, true);
+      
+      // Add info
+      Graphics2D g = (Graphics2D)image.createGraphics();
+      g.setColor(Color.RED);
+      g.drawString("Image " + i, 10, image.getHeight() - 10);
+      g.dispose();
       
       // Configure delay in the output gif
       encoder.setDelay(1000+i); // can change for each image
