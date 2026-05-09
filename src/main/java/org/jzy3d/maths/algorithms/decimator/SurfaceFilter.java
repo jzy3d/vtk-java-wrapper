@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.jzy3d.maths.BoundingBox3d;
 import org.jzy3d.maths.Coord3d;
 import org.jzy3d.plot3d.primitives.Point;
@@ -13,7 +13,7 @@ import org.jzy3d.plot3d.primitives.Polygon;
 import com.google.common.collect.ArrayListMultimap;
 
 public class SurfaceFilter {
-  static Logger log = LogManager.getLogger(SurfaceFilter.class);
+  static Logger log = LoggerFactory.getLogger(SurfaceFilter.class);
 
 
   static boolean debug = false;

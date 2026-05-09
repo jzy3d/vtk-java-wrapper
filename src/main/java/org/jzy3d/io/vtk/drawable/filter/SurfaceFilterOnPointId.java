@@ -2,8 +2,8 @@ package org.jzy3d.io.vtk.drawable.filter;
 
 import java.util.HashSet;
 import java.util.Set;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.jzy3d.io.vtk.drawable.IDrawableBuilder;
 import com.google.common.collect.ArrayListMultimap;
 import vtk.VTKGeometry;
@@ -22,7 +22,7 @@ import vtk.vtkDataSet;
  *
  */
 public class SurfaceFilterOnPointId {
-  protected static Logger log = LogManager.getLogger(SurfaceFilterOnPointId.class);
+  protected static Logger log = LoggerFactory.getLogger(SurfaceFilterOnPointId.class);
 
   protected vtkDataSet dataset;
   protected vtkCellArray cells;

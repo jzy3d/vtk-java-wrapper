@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.jzy3d.colors.Color;
 import org.jzy3d.maths.Angle3d;
 import org.jzy3d.maths.Coord3d;
@@ -30,7 +30,7 @@ import com.google.common.collect.ArrayListMultimap;
  *
  */
 public class HexahedronDecimator {
-  protected static Logger log = LogManager.getLogger(HexahedronDecimator.class);
+  protected static Logger log = LoggerFactory.getLogger(HexahedronDecimator.class);
 
   
   /**
