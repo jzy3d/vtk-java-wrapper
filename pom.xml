@@ -132,11 +132,6 @@
 			<version>${project.version}</version>
 		</dependency>
 
-		<dependency>
-			<groupId>org.jzy3d</groupId>
-			<artifactId>jzy3d-depthpeeling</artifactId>
-			<version>${project.version}</version>
-		</dependency>
 
 
 		<dependency>
@@ -153,7 +148,7 @@
 
 		<dependency>
 			<groupId>org.jzy3d</groupId>
-			<artifactId>jzy3d-tests-java9</artifactId>
+			<artifactId>jzy3d-everything</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 
@@ -161,14 +156,14 @@
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>24.0-jre</version>
+			<version>33.4.8-jre</version>
 		</dependency>
 
 
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.9</version>
+			<version>4.13.2</version>
 			<type>jar</type>
 			<scope>test</scope>
 		</dependency>
@@ -178,7 +173,7 @@
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>2.3.2</version>
+				<version>3.13.0</version>
 				<configuration>
 					<!-- <source>1.9</source> -->
 					<source>11</source>
@@ -259,6 +254,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
+				<version>3.3.1</version>
 				<executions>
 					<execution>
 						<id>attach-sources</id>
@@ -275,6 +271,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
+				<version>3.2.0</version>
 				<executions>
 					<execution>
 						<goals>
@@ -289,6 +286,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>3.2.0</version>
 				<configuration>
 					<additionalparam>-Xdoclint:none</additionalparam>
 					<doclint>none</doclint>
@@ -339,11 +337,17 @@
 			<id>jzy3d-snapshots</id>
 			<name>Jzy3d Snapshots</name>
 			<url>https://maven.jzy3d.org/snapshots/</url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
 		</repository>
 		<repository>
 			<id>jzy3d-releases</id>
 			<name>Jzy3d Releases</name>
 			<url>https://maven.jzy3d.org/releases/</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
 		</repository>
 	</repositories>
 
