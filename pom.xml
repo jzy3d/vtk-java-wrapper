@@ -136,7 +136,7 @@
 
 		<dependency>
 			<groupId>org.jzy3d</groupId>
-			<artifactId>jzy3d-io-xls</artifactId>
+			<artifactId>jzy3d-tools-xls</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 
@@ -146,11 +146,6 @@
 			<version>${project.version}</version>
 		</dependency>
 
-		<dependency>
-			<groupId>org.jzy3d</groupId>
-			<artifactId>jzy3d-everything</artifactId>
-			<version>${project.version}</version>
-		</dependency>
 
 
 		<dependency>
